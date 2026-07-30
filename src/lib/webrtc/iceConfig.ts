@@ -1,6 +1,6 @@
 /**
  * ICE configuration for WebRTC peer connections.
- * Includes multiple redundant STUN servers + a fallback TURN relay server
+ * Includes multiple redundant STUN servers + fallback TURN/TURNS relay servers
  * to ensure connections succeed across different networks, mobile data (CGNAT),
  * symmetric NATs, and strict firewalls.
  */
@@ -15,14 +15,17 @@ export function getIceServers(): RTCIceServer[] {
         "stun:stun4.l.google.com:19302",
         "stun:stun.cloudflare.com:3478",
         "stun:global.stun.twilio.com:3478",
+        "stun:openrelay.metered.ca:80",
       ],
     },
-    // Fallback TURN relay for strict NATs / Mobile Cellular networks
+    // Fallback TURN relay for strict NATs / Mobile Cellular networks / CGNAT
     {
       urls: [
         "turn:openrelay.metered.ca:80",
         "turn:openrelay.metered.ca:443",
         "turn:openrelay.metered.ca:443?transport=tcp",
+        "turns:openrelay.metered.ca:443",
+        "turns:openrelay.metered.ca:443?transport=tcp",
       ],
       username: "openrelayproject",
       credential: "openrelayproject",
