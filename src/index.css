@@ -1,0 +1,159 @@
+@import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap');
+@import 'tailwindcss';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/*
+  DropSync — Swiss technical-instrument aesthetic.
+  Warm paper + ink, a single vermilion signal accent, hairline grid, mono data.
+  No blue, no purple, no gradients, no soft shadows.
+*/
+:root {
+  --background: #efece4;
+  --foreground: #1b1a16;
+  --card: #f7f5ef;
+  --card-foreground: #1b1a16;
+  --popover: #f7f5ef;
+  --popover-foreground: #1b1a16;
+  --primary: #cf4321;
+  --primary-foreground: #f7f5ef;
+  --secondary: #e5e1d6;
+  --secondary-foreground: #2a2823;
+  --muted: #e5e1d6;
+  --muted-foreground: #726c5f;
+  --accent: #f0e7d8;
+  --accent-foreground: #a3391c;
+  --success: #3f7d42;
+  --warning: #b7791f;
+  --destructive: #b3341a;
+  --destructive-foreground: #f7f5ef;
+  --border: rgba(27, 26, 22, 0.16);
+  --border-strong: rgba(27, 26, 22, 0.34);
+  --ring: #cf4321;
+  --radius: 0.25rem;
+}
+
+.dark {
+  --background: #14130e;
+  --foreground: #ece8dd;
+  --card: #1c1a14;
+  --card-foreground: #ece8dd;
+  --popover: #1c1a14;
+  --popover-foreground: #ece8dd;
+  --primary: #ef6035;
+  --primary-foreground: #14130e;
+  --secondary: #26241c;
+  --secondary-foreground: #d5d0c3;
+  --muted: #26241c;
+  --muted-foreground: #928c7d;
+  --accent: #2a2114;
+  --accent-foreground: #f0a074;
+  --success: #6aa96b;
+  --warning: #d6a24a;
+  --destructive: #e2583c;
+  --destructive-foreground: #14130e;
+  --border: rgba(236, 232, 221, 0.14);
+  --border-strong: rgba(236, 232, 221, 0.32);
+  --ring: #ef6035;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-ring: var(--ring);
+  --radius-sm: 0.125rem;
+  --radius-md: 0.1875rem;
+  --radius-lg: var(--radius);
+  --radius-xl: 0.375rem;
+  --font-sans: 'Archivo', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: 'DM Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Utility: uppercase mono micro-label used throughout the interface. */
+.label-mono {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  line-height: 1;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+}
+
+/* Hide scrollbars until scrolling. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+*:hover,
+*:focus-within {
+  scrollbar-color: var(--border-strong) transparent;
+}
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-thumb {
+  background-color: transparent;
+  border-radius: 0;
+}
+*:hover::-webkit-scrollbar-thumb {
+  background-color: var(--border-strong);
+}
+
+::selection {
+  background-color: var(--primary);
+  color: var(--primary-foreground);
+}
+
+/* Lightweight entrance animations for toasts + dialogs (no external plugin). */
+@keyframes ds-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes ds-slide-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes ds-zoom-in {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: none; }
+}
+.ds-fade-in { animation: ds-fade-in 0.15s ease-out; }
+.ds-slide-up { animation: ds-slide-up 0.2s ease-out; }
+.ds-zoom-in { animation: ds-zoom-in 0.15s ease-out; }
+@media (prefers-reduced-motion: reduce) {
+  .ds-fade-in,
+  .ds-slide-up,
+  .ds-zoom-in { animation: none; }
+}

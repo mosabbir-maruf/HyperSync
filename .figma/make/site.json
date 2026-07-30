@@ -1,0 +1,11 @@
+{
+  "title": "LocalShare",
+  "description": "Private browser-to-browser file sharing.",
+  "language": "en",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": true
+  }
+}
