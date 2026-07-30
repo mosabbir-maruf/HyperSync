@@ -16,9 +16,12 @@ export function createSignalingClient(): SignalingClient {
   // This allows local network testing (e.g. from a phone) without needing to hardcode the IP in .env
   let wsUrl = import.meta.env.VITE_WS_URL
   if (!wsUrl) {
-    const protocol = window.location.protocol === "https:" ? "https:" : "http:"
-    const hostname = window.location.hostname === "localhost" ? "127.0.0.1" : window.location.hostname
-    wsUrl = `${protocol}//${hostname}:8787`
+    if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
+      const protocol = window.location.protocol === "https:" ? "https:" : "http:"
+      wsUrl = `${protocol}//${window.location.hostname}:8787`
+    } else {
+      wsUrl = "https://dropsync2-0-backend.thevamp-cloud.workers.dev"
+    }
   }
   
   // If explicitly requested, use in-memory mock for dev testing without backend
