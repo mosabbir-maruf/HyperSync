@@ -1,5 +1,11 @@
-import { lazy, Suspense } from "react"
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom"
+import { lazy, Suspense, useEffect } from "react"
+import {
+  BrowserRouter,
+  Navigate,
+  Route,
+  Routes,
+  useLocation,
+} from "react-router-dom"
 import { ThemeProvider } from "./state/ThemeProvider"
 import { SettingsProvider } from "./state/SettingsProvider"
 import { SessionProvider } from "./state/SessionProvider"
@@ -34,12 +40,22 @@ const About = lazy(() =>
   import("./routes/About").then((module) => ({ default: module.About })),
 )
 
+function ScrollToTop() {
+  const { pathname, hash } = useLocation()
+  useEffect(() => {
+    if (hash) return
+    window.scrollTo(0, 0)
+  }, [pathname, hash])
+  return null
+}
+
 export default function App() {
   return (
     <ThemeProvider>
       <SettingsProvider>
         <SessionProvider>
           <BrowserRouter>
+            <ScrollToTop />
             <DialogProvider>
               <LobbyProvider>
                 <AppShell>
