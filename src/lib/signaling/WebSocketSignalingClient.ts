@@ -17,9 +17,28 @@ export class WebSocketSignalingClient extends SignalingEmitter implements Signal
   private code: string | null = null
   private role: "host" | "guest" | null = null
   private pingInterval: number | null = null
+  private hasPeerJoined = false
+  private joinedPeerId = "remote"
 
   constructor(private readonly url: string) {
     super()
+  }
+
+  override on<T extends import("./types").SignalingEventType>(
+    type: T,
+    handler: import("./types").SignalingEventHandler<T>
+  ): import("./types").Unsubscribe {
+    const unsub = super.on(type, handler)
+    if (type === "peer-joined" && this.hasPeerJoined) {
+      setTimeout(() => {
+        try {
+          (handler as any)({ type: "peer-joined", peerId: this.joinedPeerId })
+        } catch (e) {
+          console.warn("Error replaying peer-joined handler", e)
+        }
+      }, 0)
+    }
+    return unsub
   }
 
   private setState(state: SignalingConnectionState) {
@@ -113,14 +132,19 @@ export class WebSocketSignalingClient extends SignalingEmitter implements Signal
         {
           const joinedRole = msg.payload?.joinedRole as string | undefined
           const yourRole = msg.payload?.yourRole as string | undefined
+          const joinedPeerId = msg.payload?.joinedPeerId || "remote"
           console.log(`[Signaling] READY payload: joinedRole=${joinedRole} yourRole=${yourRole} this.role=${this.role}`)
           // If the server sends READY and a GUEST just joined, notify the HOST to start negotiation
           if (joinedRole === "GUEST" && (yourRole === "HOST" || this.role === "host")) {
+            this.hasPeerJoined = true
+            this.joinedPeerId = joinedPeerId
             console.log(`[Signaling] Emitting peer-joined (we are host, guest joined)`)
-            this.emit({ type: "peer-joined", peerId: msg.payload?.joinedPeerId || "remote" })
+            this.emit({ type: "peer-joined", peerId: joinedPeerId })
           }
           // If no payload (fallback for old server), emit for host only
           if (!joinedRole && this.role === "host") {
+            this.hasPeerJoined = true
+            this.joinedPeerId = "remote"
             console.log(`[Signaling] Emitting peer-joined (fallback, no payload)`)
             this.emit({ type: "peer-joined", peerId: "remote" })
           }
@@ -259,5 +283,7 @@ export class WebSocketSignalingClient extends SignalingEmitter implements Signal
     this.code = null
     this.sessionId = null
     this.role = null
+    this.hasPeerJoined = false
+    this.joinedPeerId = "remote"
   }
 }

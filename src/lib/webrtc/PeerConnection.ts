@@ -58,9 +58,19 @@ export class PeerConnection {
       console.log(`[WebRTC] iceGatheringState=${pc.iceGatheringState}`)
     }
 
+    let iceRestartAttempted = false
     pc.oniceconnectionstatechange = () => {
       console.log(`[WebRTC] iceConnectionState=${pc.iceConnectionState}`)
-      if (pc.iceConnectionState === "failed") {
+      if (pc.iceConnectionState === "failed" && !iceRestartAttempted) {
+        iceRestartAttempted = true
+        console.warn(`[WebRTC] ICE failed. Attempting ICE restart...`)
+        if (typeof pc.restartIce === "function") {
+          pc.restartIce()
+        }
+        if (this.role === "host") {
+          void this.makeOffer()
+        }
+      } else if (pc.iceConnectionState === "failed") {
         console.error(`[WebRTC] ICE FAILED — no usable candidate pair found`)
         this.events.onError?.("ICE connection failed — cannot establish direct link")
       }
@@ -76,8 +86,14 @@ export class PeerConnection {
           this.setState("disconnected")
           break
         case "failed":
-          this.setState("failed")
-          this.events.onError?.("Connection failed")
+          if (!iceRestartAttempted && this.role === "host") {
+            iceRestartAttempted = true
+            console.warn(`[WebRTC] Connection failed. Restarting ICE...`)
+            void this.makeOffer()
+          } else {
+            this.setState("failed")
+            this.events.onError?.("Connection failed")
+          }
           break
         case "closed":
           this.setState("closed")
