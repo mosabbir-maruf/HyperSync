@@ -64,26 +64,35 @@ export function Changelog() {
                 return (
                   <div
                     key={release.version}
-                    className="relative pl-12 md:pl-0 flex flex-col md:flex-row md:gap-12 group"
+                    className="relative pl-12 md:pl-0 flex flex-col md:flex-row md:gap-12 group cursor-pointer"
+                    onClick={() => toggleVersion(release.version)}
                   >
                     {/* Left Column: Version & Date */}
                     <div className="relative shrink-0 md:w-[200px] md:text-right md:pr-12 md:py-4">
                       {/* Timeline Dot */}
                       {index === 0 ? (
-                        <div className="absolute -left-[33px] top-[23px] md:left-auto md:-right-[6px] md:top-[27px] h-3 w-3 rounded-full bg-primary ring-4 ring-background shadow-[0_0_10px_rgba(207,67,34,0.5)]" />
+                        <div className="absolute -left-[37px] top-[23px] md:left-auto md:-right-[6px] md:top-[27px] h-3 w-3 rounded-full bg-primary ring-4 ring-background shadow-[0_0_10px_rgba(207,67,34,0.5)]" />
                       ) : (
-                        <div className={`absolute -left-[31px] top-[25px] md:left-auto md:-right-[4px] md:top-[29px] h-2 w-2 rounded-full border-2 bg-background ring-4 ring-background transition-colors duration-300 ${isOpen ? 'border-primary' : 'border-border-strong'}`} />
+                        <div className={`absolute -left-[35px] top-[25px] md:left-auto md:-right-[4px] md:top-[29px] h-2 w-2 rounded-full border-2 bg-background ring-4 ring-background transition-colors duration-300 ${isOpen ? 'border-primary' : 'border-border-strong'}`} />
                       )}
                       
-                      <div className="flex flex-row md:flex-col items-center md:items-end gap-3 md:gap-1">
-                        <h2 className={`text-2xl font-black tracking-tight transition-colors duration-300 ${isOpen || index === 0 ? 'text-foreground' : 'text-muted-foreground group-hover:text-foreground'}`}>
-                          v{release.version}
-                        </h2>
-                        {index === 0 && (
-                          <span className="inline-flex h-5 items-center rounded-full bg-primary/10 px-2 font-mono text-[9px] font-bold uppercase tracking-widest text-primary">
-                            Latest
-                          </span>
-                        )}
+                      <div className="flex w-full flex-row md:flex-col items-center md:items-end justify-between md:justify-start gap-3 md:gap-1">
+                        <div className="flex items-center md:items-end gap-3 md:gap-1 flex-row md:flex-col">
+                          <h2 className={`text-2xl font-black tracking-tight transition-colors duration-300 ${isOpen || index === 0 ? 'text-foreground' : 'text-muted-foreground group-hover:text-foreground'}`}>
+                            v{release.version}
+                          </h2>
+                          {index === 0 && (
+                            <span className="inline-flex h-5 items-center rounded-full bg-primary/10 px-2 font-mono text-[9px] font-bold uppercase tracking-widest text-primary">
+                              Latest
+                            </span>
+                          )}
+                        </div>
+                        {/* Mobile Arrow */}
+                        <div className={`md:hidden flex h-8 w-8 shrink-0 items-center justify-center rounded-full border transition-all duration-300 ${isOpen ? 'rotate-180 border-primary bg-primary text-primary-foreground' : 'border-transparent text-muted-foreground group-hover:border-primary/30 group-hover:text-primary'}`}>
+                          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                          </svg>
+                        </div>
                       </div>
                       <time className="mt-1 block font-mono text-xs font-bold uppercase tracking-widest text-muted-foreground">
                         {release.date}
@@ -92,10 +101,7 @@ export function Changelog() {
 
                     {/* Right Column: Changes Accordion */}
                     <div className="relative flex-1 md:py-4 md:pl-4 pb-8 md:pb-12">
-                      <button 
-                        onClick={() => toggleVersion(release.version)}
-                        className="flex w-full cursor-pointer items-center justify-between text-left transition-colors"
-                      >
+                      <div className="flex w-full items-center justify-between text-left transition-colors">
                         {release.title ? (
                           <h3 className={`text-xl font-bold tracking-tight transition-colors duration-300 ${isOpen || index === 0 ? 'text-foreground/90' : 'text-foreground/50 group-hover:text-foreground/90'}`}>
                             {release.title}
@@ -103,12 +109,13 @@ export function Changelog() {
                         ) : (
                           <span className="text-xl font-bold tracking-tight text-transparent">No title</span>
                         )}
-                        <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border transition-all duration-300 ${isOpen ? 'rotate-180 border-primary bg-primary text-primary-foreground' : 'border-transparent text-muted-foreground group-hover:border-primary/30 group-hover:text-primary'}`}>
+                        {/* Desktop Arrow */}
+                        <div className={`hidden md:flex h-8 w-8 shrink-0 items-center justify-center rounded-full border transition-all duration-300 ${isOpen ? 'rotate-180 border-primary bg-primary text-primary-foreground' : 'border-transparent text-muted-foreground group-hover:border-primary/30 group-hover:text-primary'}`}>
                           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                             <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
                           </svg>
                         </div>
-                      </button>
+                      </div>
 
                       <div className={`grid transition-[grid-template-rows,opacity] duration-300 ease-out ${isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}>
                         <div className="overflow-hidden">
