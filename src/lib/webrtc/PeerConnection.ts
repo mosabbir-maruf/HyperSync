@@ -2,6 +2,7 @@ import type { SignalingClient } from "../signaling"
 import type { PeerSignal, Role, Unsubscribe } from "../signaling"
 import { RTC_CONFIG } from "./iceConfig"
 import { LOW_WATER_MARK } from "../transfer/protocol"
+import { WebRTCStatsCollector } from "./WebRTCStats"
 
 export type PeerConnectionState = "new" | "negotiating" | "connected" | "disconnected" | "failed" | "closed"
 
@@ -27,6 +28,7 @@ export class PeerConnection {
   private makingOffer = false
   private closed = false
   private pendingIce: RTCIceCandidateInit[] = []
+  public readonly stats: WebRTCStatsCollector
 
   constructor(
     private readonly signaling: SignalingClient,
@@ -34,6 +36,7 @@ export class PeerConnection {
     private readonly events: PeerConnectionEvents = {},
   ) {
     this.pc = new RTCPeerConnection(RTC_CONFIG)
+    this.stats = new WebRTCStatsCollector(this.pc)
     this.wirePeerConnection()
     this.wireSignaling()
   }
@@ -80,9 +83,11 @@ export class PeerConnection {
       console.log(`[WebRTC] connectionState=${pc.connectionState} iceConnectionState=${pc.iceConnectionState}`)
       switch (pc.connectionState) {
         case "connected":
+          this.stats.start()
           this.setState("connected")
           break
         case "disconnected":
+          this.stats.stop()
           this.setState("disconnected")
           break
         case "failed":
@@ -96,6 +101,7 @@ export class PeerConnection {
           }
           break
         case "closed":
+          this.stats.stop()
           this.setState("closed")
           break
       }
@@ -202,7 +208,8 @@ export class PeerConnection {
   close(): void {
     if (this.closed) return
     this.closed = true
-    for (const off of this.unsubscribers) off()
+    this.stats.stop()
+    for (const unsub of this.unsubscribers) unsub()
     this.unsubscribers = []
     try {
       this.pc.onicecandidate = null

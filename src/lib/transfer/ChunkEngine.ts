@@ -1,6 +1,7 @@
 import { encodeChunkInto, HEADER_SIZE } from "./protocol"
 import { ChunkStrategy } from "./ChunkStrategy"
 import type { SendPipeline } from "./SendPipeline"
+import { PipelineProfiler } from "./PipelineProfiler"
 
 /**
  * High-throughput chunk producer with N-deep parallel read-ahead.
@@ -69,7 +70,10 @@ export class ChunkEngine {
       enqueue()
 
       // 1. Wait for disk read
+      const t0 = performance.now()
       const data = await slot.promise
+      const t1 = performance.now()
+      PipelineProfiler.get().record("read", t1 - t0, slot.length)
       if (signal.aborted) throw new Error("Transfer aborted")
 
       // 2. Wait for a free buffer from the network pipeline
@@ -80,6 +84,7 @@ export class ChunkEngine {
       const isLast = slot.index === totalChunks - 1
 
       // 3. Encode zero-copy into the acquired buffer
+      const t2 = performance.now()
       const wire = encodeChunkInto(
         pb.view,
         new DataView(pb.view.buffer, pb.view.byteOffset, pb.view.byteLength),
@@ -92,6 +97,8 @@ export class ChunkEngine {
         },
         data
       )
+      const t3 = performance.now()
+      PipelineProfiler.get().record("encode", t3 - t2, slot.length)
 
       // 4. Push to consumer (which will immediately flush if channel has space)
       pipeline.push(pb, wire.length, slot.length, isLast)

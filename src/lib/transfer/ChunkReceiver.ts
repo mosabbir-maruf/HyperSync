@@ -3,6 +3,7 @@ import { DownloadManager } from "./DownloadManager"
 import type { SaveProvider } from "./SaveProvider"
 import type { FileMetadata, TransferProgress } from "./types"
 import { RateMeter } from "./rateMeter"
+import { PipelineProfiler } from "./PipelineProfiler"
 
 /**
  * Receives ordered binary chunks over a DataChannel and streams them to a
@@ -71,9 +72,12 @@ export class ChunkReceiver {
     let data: Uint8Array
 
     try {
+      const t0 = performance.now()
       const decoded = decodeChunk(buffer)
+      const t1 = performance.now()
       header = decoded.header
       data   = decoded.data
+      PipelineProfiler.get().record("decode", t1 - t0, header.length)
     } catch {
       return // malformed frame — drop silently
     }
@@ -82,8 +86,13 @@ export class ChunkReceiver {
 
     // Append write to the serial chain (fire-and-forget)
     const sink = this.sink
-    this.writeChain = this.writeChain.then(() => {
-      if (!this.isAborted) return sink.write(data, header.offset) as Promise<void>
+    this.writeChain = this.writeChain.then(async () => {
+      if (!this.isAborted) {
+        const t0 = performance.now()
+        await sink.write(data, header.offset)
+        const t1 = performance.now()
+        PipelineProfiler.get().record("write", t1 - t0, header.length)
+      }
     }).catch((err: unknown) => {
       this.abort()
       this.onError(err instanceof Error ? err.message : "Disk write failed")

@@ -2,6 +2,7 @@ import type { ReactNode } from "react"
 import { NavLink } from "react-router-dom"
 import { ThemeToggle } from "./ThemeToggle"
 import { ShieldIcon, DropSyncLogo } from "../ui/icons"
+import { PerformanceOverlay } from "../ui/PerformanceOverlay"
 import { cn } from "../../lib/utils"
 
 const nav = [
@@ -77,6 +78,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       </main>
 
       <Footer />
+      <PerformanceOverlay />
     </div>
   )
 }
