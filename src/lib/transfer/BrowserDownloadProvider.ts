@@ -6,10 +6,7 @@ export class BrowserDownloadProvider implements SaveProvider {
 
   constructor(private readonly meta: FileMetadata) {}
 
-  write(chunk: ArrayBuffer, _offset: number): void {
-    // decodeChunk already creates an isolated payload buffer. Copying it once
-    // more for every packet doubled receiver-side memory work and reduced LAN
-    // throughput; an ArrayBuffer remains valid while this provider retains it.
+  write(chunk: ArrayBuffer | Uint8Array, _offset: number): void {
     this.parts.push(chunk)
   }
 

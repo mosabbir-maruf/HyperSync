@@ -1,6 +1,6 @@
 export interface SaveProvider {
   /** Accumulate or write a chunk to the destination */
-  write(chunk: ArrayBuffer, offset: number): Promise<void> | void;
+  write(chunk: ArrayBuffer | Uint8Array, offset: number): Promise<void> | void;
   
   /** 
    * Complete the save operation.
