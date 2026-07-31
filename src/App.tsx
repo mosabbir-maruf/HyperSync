@@ -43,8 +43,24 @@ const About = lazy(() =>
 function ScrollToTop() {
   const { pathname, hash } = useLocation()
   useEffect(() => {
-    if (hash) return
-    window.scrollTo(0, 0)
+    if (!hash) {
+      window.scrollTo(0, 0)
+      return
+    }
+    const id = hash.slice(1)
+    const tryScroll = () => {
+      const el = document.getElementById(id)
+      if (!el) return false
+      el.scrollIntoView({ behavior: "auto", block: "start" })
+      return true
+    }
+    if (tryScroll()) return
+    let attempts = 0
+    const timer = window.setInterval(() => {
+      attempts += 1
+      if (tryScroll() || attempts >= 20) window.clearInterval(timer)
+    }, 100)
+    return () => window.clearInterval(timer)
   }, [pathname, hash])
   return null
 }

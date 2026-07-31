@@ -367,15 +367,11 @@ export function About() {
       </section>
 
       {/* Legal & Privacy */}
-      <section
-        id="privacy"
-        className="relative scroll-mt-24 bg-background pt-16 pb-24 md:pt-24 md:pb-32"
-      >
-        <div id="terms" className="absolute top-0 scroll-mt-24" />
+      <section className="relative bg-background pt-16 pb-24 md:pt-24 md:pb-32">
         <div className="mx-auto max-w-[1273px] px-6 md:px-12">
           <div className="grid gap-px overflow-hidden rounded-3xl border border-border-strong bg-border-strong sm:grid-cols-2">
             {/* Privacy Policy */}
-            <div className="bg-background p-8 md:p-12">
+            <div id="privacy" className="scroll-mt-24 bg-background p-8 md:p-12">
               <div className="mb-6 font-mono text-[10px] font-bold uppercase tracking-widest text-primary">
                 Privacy Policy
               </div>
@@ -394,7 +390,7 @@ export function About() {
             </div>
 
             {/* Terms & Conditions */}
-            <div className="bg-background p-8 md:p-12">
+            <div id="terms" className="scroll-mt-24 bg-background p-8 md:p-12">
               <div className="mb-6 font-mono text-[10px] font-bold uppercase tracking-widest text-primary">
                 Terms & Conditions
               </div>

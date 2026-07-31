@@ -1,5 +1,5 @@
 import type { ReactNode } from "react"
-import { NavLink, useLocation } from "react-router-dom"
+import { Link, NavLink, useLocation } from "react-router-dom"
 import { ThemeToggle } from "./ThemeToggle"
 import { ShieldIcon, HyperSyncLogo } from "../ui/icons"
 import { PerformanceOverlay } from "../ui/PerformanceOverlay"
@@ -193,24 +193,24 @@ function Footer() {
                   >
                     About Us
                   </NavLink>
-                  <a
-                    href="/about#architecture"
+                  <Link
+                    to="/about#architecture"
                     className="text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground"
                   >
                     Architecture
-                  </a>
-                  <a
-                    href="/about#maker"
+                  </Link>
+                  <Link
+                    to="/about#maker"
                     className="text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground"
                   >
                     Maintainer
-                  </a>
-                  <a
-                    href="/about#faq"
+                  </Link>
+                  <Link
+                    to="/about#faq"
                     className="text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground"
                   >
                     FAQ
-                  </a>
+                  </Link>
                 </nav>
               </div>
 
@@ -219,18 +219,18 @@ function Footer() {
                   Legal
                 </h4>
                 <nav className="flex flex-col gap-3">
-                  <a
-                    href="/about#privacy"
+                  <Link
+                    to="/about#privacy"
                     className="text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground"
                   >
                     Privacy Policy
-                  </a>
-                  <a
-                    href="/about#terms"
+                  </Link>
+                  <Link
+                    to="/about#terms"
                     className="text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground"
                   >
                     Terms & Conditions
-                  </a>
+                  </Link>
                 </nav>
               </div>
             </div>
