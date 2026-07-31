@@ -71,19 +71,19 @@ export function About() {
               About Us
             </Link>
             {[
-              { href: "#architecture", label: "Architecture" },
-              { href: "#maker", label: "Maintainer" },
-              { href: "#faq", label: "FAQ" },
-              { href: "#privacy", label: "Privacy" },
-              { href: "#terms", label: "Terms & Conditions" },
+              { to: "/about#architecture", label: "Architecture" },
+              { to: "/about#maker", label: "Maintainer" },
+              { to: "/about#faq", label: "FAQ" },
+              { to: "/about#privacy", label: "Privacy" },
+              { to: "/about#terms", label: "Terms & Conditions" },
             ].map((item) => (
-              <a
-                key={item.href}
-                href={item.href}
+              <Link
+                key={item.to}
+                to={item.to}
                 className="inline-flex h-9 items-center rounded-full border border-border-strong bg-background px-5 font-mono text-[10px] font-bold uppercase tracking-widest text-foreground transition-colors hover:bg-muted"
               >
                 {item.label}
-              </a>
+              </Link>
             ))}
           </div>
         </div>
@@ -118,7 +118,7 @@ export function About() {
               },
             ].map((feature, index) => (
               <div key={index} className="group bg-background p-8 md:p-12">
-                <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-2xl border border-border-strong bg-card text-foreground">
+                <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-2xl border border-border-strong bg-card text-[#cf4322]">
                   {feature.icon}
                 </div>
                 <h3 className="mb-3 text-xl font-bold tracking-tight">
