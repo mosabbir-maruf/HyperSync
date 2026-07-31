@@ -7,13 +7,13 @@ import { TransferEvent, TransferEventHandler, FileMetadata, TransferProgress } f
 import { RateMeter } from "./rateMeter"
 import { makeTransferId } from "../utils"
 
+import { SendPipeline } from "./SendPipeline"
+
 /**
  * Production-grade WebRTC file transfer engine.
  *
  * Sender pipeline:
- *   read[N+1..N+4] ──► encode-in-place ──► channel.send(Uint8Array view)
- *                                              ▲
- *                           bufferedamountlow ──┘ (no polling, no sleep)
+ *   read[N+1..N+4] ──► encode-in-place ──► SendPipeline queue ──► channel.send()
  *
  * Receiver pipeline:
  *   onmessage ──► decode (zero-copy) ──► writeChain.push (fire-and-forget)
@@ -25,13 +25,12 @@ import { makeTransferId } from "../utils"
  *   DataChannel watermarks, removing one network RTT from the critical path.
  * - Zero new ArrayBuffer allocations in the send hot-path (reused per-engine).
  * - Zero payload copies on the receive hot-path (Uint8Array views).
- * - Progress events batched at 100 ms — React renders at ~10 fps max.
+ * - Progress events batched at 50 ms.
  */
 export class TransferEngine {
   private queue = new TransferQueue()
   private activeSendId: string | null = null
   private handlers = new Set<TransferEventHandler>()
-  private flow: FlowController
   private abortControllers = new Map<string, AbortController>()
   private receivers = new Map<string, ChunkReceiver>()
   private currentReceivingId: string | null = null
@@ -43,7 +42,6 @@ export class TransferEngine {
   private isProcessingBinary = false
 
   constructor(private readonly channel: RTCDataChannel) {
-    this.flow = new FlowController(channel)
     channel.binaryType = "arraybuffer"
     channel.onmessage = (ev) => this.onMessage(ev.data)
     channel.onclose   = () => this.failAll("DataChannel closed")
@@ -105,54 +103,29 @@ export class TransferEngine {
     const meta   = transfer.metadata
     const file   = transfer.file!
     const engine = new ChunkEngine(file, meta.transferId)
-    const meter  = new RateMeter(file.size)
     const ac     = new AbortController()
     this.abortControllers.set(meta.transferId, ac)
+
+    // Setup the decoupled send pipeline
+    const pipeline = new SendPipeline(
+      this.channel,
+      meta,
+      engine.chunkSize,
+      (progress) => this.emit({ type: "LocalProgress", progress })
+    )
 
     try {
       this.emit({ type: "TransferStarted", metadata: meta })
       this.sendControl({ t: "TRANSFER_METADATA", metadata: meta })
-      meter.start()
 
-      let bytesSent   = 0
-      let chunksSent  = 0
-      let lastProgress = 0
+      // Start the producer coroutine (reads disk -> encodes -> pushes to pipeline)
+      const pumpPromise = engine.pump(pipeline, ac.signal)
 
-      for await (const { header, wire } of engine.generateChunks(ac.signal)) {
-        if (ac.signal.aborted) break
+      // Wait until every chunk has been flushed to channel.send()
+      await pipeline.waitUntilDone()
 
-        // Block only when DataChannel buffer is full.
-        // awaitDrain() returns immediately when bufferedAmount < HIGH_WATER_MARK.
-        // When blocked, it waits for the bufferedamountlow event (no polling).
-        await this.flow.awaitDrain(ac.signal)
-
-        // Send the pre-encoded Uint8Array view — channel.send copies synchronously.
-        // The ChunkEngine's shared buffer is safe to reuse on the next iteration.
-        this.channel.send(wire)
-
-        bytesSent  += header.length
-        chunksSent += 1
-
-        // Throttle progress to 50 ms (20 fps) — smooth UI without render flood
-        const now = performance.now()
-        if (now - lastProgress > 50 || header.isLastChunk) {
-          lastProgress = now
-          const { speed, eta } = meter.sample(bytesSent)
-          const progress: TransferProgress = {
-            transferId: meta.transferId,
-            bytesSent,
-            bytesReceived: 0,
-            chunksSent,
-            chunksReceived: 0,
-            totalBytes: file.size,
-            totalChunks: engine.chunkCount,
-            percentage: (bytesSent / file.size) * 100,
-            speedBytesPerSecond: speed,
-            estimatedTimeRemainingSeconds: eta ?? 0
-          }
-          this.emit({ type: "LocalProgress", progress })
-        }
-      }
+      // Ensure pump hasn't thrown (e.g. read error)
+      await pumpPromise
 
       if (ac.signal.aborted) {
         this.sendControl({ t: "TRANSFER_CANCEL", id: meta.transferId })
@@ -218,8 +191,8 @@ export class TransferEngine {
 
   // ── Controls ──────────────────────────────────────────────────────────────
 
-  pause(id: string)  { this.flow.pause();  this.emit({ type: "BufferPause",  transferId: id }) }
-  resume(id: string) { this.flow.resume(); this.emit({ type: "BufferResume", transferId: id }) }
+  pause(id: string)  { this.emit({ type: "BufferPause",  transferId: id }) }
+  resume(id: string) { this.emit({ type: "BufferResume", transferId: id }) }
 
   cancel(id: string) {
     this.abortControllers.get(id)?.abort()
