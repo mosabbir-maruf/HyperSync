@@ -129,13 +129,9 @@ function Footer() {
               </NavLink>
             ))}
           </nav>
-          <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
-            <span className="flex h-1.5 w-1.5 rounded-full bg-success" />
-            <span>Local only</span>
-            <span aria-hidden className="text-border-strong">
-              ·
-            </span>
-            <span>v1.0</span>
+          <div className="flex items-center gap-2 font-mono text-[9px] font-semibold uppercase tracking-widest text-success">
+            <span className="flex h-1.5 w-1.5 rounded-full bg-success/70" />
+            <span>SYS_OPERATIONAL</span>
           </div>
         </div>
       </div>

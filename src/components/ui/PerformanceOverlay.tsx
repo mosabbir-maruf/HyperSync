@@ -4,9 +4,11 @@ import {
   type PipelineMetrics,
 } from "../../lib/transfer/PipelineProfiler"
 import { useSession } from "../../state/SessionProvider"
+import { useSettings } from "../../state/SettingsProvider"
 
 export function PerformanceOverlay() {
   const { session } = useSession()
+  const { settings } = useSettings()
   const [pipelineStats, setPipelineStats] =
     useState<ReturnType<typeof PipelineProfiler.prototype.getAveragesAndReset> | null>(
       null,
@@ -30,6 +32,7 @@ export function PerformanceOverlay() {
     return () => clearInterval(timer)
   }, [session])
 
+  if (!settings.developerMode) return null
   if (!pipelineStats && !rtcStats) return null
 
   return (
