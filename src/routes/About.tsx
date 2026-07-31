@@ -159,51 +159,41 @@ export function About() {
             <span className="h-px flex-1 bg-border-strong" />
           </div>
 
-          <div className="space-y-3">
+          <div className="grid gap-px overflow-hidden rounded-3xl border border-border-strong bg-border-strong">
             {faqs.map((faq, idx) => {
               const isOpen = openIndex === idx
               return (
                 <div
                   key={idx}
-                  className={`overflow-hidden rounded-2xl border bg-card transition-colors duration-300 ${
-                    isOpen
-                      ? "border-primary/40"
-                      : "border-border-strong hover:border-border"
-                  }`}
+                  className="bg-background transition-colors duration-300"
                 >
                   <button
                     onClick={() => setOpenIndex(isOpen ? null : idx)}
-                    className="flex w-full cursor-pointer items-center justify-between gap-4 p-5 text-left sm:p-6"
+                    className="group flex w-full cursor-pointer items-center justify-between gap-6 p-6 text-left transition-colors hover:bg-card sm:p-10"
                   >
-                    <div className="flex min-w-0 items-start gap-3 sm:items-center sm:gap-4">
-                      <div
-                        className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full transition-colors duration-300 sm:mt-0 ${
-                          isOpen
-                            ? "bg-primary text-primary-foreground"
-                            : "border border-border-strong bg-background text-muted-foreground"
-                        }`}
-                      >
-                        <span className="font-mono text-[10px] font-bold">
-                          {String(idx + 1).padStart(2, "0")}
-                        </span>
-                      </div>
+                    <div className="flex items-start gap-4 sm:items-center sm:gap-8">
+                      <span className="label-mono mt-1 w-6 shrink-0 text-primary sm:mt-0">
+                        {String(idx + 1).padStart(2, "0")}
+                      </span>
                       <span
-                        className={`text-sm font-semibold transition-colors duration-300 sm:text-base ${
-                          isOpen ? "text-foreground" : "text-muted-foreground"
+                        className={`text-base font-bold tracking-tight transition-colors duration-300 sm:text-xl ${
+                          isOpen
+                            ? "text-primary"
+                            : "text-foreground group-hover:text-primary"
                         }`}
                       >
                         {faq.q}
                       </span>
                     </div>
                     <div
-                      className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-border-strong bg-background transition-transform duration-300 ${
-                        isOpen ? "rotate-180 border-primary/30" : ""
+                      className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-border-strong transition-all duration-300 ${
+                        isOpen
+                          ? "rotate-180 border-primary bg-primary text-primary-foreground"
+                          : "bg-background text-muted-foreground group-hover:border-primary/30 group-hover:text-primary"
                       }`}
                     >
                       <svg
-                        className={`h-3.5 w-3.5 ${
-                          isOpen ? "text-primary" : "text-muted-foreground"
-                        }`}
+                        className="h-4 w-4"
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor"
@@ -223,8 +213,8 @@ export function About() {
                       isOpen ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
                     }`}
                   >
-                    <div className="pb-6 pl-10 pr-5 pt-1 sm:pl-11 sm:pr-6 sm:pb-6">
-                      <p className="text-sm leading-relaxed text-muted-foreground sm:text-[15px]">
+                    <div className="pb-10 pl-[4.5rem] pr-6 sm:pl-[6.5rem] sm:pr-12">
+                      <p className="text-sm leading-relaxed text-muted-foreground sm:text-base">
                         {faq.a}
                       </p>
                     </div>
