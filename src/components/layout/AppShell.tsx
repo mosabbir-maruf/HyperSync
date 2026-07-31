@@ -1,7 +1,7 @@
 import type { ReactNode } from "react"
-import { NavLink } from "react-router-dom"
+import { NavLink, useLocation } from "react-router-dom"
 import { ThemeToggle } from "./ThemeToggle"
-import { ShieldIcon, DropSyncLogo } from "../ui/icons"
+import { ShieldIcon, HyperSyncLogo } from "../ui/icons"
 import { PerformanceOverlay } from "../ui/PerformanceOverlay"
 import { cn } from "../../lib/utils"
 
@@ -14,9 +14,9 @@ const nav = [
 function Brand() {
   return (
     <NavLink to="/" className="flex items-center gap-2.5">
-      <DropSyncLogo className="h-7 w-7 drop-shadow-[0_0_8px_rgba(234,88,12,0.4)]" />
+      <HyperSyncLogo className="h-7 w-7 text-primary drop-shadow-[0_0_8px_rgba(234,88,12,0.4)]" />
       <span className="text-[16px] font-extrabold tracking-tight">
-        DropSync
+        HyperSync
       </span>
     </NavLink>
   )
@@ -24,7 +24,7 @@ function Brand() {
 
 function Nav({ className }: { className?: string }) {
   return (
-    <nav className={cn("flex items-center", className)}>
+    <nav className={cn("flex items-center gap-1", className)}>
       {nav.map(({ to, label, end }) => (
         <NavLink
           key={to}
@@ -57,9 +57,12 @@ function Nav({ className }: { className?: string }) {
 }
 
 export function AppShell({ children }: { children: ReactNode }) {
+  const location = useLocation()
+  const isLanding = location.pathname === "/"
+
   return (
     <div className="min-h-[100dvh] bg-background text-foreground">
-      <header className="sticky top-0 z-20 border-b border-border-strong bg-background/95 backdrop-blur">
+      <header className="sticky top-0 z-50 border-b border-border-strong bg-background/95 backdrop-blur">
         <div className="mx-auto flex h-14 w-full max-w-[1600px] items-center gap-4 px-4 md:px-8">
           <Brand />
           <Nav className="ml-4 hidden md:flex" />
@@ -73,7 +76,12 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-[1600px] px-4 py-8 md:px-8 md:py-12">
+      <main
+        className={cn(
+          "mx-auto w-full",
+          !isLanding && "max-w-[1600px] px-4 py-8 md:px-8 md:py-12",
+        )}
+      >
         {children}
       </main>
 
@@ -99,7 +107,7 @@ function Footer() {
             </p>
             <p className="max-w-sm text-[12px] leading-relaxed text-muted-foreground">
               Files transfer directly between devices over an encrypted
-              peer-to-peer channel. Their contents never touch DropSync servers
+              peer-to-peer channel. Their contents never touch HyperSync servers
               — the backend only helps devices find each other.
             </p>
           </div>

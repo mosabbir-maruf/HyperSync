@@ -175,9 +175,9 @@ export function NearbyDevices() {
                   Looking for nearby devices
                 </h3>
                 <p className="text-[13px] leading-relaxed text-muted-foreground">
-                  Open DropSync on another phone, laptop, or tablet on your
-                  Wi-Fi network. Devices show up here instantly — click any
-                  device to start transferring directly.
+                  Open HyperSync on another phone, laptop, or tablet on your
+                  local network to connect. Devices show up here instantly —
+                  click any device to start transferring directly.
                 </p>
               </div>
 

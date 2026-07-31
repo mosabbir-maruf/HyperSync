@@ -59,10 +59,9 @@ export function SessionRoom() {
           height={16}
           className="mt-0.5 shrink-0 text-success"
         />
-        <p className="text-[12px] leading-relaxed text-muted-foreground">
-          Files move directly between the two connected devices over an
-          encrypted WebRTC channel. Their contents are never uploaded to
-          DropSync servers.
+        <p className="max-w-md text-xs leading-relaxed text-muted-foreground/60 sm:text-sm">
+          Files transfer securely from device to device. They never touch
+          HyperSync servers.
         </p>
       </div>
     </div>

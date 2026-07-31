@@ -216,14 +216,14 @@ export function Settings() {
           </Row>
           <Row title="Version">
             <span className="font-mono text-[12px] text-muted-foreground">
-              DropSync 1.0.0
+              HyperSync 1.0.0
             </span>
           </Row>
         </Card>
       </section>
 
       <p className="border-l-2 border-border-strong px-4 py-1 text-[12px] leading-relaxed text-muted-foreground">
-        DropSync never uploads file contents. Our backend only relays the
+        HyperSync never uploads file contents. Our backend only relays the
         messages that let two devices open a direct connection.
       </p>
     </div>

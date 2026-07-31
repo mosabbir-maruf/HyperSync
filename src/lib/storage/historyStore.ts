@@ -16,11 +16,11 @@ export interface HistoryEntry {
   timestamp: number
 }
 
-const DB_NAME = "dropsync"
+const DB_NAME = "hypersync"
 const DB_VERSION = 1
 const STORE = "history"
 const MAX_ENTRIES = 500
-const CHANGE_EVENT = "dropsync:history"
+const CHANGE_EVENT = "hypersync:history"
 
 let dbPromise: Promise<IDBDatabase> | null = null
 

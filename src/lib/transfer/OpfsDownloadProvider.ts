@@ -55,7 +55,7 @@ export class OpfsDownloadProvider implements SaveProvider {
 
     // Schedule cleanup of the OPFS file after the browser is closed or the user downloads.
     // In a real app we might want a "Downloads" manager UI to clear OPFS,
-    // but for DropSync we want ephemeral transfers.
+    // but for HyperSync we want ephemeral transfers.
     // We cannot delete the file right now, otherwise the downloadUrl breaks immediately.
     // We will clean it up on window unload or next load.
 

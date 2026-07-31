@@ -33,7 +33,7 @@ const DEFAULTS: Settings = {
   language: "en",
 }
 
-const STORAGE_KEY = "dropsync.settings"
+const STORAGE_KEY = "hypersync.settings"
 
 interface SettingsContextValue {
   settings: Settings

@@ -153,7 +153,7 @@ export const RadarIcon = (p: IconProps) => (
   </svg>
 )
 
-export const DropSyncLogo = (p: IconProps) => (
+export const HyperSyncLogo = (p: IconProps) => (
   <svg
     viewBox="0 0 24 24"
     fill="none"

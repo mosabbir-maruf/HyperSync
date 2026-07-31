@@ -17,7 +17,7 @@ interface ThemeContextValue {
 }
 
 const ThemeContext = createContext<ThemeContextValue | null>(null)
-const STORAGE_KEY = "dropsync.theme"
+const STORAGE_KEY = "hypersync.theme"
 
 function systemDark(): boolean {
   return (
