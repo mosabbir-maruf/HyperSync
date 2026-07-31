@@ -74,6 +74,8 @@ export function About() {
               { href: "#architecture", label: "Architecture" },
               { href: "#maker", label: "Maintainer" },
               { href: "#faq", label: "FAQ" },
+              { href: "#privacy", label: "Privacy" },
+              { href: "#terms", label: "Terms & Conditions" },
             ].map((item) => (
               <a
                 key={item.href}
@@ -367,9 +369,9 @@ export function About() {
       {/* Legal & Privacy */}
       <section
         id="privacy"
-        className="relative bg-background pt-16 pb-24 md:pt-24 md:pb-32"
+        className="relative scroll-mt-24 bg-background pt-16 pb-24 md:pt-24 md:pb-32"
       >
-        <div id="terms" className="absolute top-0" />
+        <div id="terms" className="absolute top-0 scroll-mt-24" />
         <div className="mx-auto max-w-[1273px] px-6 md:px-12">
           <div className="grid gap-px overflow-hidden rounded-3xl border border-border-strong bg-border-strong sm:grid-cols-2">
             {/* Privacy Policy */}
