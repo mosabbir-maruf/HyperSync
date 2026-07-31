@@ -20,6 +20,10 @@ export class WebSocketSignalingClient extends SignalingEmitter implements Signal
   private hasPeerJoined = false
   private joinedPeerId = "remote"
 
+  // Lobby connection
+  private lobbyWs: WebSocket | null = null
+  private lobbyPingInterval: number | null = null
+
   constructor(private readonly url: string) {
     super()
   }
@@ -256,18 +260,55 @@ export class WebSocketSignalingClient extends SignalingEmitter implements Signal
     }
   }
 
-  // Lobby is not implemented on the worker backend (it's specifically for session transfer)
   announce(profile: Omit<DevicePresence, "peerId">): void {
-    // No-op for real backend currently
+    const wsUrl = this.url.replace(/^http/, "ws") + "/lobby"
+    this.lobbyWs = new WebSocket(wsUrl)
+    
+    this.lobbyWs.onopen = () => {
+      this.lobbyWs?.send(JSON.stringify({
+        type: "ANNOUNCE",
+        peerId: this.peerId,
+        payload: { profile }
+      }))
+
+      this.lobbyPingInterval = window.setInterval(() => {
+        if (this.lobbyWs?.readyState === WebSocket.OPEN) {
+          this.lobbyWs.send(JSON.stringify({ type: "PING" }))
+        }
+      }, 20000)
+    }
+
+    this.lobbyWs.onmessage = (event) => {
+      try {
+        const msg = JSON.parse(event.data)
+        if (msg.type === "ROSTER") {
+          this.emit({ type: "roster", devices: msg.payload.devices })
+        } else if (msg.type === "INVITE") {
+          this.emit({ type: "invite", code: msg.payload.code })
+        }
+      } catch (err) {
+        console.error("Lobby message error", err)
+      }
+    }
   }
+
   invite(targetPeerId: string, code: string): void {
-    // No-op for real backend currently
+    if (this.lobbyWs && this.lobbyWs.readyState === WebSocket.OPEN) {
+      this.lobbyWs.send(JSON.stringify({
+        type: "INVITE",
+        peerId: this.peerId,
+        payload: { targetPeerId, code }
+      }))
+    }
   }
 
   close(): void {
     this.sendMessage("LEAVE", {})
     if (this.ws) {
       this.ws.close(1000, "Normal closure")
+    }
+    if (this.lobbyWs) {
+      this.lobbyWs.close()
     }
     this.cleanup()
     this.setState("closed")
@@ -279,7 +320,12 @@ export class WebSocketSignalingClient extends SignalingEmitter implements Signal
       clearInterval(this.pingInterval)
       this.pingInterval = null
     }
+    if (this.lobbyPingInterval) {
+      clearInterval(this.lobbyPingInterval)
+      this.lobbyPingInterval = null
+    }
     this.ws = null
+    this.lobbyWs = null
     this.code = null
     this.sessionId = null
     this.role = null
