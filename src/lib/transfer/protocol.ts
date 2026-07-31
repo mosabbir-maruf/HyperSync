@@ -41,8 +41,8 @@ export function decodeControl(raw: string): ControlMessage | null {
 // [ ...      ] Chunk payload bytes
 
 export const HEADER_SIZE = 36 + 4 + 8 + 4 + 1
-export const HIGH_WATER_MARK = 2 * 1024 * 1024   // 2 MB send buffer limit (prevents WebRTC 16MB overflow crash)
-export const LOW_WATER_MARK = 512 * 1024         // 512 KB resume threshold
+export const HIGH_WATER_MARK = 8 * 1024 * 1024   // 8 MB send buffer limit (keeps network pipe saturated)
+export const LOW_WATER_MARK = 2 * 1024 * 1024    // 2 MB resume threshold
 
 import type { ChunkHeader } from "./types"
 

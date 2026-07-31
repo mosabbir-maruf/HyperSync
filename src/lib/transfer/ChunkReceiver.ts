@@ -11,6 +11,7 @@ export class ChunkReceiver {
   private bytesReceived = 0
   private chunksReceived = 0
   private isAborted = false
+  private writeChain: Promise<void> = Promise.resolve()
 
   private abortHandler = () => {
     this.abort()
@@ -48,7 +49,15 @@ export class ChunkReceiver {
         throw new Error("Chunk transferId mismatch")
       }
 
-      await this.sink.write(data, header.offset)
+      const sink = this.sink
+      this.writeChain = this.writeChain.then(async () => {
+        if (!this.isAborted) {
+          await sink.write(data, header.offset)
+        }
+      }).catch(err => {
+        this.abort()
+        this.onError(err instanceof Error ? err.message : "Disk write failed")
+      })
 
       this.bytesReceived += header.length
       this.chunksReceived++
@@ -78,6 +87,7 @@ export class ChunkReceiver {
     this.signal.removeEventListener("abort", this.abortHandler)
     if (this.isAborted || !this.sink) return
     try {
+      await this.writeChain
       this.onEvent?.("DownloadStarted")
       const result = await this.sink.close()
       
