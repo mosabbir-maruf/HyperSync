@@ -1,16 +1,13 @@
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useSession } from "../../state/SessionProvider"
 import { useSettings } from "../../state/SettingsProvider"
-import { DropZone } from "./DropZone"
-import { IncomingPrompt } from "./IncomingPrompt"
-import { TransferRow } from "./TransferRow"
-import { ShieldIcon } from "../ui/icons"
+import { ChatPanel } from "../messaging/ChatPanel"
 
-/** The active transfer surface, shared by both host and guest once connected. */
+/** The active session surface, shared by both host and guest once connected. */
 export function SessionRoom() {
-  const { controller, state } = useSession()
+  const { controller, state, getMessagingController } = useSession()
   const { settings } = useSettings()
-  const hasTransfers = state.items.length > 0
+  const [messagingCtrl, setMessagingCtrl] = useState(getMessagingController())
 
   // Honor the auto-accept preference: skip the prompt for incoming files.
   useEffect(() => {
@@ -19,51 +16,59 @@ export function SessionRoom() {
     }
   }, [settings.autoAccept, state.incoming, controller])
 
+  // Poll for messaging controller until it becomes available
+  // (it's created when the msg DataChannel fires — slightly after phase=connected)
+  useEffect(() => {
+    if (messagingCtrl) return
+    const timer = setInterval(() => {
+      const mc = getMessagingController()
+      if (mc) {
+        setMessagingCtrl(mc)
+        clearInterval(timer)
+      }
+    }, 100)
+    return () => clearInterval(timer)
+  }, [messagingCtrl, getMessagingController])
+
   return (
-    <div className="space-y-5">
-      {state.incoming && (
-        <IncomingPrompt
-          files={state.incoming}
-          onAccept={(ids) => void controller.accept(ids)}
-          onReject={(ids) => controller.reject(ids)}
-        />
-      )}
-
-      <DropZone onFiles={(files) => controller.sendFiles(files)} />
-
-      {hasTransfers && (
-        <section className="space-y-3">
-          <div className="flex items-center gap-3">
-            <span className="label-mono">Transfers</span>
-            <span className="h-px flex-1 bg-border-strong" />
-            <span className="label-mono">{state.items.length}</span>
-          </div>
-          <div className="space-y-2">
-            {state.items.map((item) => (
-              <TransferRow
-                key={item.id}
-                item={item}
-                onPause={(id) => controller.pause(id)}
-                onResume={(id) => controller.resume(id)}
-                onCancel={(id) => controller.cancel(id)}
-                onRetry={(id) => controller.retry(id)}
-              />
-            ))}
-          </div>
-        </section>
-      )}
-
-      <div className="flex items-start gap-3 rounded-2xl border-l-2 border-success bg-card px-4 py-3">
-        <ShieldIcon
-          width={16}
-          height={16}
-          className="mt-0.5 shrink-0 text-success"
-        />
-        <p className="max-w-md text-xs leading-relaxed text-muted-foreground/60 sm:text-sm">
-          Files transfer securely from device to device. They never touch
-          HyperSync servers.
-        </p>
+    <>
+      {/* ── Mobile: full height layout ─────────────────────────────────── */}
+      <div className="md:hidden flex flex-col h-[600px]">
+        {messagingCtrl ? (
+          <ChatPanel
+            controller={messagingCtrl}
+            sessionController={controller}
+            visible={true}
+            onFiles={(files) => controller.sendFiles(files)}
+          />
+        ) : (
+          <ChatPlaceholder />
+        )}
       </div>
+
+      {/* ── Desktop: full width layout ─────────────────────────────────── */}
+      <div className="hidden md:flex flex-col items-center">
+        <div className="w-full h-[700px]">
+          {messagingCtrl ? (
+            <ChatPanel 
+              controller={messagingCtrl} 
+              sessionController={controller}
+              visible={true} 
+              onFiles={(files) => controller.sendFiles(files)}
+            />
+          ) : (
+            <ChatPlaceholder />
+          )}
+        </div>
+      </div>
+    </>
+  )
+}
+
+function ChatPlaceholder() {
+  return (
+    <div className="flex h-full items-center justify-center rounded-2xl border border-border bg-card">
+      <p className="label-mono px-6 text-center">Establishing message channel…</p>
     </div>
   )
 }

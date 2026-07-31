@@ -5,6 +5,7 @@ import { QRDisplay } from "../components/session/QRDisplay"
 import { SessionCode } from "../components/session/SessionCode"
 import { SessionRoom } from "../components/session/SessionRoom"
 import { ConnectionStatus } from "../components/layout/ConnectionStatus"
+import { ConnectionState } from "../state/managers/ConnectionStateManager"
 import { Button } from "../components/ui/Button"
 import { Card } from "../components/ui/Card"
 
@@ -13,15 +14,15 @@ export function CreateSession() {
   const navigate = useNavigate()
 
   useEffect(() => {
-    if (state.phase === "idle") void controller.host()
-  }, [controller, state.phase])
+    if (state.connectionState === ConnectionState.DISCONNECTED) void controller.host()
+  }, [controller, state.connectionState])
 
   const leave = () => {
     controller.leave()
     navigate("/")
   }
 
-  const connected = state.phase === "connected"
+  const connected = state.connectionState === ConnectionState.CONNECTED
 
   return (
     <div className="space-y-6">
@@ -31,7 +32,7 @@ export function CreateSession() {
             {connected ? "Connected" : "Waiting for a device"}
           </h1>
           <div className="mt-1.5">
-            <ConnectionStatus phase={state.phase} />
+            <ConnectionStatus phase={state.connectionState} />
           </div>
         </div>
         <Button variant="ghost" size="sm" onClick={leave}>

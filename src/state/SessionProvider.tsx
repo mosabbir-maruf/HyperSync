@@ -6,21 +6,22 @@ import {
   useSyncExternalStore,
   type ReactNode,
 } from "react"
-import { SessionController, type SessionState } from "./SessionController"
+import { SessionManager, type SessionState } from "./managers/SessionManager"
 import { addHistoryEntry } from "./history"
 import { useSettings } from "./SettingsProvider"
 import { pageLifecycleService } from "../services/PageLifecycleService"
 
 interface SessionContextValue {
-  controller: SessionController
+  controller: SessionManager
   state: SessionState
+  getMessagingController: () => import("./managers/MessagingManager").MessagingManager | null
 }
 
 const SessionContext = createContext<SessionContextValue | null>(null)
 
 export function SessionProvider({ children }: { children: ReactNode }) {
-  const controllerRef = useRef<SessionController | null>(null)
-  if (!controllerRef.current) controllerRef.current = new SessionController()
+  const controllerRef = useRef<SessionManager | null>(null)
+  if (!controllerRef.current) controllerRef.current = new SessionManager()
   const controller = controllerRef.current
   const { settings } = useSettings()
 
@@ -71,7 +72,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   }, [controller])
 
   return (
-    <SessionContext.Provider value={{ controller, state }}>
+    <SessionContext.Provider value={{ controller, state, getMessagingController: () => controller.getMessagingManager() }}>
       {children}
     </SessionContext.Provider>
   )

@@ -5,6 +5,8 @@ import { SessionRoom } from "./SessionRoom"
 import { QRDisplay } from "./QRDisplay"
 import { SessionCode } from "./SessionCode"
 import { Button } from "../ui/Button"
+import { ChatPanel } from "../messaging/ChatPanel"
+import { ConnectionState } from "../../state/managers/ConnectionStateManager"
 
 /**
  * The live session surface shown once a connection is initiated — from either
@@ -15,7 +17,7 @@ export function SessionSurface() {
   const { controller, state } = useSession()
   const confirm = useConfirm()
 
-  const connected = state.phase === "connected"
+  const connected = state.connectionState === ConnectionState.CONNECTED
   const hasActiveTransfer = state.items.some(
     (i) => i.status === "progress" || i.status === "paused",
   )
@@ -47,7 +49,7 @@ export function SessionSurface() {
                 : "Waiting for device"}
           </h1>
           <div className="mt-2">
-            <ConnectionStatus phase={state.phase} />
+            <ConnectionStatus phase={state.connectionState} />
           </div>
         </div>
         <Button variant="secondary" size="sm" onClick={leave}>

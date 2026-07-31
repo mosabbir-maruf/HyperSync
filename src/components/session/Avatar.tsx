@@ -24,7 +24,7 @@ export function Avatar({
         height={size}
         draggable={false}
         className={cn(
-          "shrink-0 select-none pointer-events-none rounded-full object-cover dark:!bg-[#efece4]",
+          "shrink-0 select-none pointer-events-none rounded-full object-cover",
           className,
         )}
         style={{ width: size, height: size, backgroundColor: color }}
@@ -35,7 +35,7 @@ export function Avatar({
   return (
     <span
       className={cn(
-        "flex shrink-0 select-none pointer-events-none items-center justify-center rounded-full text-white dark:!bg-[#efece4] dark:!text-black",
+        "flex shrink-0 select-none pointer-events-none items-center justify-center rounded-full text-white",
         className,
       )}
       style={{ width: size, height: size, backgroundColor: color }}

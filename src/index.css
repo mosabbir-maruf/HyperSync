@@ -205,3 +205,20 @@ html.theme-anim body {
   animation: ds-spin-slow 6s linear infinite;
 }
 
+/* Messaging — Typing Dot Animation */
+@keyframes ds-typing-dot {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+  30% { transform: translateY(-4px); opacity: 1; }
+}
+.animate-typing-dot {
+  animation: ds-typing-dot 1.2s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-typing-dot { animation: none; opacity: 0.6; }
+}
+
+/* Chat panel resize handle cursor hint */
+.chat-resize-handle {
+  cursor: row-resize;
+}
+

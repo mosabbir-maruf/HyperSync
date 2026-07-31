@@ -9,10 +9,12 @@ export type PeerConnectionState = "new" | "negotiating" | "connected" | "disconn
 export interface PeerConnectionEvents {
   onState?: (state: PeerConnectionState) => void
   onDataChannel?: (channel: RTCDataChannel) => void
+  onMessageChannel?: (channel: RTCDataChannel) => void
   onError?: (message: string) => void
 }
 
 const CHANNEL_LABEL = "localshare"
+const MSG_CHANNEL_LABEL = "localshare-msg"
 
 /**
  * Wraps a single RTCPeerConnection and drives WebRTC negotiation over a
@@ -114,26 +116,41 @@ export class PeerConnection {
     }
 
     if (this.role === "host") {
-      // Host owns the ordered, reliable data channel.
+      // Host owns the ordered, reliable file data channel.
       const channel = pc.createDataChannel(CHANNEL_LABEL, { ordered: true })
       channel.binaryType = "arraybuffer"
       channel.bufferedAmountLowThreshold = LOW_WATER_MARK
       this.events.onDataChannel?.(channel)
+
+      // Host also creates the dedicated messaging channel (text-only).
+      const msgChannel = pc.createDataChannel(MSG_CHANNEL_LABEL, { ordered: true })
+      this.events.onMessageChannel?.(msgChannel)
     } else {
       pc.ondatachannel = (ev) => {
-        ev.channel.binaryType = "arraybuffer"
-        ev.channel.bufferedAmountLowThreshold = LOW_WATER_MARK
-        this.events.onDataChannel?.(ev.channel)
+        const ch = ev.channel
+        if (ch.label === MSG_CHANNEL_LABEL) {
+          // Messaging channel — deliver to messaging subsystem.
+          this.events.onMessageChannel?.(ch)
+        } else {
+          // File transfer channel — deliver to transfer engine.
+          ch.binaryType = "arraybuffer"
+          ch.bufferedAmountLowThreshold = LOW_WATER_MARK
+          this.events.onDataChannel?.(ch)
+        }
       }
     }
   }
 
   private wireSignaling(): void {
+    let hasMadeInitialOffer = false
     this.unsubscribers.push(
       this.signaling.on("peer-joined", () => {
         console.log(`[WebRTC] peer-joined received, role=${this.role}`)
         // Host initiates negotiation once the guest is present.
-        if (this.role === "host") void this.makeOffer()
+        if (this.role === "host" && !hasMadeInitialOffer) {
+          hasMadeInitialOffer = true
+          void this.makeOffer()
+        }
       }),
       this.signaling.on(
         "signal",
@@ -168,6 +185,10 @@ export class PeerConnection {
     console.log(`[WebRTC] handleSignal kind=${signal.kind}`)
     try {
       if (signal.kind === "offer") {
+        if (this.pc.signalingState !== "stable") {
+          console.warn(`[WebRTC] Ignoring offer in state: ${this.pc.signalingState}`)
+          return
+        }
         this.setState("negotiating")
         await this.pc.setRemoteDescription(signal.sdp)
         const answer = await this.pc.createAnswer()
@@ -178,6 +199,10 @@ export class PeerConnection {
         })
         await this.flushPendingIce()
       } else if (signal.kind === "answer") {
+        if (this.pc.signalingState !== "have-local-offer") {
+          console.warn(`[WebRTC] Ignoring answer in state: ${this.pc.signalingState}`)
+          return
+        }
         await this.pc.setRemoteDescription(signal.sdp)
         await this.flushPendingIce()
       } else if (signal.kind === "ice") {

@@ -1,0 +1,286 @@
+import { TransferEngine } from "../../lib/transfer/TransferEngine"
+import type { FileMetadata, TransferItem, TransferEvent } from "../../lib/transfer/types"
+import { toast } from "../../lib/notify/toast"
+
+export interface TransferState {
+  items: TransferItem[]
+  incoming: FileMetadata[] | null
+}
+
+const INITIAL_STATE: TransferState = {
+  items: [],
+  incoming: null,
+}
+
+export class TransferManager {
+  private state: TransferState = { ...INITIAL_STATE }
+  private listeners = new Set<(s: TransferState) => void>()
+  private engine: TransferEngine | null = null
+  private itemsMap = new Map<string, TransferItem>()
+  private lastStatus = new Map<string, TransferItem["status"]>()
+  
+  private emitScheduled = false
+  private emitTimeout: number | null = null
+  private unsubEngine: (() => void) | null = null
+
+  // We allow an external observer to listen to raw engine events (like ChannelOpen/Close)
+  // so that ConnectionStateManager can consume them.
+  private eventListeners = new Set<(e: TransferEvent) => void>()
+
+  public attachEngine(engine: TransferEngine): void {
+    if (this.engine) this.destroy()
+    this.engine = engine
+    
+    this.unsubEngine = this.engine.onEvent((event: TransferEvent) => {
+      // Forward raw events to SessionManager/ConnectionStateManager
+      for (const listener of this.eventListeners) {
+        listener(event)
+      }
+      this.handleTransferEvent(event)
+    })
+  }
+
+  public onEngineEvent(fn: (e: TransferEvent) => void): () => void {
+    this.eventListeners.add(fn)
+    return () => this.eventListeners.delete(fn)
+  }
+
+  public subscribe(fn: (s: TransferState) => void): () => void {
+    this.listeners.add(fn)
+    fn(this.state)
+    return () => this.listeners.delete(fn)
+  }
+
+  public getState(): TransferState {
+    return this.state
+  }
+
+  private set(patch: Partial<TransferState>): void {
+    this.state = { ...this.state, ...patch }
+    for (const fn of this.listeners) fn(this.state)
+  }
+
+  private scheduleEmit(): void {
+    if (this.emitScheduled) return
+    this.emitScheduled = true
+    this.emitTimeout = window.setTimeout(() => {
+      this.emitScheduled = false
+      this.emitTimeout = null
+      this.flushItems()
+    }, 16)
+  }
+
+  private flushNow(): void {
+    if (this.emitTimeout) {
+      clearTimeout(this.emitTimeout)
+      this.emitTimeout = null
+    }
+    this.emitScheduled = false
+    this.flushItems()
+  }
+
+  private flushItems(): void {
+    const items = Array.from(this.itemsMap.values())
+    this.announceStatusChanges(items)
+    this.set({ items })
+  }
+
+  private patchItem(id: string, patch: Partial<TransferItem>, immediate = false): void {
+    const cur = this.itemsMap.get(id)
+    if (!cur) return
+    this.itemsMap.set(id, { ...cur, ...patch })
+    if (immediate) {
+      this.flushNow()
+    } else {
+      this.scheduleEmit()
+    }
+  }
+
+  private handleTransferEvent(event: TransferEvent) {
+    switch (event.type) {
+      case "TransferQueued":
+      case "MetadataReceived": {
+        const meta = event.metadata
+        if (!this.itemsMap.has(meta.transferId)) {
+          this.itemsMap.set(meta.transferId, {
+            id: meta.transferId,
+            name: meta.fileName,
+            size: meta.fileSize,
+            mime: meta.mimeType,
+            direction: event.type === "TransferQueued" ? "send" : "receive",
+            status: "pending",
+            bytesTransferred: 0,
+            speed: 0,
+            averageSpeed: 0,
+            eta: null,
+            elapsed: 0,
+            remainingBytes: meta.fileSize,
+            verification: "pending",
+            connectionQuality: "unknown",
+            reconnectAttempts: 0,
+            startedAt: Date.now(),
+            checksumMethod: meta.checksumMethod,
+          })
+
+          if (event.type === "MetadataReceived") {
+            const currentIncoming = this.state.incoming || []
+            this.set({ incoming: [...currentIncoming, meta] })
+          }
+        }
+        break
+      }
+      case "TransferStarted":
+        this.patchItem(event.metadata.transferId, { status: "progress" }, true)
+        break
+      case "LocalProgress":
+      case "ChunkSent":
+      case "ChunkReceived": {
+        const p = event.progress
+        const transferred = p.bytesSent > 0 ? p.bytesSent : p.bytesReceived
+        const quality =
+          p.speedBytesPerSecond === 0
+            ? "unknown"
+            : p.speedBytesPerSecond < 128 * 1024
+              ? "poor"
+              : p.speedBytesPerSecond < 1024 * 1024
+                ? "fair"
+                : "good"
+        this.patchItem(p.transferId, {
+          status: "progress",
+          bytesTransferred: transferred,
+          speed: p.speedBytesPerSecond,
+          eta: p.estimatedTimeRemainingSeconds,
+          remainingBytes: p.totalBytes - transferred,
+          connectionQuality: quality,
+        })
+        break
+      }
+      case "BufferPause":
+      case "BufferResume":
+        break
+      case "TransferCancelled":
+        this.patchItem(event.transferId, { status: "cancelled" }, true)
+        break
+      case "VerificationStarted":
+        this.patchItem(event.transferId, { verification: "verifying" })
+        break
+      case "VerificationFinished":
+        this.patchItem(event.transferId, {
+          verification: event.isValid ? "success" : "failed",
+        })
+        break
+      case "DownloadCompleted":
+        this.patchItem(event.transferId, { blobUrl: event.downloadUrl })
+        break
+      case "TransferCompleted":
+        this.patchItem(
+          event.transferId,
+          {
+            status: "completed",
+            completedAt: Date.now(),
+          },
+          true,
+        )
+        break
+      case "TransferFailed":
+        this.patchItem(
+          event.transferId,
+          { status: "failed", error: event.error },
+          true,
+        )
+        break
+    }
+  }
+
+  private announceStatusChanges(items: TransferItem[]): void {
+    for (const item of items) {
+      const prev = this.lastStatus.get(item.id)
+      if (prev === item.status) continue
+      this.lastStatus.set(item.id, item.status)
+      if (prev === undefined) continue
+      if (item.status === "completed") {
+        toast.success(
+          item.direction === "receive" ? "File received" : "File sent",
+          item.name,
+        )
+      } else if (item.status === "failed") {
+        toast.error("Transfer failed", item.name)
+      }
+    }
+  }
+
+  // --- Actions ---
+
+  public sendFiles(files: File[]): void {
+    if (!this.engine) return
+    this.engine.sendFiles(files)
+  }
+
+  public async accept(ids: string[]): Promise<void> {
+    this.set({ incoming: null })
+    this.engine?.acceptIncoming(ids)
+  }
+
+  public reject(ids: string[]): void {
+    this.set({ incoming: null })
+    this.engine?.rejectIncoming(ids)
+  }
+
+  public pause(id: string): void {
+    this.engine?.pause(id)
+  }
+  public resume(id: string): void {
+    this.engine?.resume(id)
+  }
+  public cancel(id: string): void {
+    this.engine?.cancel(id)
+  }
+
+  public retry(_id: string): void {
+    /* Unsupported by simple engine API */
+  }
+
+  public remove(id: string): void {
+    this.engine?.cancel(id)
+    const item = this.itemsMap.get(id)
+    if (item?.blobUrl) {
+      URL.revokeObjectURL(item.blobUrl)
+    }
+    this.itemsMap.delete(id)
+    this.scheduleEmit()
+  }
+
+  public clearQueue(): void {
+    for (const item of this.itemsMap.values()) {
+      if (item.blobUrl) {
+        URL.revokeObjectURL(item.blobUrl)
+      }
+    }
+    this.itemsMap.clear()
+    this.scheduleEmit()
+  }
+
+  public destroy(): void {
+    if (this.emitTimeout) {
+      clearTimeout(this.emitTimeout)
+      this.emitTimeout = null
+    }
+    this.emitScheduled = false
+    
+    this.unsubEngine?.()
+    this.engine?.destroy()
+    this.engine = null
+    
+    this.listeners.clear()
+    this.eventListeners.clear()
+    
+    for (const item of this.itemsMap.values()) {
+      if (item.blobUrl) {
+        URL.revokeObjectURL(item.blobUrl)
+      }
+    }
+    this.itemsMap.clear()
+    this.lastStatus.clear()
+    this.state = { ...INITIAL_STATE }
+  }
+}

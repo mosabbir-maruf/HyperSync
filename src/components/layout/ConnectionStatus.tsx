@@ -1,42 +1,56 @@
-import type { SessionPhase } from "../../state/SessionController"
+import { ConnectionState } from "../../state/managers/ConnectionStateManager"
 import { cn } from "../../lib/utils"
 
-const MAP: Record<SessionPhase, { label: string dot: string text: string }> = {
-  idle: {
+const MAP: Record<ConnectionState, { label: string; dot: string; text: string }> = {
+  [ConnectionState.DISCONNECTED]: {
     label: "Not connected",
     dot: "bg-muted-foreground",
     text: "text-muted-foreground",
   },
-  starting: {
+  [ConnectionState.SIGNALING]: {
     label: "Starting",
     dot: "bg-warning animate-pulse",
     text: "text-muted-foreground",
   },
-  waiting: {
+  [ConnectionState.PAIRING]: {
     label: "Waiting for peer",
     dot: "bg-warning animate-pulse",
     text: "text-foreground",
   },
-  connecting: {
+  [ConnectionState.CONNECTING]: {
+    label: "Connecting",
+    dot: "bg-warning animate-pulse",
+    text: "text-foreground",
+  },
+  [ConnectionState.NEGOTIATING]: {
     label: "Negotiating",
     dot: "bg-warning animate-pulse",
     text: "text-foreground",
   },
-  connected: {
+  [ConnectionState.CONNECTED]: {
     label: "Link established",
     dot: "bg-success",
     text: "text-foreground",
   },
-  disconnected: {
-    label: "Disconnected",
-    dot: "bg-destructive",
-    text: "text-muted-foreground",
+  [ConnectionState.DEGRADED]: {
+    label: "Degraded",
+    dot: "bg-warning",
+    text: "text-warning",
   },
-  error: { label: "Error", dot: "bg-destructive", text: "text-destructive" },
+  [ConnectionState.RECONNECTING]: {
+    label: "Reconnecting",
+    dot: "bg-warning animate-pulse",
+    text: "text-warning",
+  },
+  [ConnectionState.FAILED]: { 
+    label: "Failed", 
+    dot: "bg-destructive", 
+    text: "text-destructive" 
+  },
 }
 
-export function ConnectionStatus({ phase }: { phase: SessionPhase }) {
-  const s = MAP[phase]
+export function ConnectionStatus({ phase }: { phase: ConnectionState }) {
+  const s = MAP[phase] || MAP[ConnectionState.DISCONNECTED]
   return (
     <span className="inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest">
       <span className={cn("h-1.5 w-1.5 rounded-full", s.dot)} />

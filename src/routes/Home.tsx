@@ -2,6 +2,8 @@ import { Link } from "react-router-dom"
 import { useSession } from "../state/SessionProvider"
 import { NearbyDevices } from "../components/session/NearbyDevices"
 import { SessionSurface } from "../components/session/SessionSurface"
+import { FilePanel } from "../components/transfer/FilePanel"
+import { ConnectionState } from "../state/managers/ConnectionStateManager"
 import { QrIcon } from "../components/ui/icons"
 import { capabilityService } from "../services/CapabilityService"
 
@@ -10,7 +12,7 @@ export function Home() {
   const supported = capabilityService.supportsTransfers()
 
   // Once a connection is initiated (either direction), take over the screen.
-  if (state.phase !== "idle") return <SessionSurface />
+  if (state.connectionState !== ConnectionState.DISCONNECTED) return <SessionSurface />
 
   return (
     <div className="space-y-10">

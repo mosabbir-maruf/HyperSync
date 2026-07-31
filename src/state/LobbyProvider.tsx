@@ -14,6 +14,7 @@ import type { DevicePresence } from "../lib/signaling"
 import { useSession } from "./SessionProvider"
 import { useSettings } from "./SettingsProvider"
 import { avatarColor, detectPlatform } from "../lib/utils"
+import { ConnectionState } from "./managers/ConnectionStateManager"
 
 /**
  * Discovery layer for "nearby devices". Owns a dedicated presence
@@ -58,7 +59,7 @@ export function LobbyProvider({ children }: { children: ReactNode }) {
     const offRoster = client.on("roster", (e) => setRoster(e.devices))
     const offInvite = client.on("invite", (e) => {
       // The other device asked us to join — auto-join the channel.
-      if (controller.getState().phase === "idle") void controller.join(e.code)
+      if (controller.getState().connectionState === ConnectionState.DISCONNECTED) void controller.join(e.code)
     })
     client.announce({
       name: thisDevice.name,

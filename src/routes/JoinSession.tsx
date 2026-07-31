@@ -8,6 +8,7 @@ import { Button } from "../components/ui/Button"
 import { Card } from "../components/ui/Card"
 import { QrIcon } from "../components/ui/icons"
 import { QrScannerModal } from "../components/session/QrScannerModal"
+import { ConnectionState } from "../state/managers/ConnectionStateManager"
 
 export function JoinSession() {
   const { controller, state } = useSession()
@@ -20,12 +21,12 @@ export function JoinSession() {
   // Auto-join when arriving via a QR link (?code=...).
   useEffect(() => {
     const code = params.get("code")
-    if (code && !autoTried.current && state.phase === "idle") {
+    if (code && !autoTried.current && state.connectionState === ConnectionState.DISCONNECTED) {
       autoTried.current = true
       setAttempted(true)
       void controller.join(code)
     }
-  }, [params, controller, state.phase])
+  }, [params, controller, state.connectionState])
 
   const join = (code: string) => {
     setAttempted(true)
@@ -38,8 +39,8 @@ export function JoinSession() {
     navigate("/join", { replace: true })
   }
 
-  const connected = state.phase === "connected"
-  const busy = state.phase === "starting" || state.phase === "connecting"
+  const connected = state.connectionState === ConnectionState.CONNECTED
+  const busy = state.connectionState === ConnectionState.SIGNALING || state.connectionState === ConnectionState.NEGOTIATING || state.connectionState === ConnectionState.CONNECTING
 
   if (connected) {
     return (
@@ -48,7 +49,7 @@ export function JoinSession() {
           <div>
             <h1 className="text-2xl font-semibold tracking-tight">Connected</h1>
             <div className="mt-1.5">
-              <ConnectionStatus phase={state.phase} />
+              <ConnectionStatus phase={state.connectionState} />
             </div>
           </div>
           <Button variant="ghost" size="sm" onClick={leave}>
@@ -97,13 +98,13 @@ export function JoinSession() {
 
         {busy && (
           <div className="flex justify-center">
-            <ConnectionStatus phase={state.phase} />
+            <ConnectionStatus phase={state.connectionState} />
           </div>
         )}
-        {attempted && state.phase === "error" && (
-          <p className="text-center text-sm text-destructive">
-            {state.error ?? "Could not join that session."}
-          </p>
+        {attempted && state.connectionState === ConnectionState.FAILED && (
+          <div className="text-center text-sm text-destructive">
+            {state.error || "Connection failed. The code may be invalid or the host left."}
+          </div>
         )}
       </Card>
 
