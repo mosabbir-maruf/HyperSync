@@ -190,27 +190,6 @@ export function Settings() {
         </h2>
         <Card className="divide-y divide-border">
           <Row
-            title="Chunk size"
-            description="Bytes read and sent per data-channel write. Larger is faster on stable links."
-          >
-            <div className="inline-flex border border-border-strong">
-              {CHUNK_OPTIONS.map((opt) => (
-                <button
-                  key={opt.value}
-                  onClick={() => update({ chunkSize: opt.value })}
-                  className={cn(
-                    "border-r border-border px-3 py-1.5 font-mono text-[12px] transition-colors last:border-r-0",
-                    settings.chunkSize === opt.value
-                      ? "bg-primary text-primary-foreground"
-                      : "text-muted-foreground hover:text-foreground",
-                  )}
-                >
-                  {opt.label}
-                </button>
-              ))}
-            </div>
-          </Row>
-          <Row
             title="Developer mode"
             description="Show local connection diagnostics."
           >
@@ -251,8 +230,4 @@ export function Settings() {
   )
 }
 
-const CHUNK_OPTIONS = [
-  { value: 16 * 1024, label: "16K" },
-  { value: 64 * 1024, label: "64K" },
-  { value: 256 * 1024, label: "256K" },
-]
+
