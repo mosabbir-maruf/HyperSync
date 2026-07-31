@@ -149,87 +149,6 @@ export function About() {
         </div>
       </section>
 
-      {/* FAQ */}
-      <section className="bg-background py-24 md:py-32">
-        <div className="mx-auto max-w-[1273px] px-6 md:px-12">
-          <div className="mb-12 flex items-center gap-6 md:mb-20">
-            <h2 className="text-3xl font-black tracking-tighter md:text-5xl">
-              FAQ
-            </h2>
-            <span className="h-px flex-1 bg-border-strong" />
-          </div>
-
-          <div className="grid gap-px overflow-hidden rounded-3xl border border-border-strong bg-border-strong">
-            {faqs.map((faq, idx) => {
-              const isOpen = openIndex === idx
-              return (
-                <div
-                  key={idx}
-                  className="bg-background transition-colors duration-300"
-                >
-                  <button
-                    onClick={() => setOpenIndex(isOpen ? null : idx)}
-                    className="group flex w-full cursor-pointer items-center justify-between gap-6 p-6 text-left transition-colors hover:bg-card sm:p-10"
-                  >
-                    <div className="flex items-start gap-4 sm:items-center sm:gap-8">
-                      <span className="label-mono mt-1 w-6 shrink-0 text-primary sm:mt-0">
-                        {String(idx + 1).padStart(2, "0")}
-                      </span>
-                      <span
-                        className={`text-base font-bold tracking-tight transition-colors duration-300 sm:text-xl ${
-                          isOpen
-                            ? "text-primary"
-                            : "text-foreground group-hover:text-primary"
-                        }`}
-                      >
-                        {faq.q}
-                      </span>
-                    </div>
-                    <div
-                      className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-border-strong transition-all duration-300 ${
-                        isOpen
-                          ? "rotate-180 border-primary bg-primary text-primary-foreground"
-                          : "bg-background text-muted-foreground group-hover:border-primary/30 group-hover:text-primary"
-                      }`}
-                    >
-                      <svg
-                        className="h-4 w-4"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        strokeWidth={2.5}
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M19 9l-7 7-7-7"
-                        />
-                      </svg>
-                    </div>
-                  </button>
-
-                  <div
-                    className={`grid transition-[grid-template-rows,opacity] duration-300 ease-out ${
-                      isOpen
-                        ? "grid-rows-[1fr] opacity-100"
-                        : "grid-rows-[0fr] opacity-0"
-                    }`}
-                  >
-                    <div className="overflow-hidden">
-                      <div className="pb-10 pl-[4.5rem] pr-6 sm:pl-[6.5rem] sm:pr-12">
-                        <p className="text-sm leading-relaxed text-muted-foreground sm:text-base">
-                          {faq.a}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-        </div>
-      </section>
-
       {/* Creator Card */}
       <section className="bg-background py-24 md:py-32">
         <div className="mx-auto max-w-[1273px] px-6 md:px-12">
@@ -336,6 +255,87 @@ export function About() {
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section className="bg-background py-24 md:py-32">
+        <div className="mx-auto max-w-[1273px] px-6 md:px-12">
+          <div className="mb-12 flex items-center gap-6 md:mb-20">
+            <h2 className="text-3xl font-black tracking-tighter md:text-5xl">
+              FAQ
+            </h2>
+            <span className="h-px flex-1 bg-border-strong" />
+          </div>
+
+          <div className="grid gap-px overflow-hidden rounded-3xl border border-border-strong bg-border-strong">
+            {faqs.map((faq, idx) => {
+              const isOpen = openIndex === idx
+              return (
+                <div
+                  key={idx}
+                  className="bg-background transition-colors duration-300"
+                >
+                  <button
+                    onClick={() => setOpenIndex(isOpen ? null : idx)}
+                    className="group flex w-full cursor-pointer items-center justify-between gap-6 p-6 text-left transition-colors hover:bg-card sm:p-10"
+                  >
+                    <div className="flex items-start gap-4 sm:items-center sm:gap-8">
+                      <span className="label-mono mt-1 w-6 shrink-0 text-primary sm:mt-0">
+                        {String(idx + 1).padStart(2, "0")}
+                      </span>
+                      <span
+                        className={`text-base font-bold tracking-tight transition-colors duration-300 sm:text-xl ${
+                          isOpen
+                            ? "text-primary"
+                            : "text-foreground group-hover:text-primary"
+                        }`}
+                      >
+                        {faq.q}
+                      </span>
+                    </div>
+                    <div
+                      className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-border-strong transition-all duration-300 ${
+                        isOpen
+                          ? "rotate-180 border-primary bg-primary text-primary-foreground"
+                          : "bg-background text-muted-foreground group-hover:border-primary/30 group-hover:text-primary"
+                      }`}
+                    >
+                      <svg
+                        className="h-4 w-4"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth={2.5}
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M19 9l-7 7-7-7"
+                        />
+                      </svg>
+                    </div>
+                  </button>
+
+                  <div
+                    className={`grid transition-[grid-template-rows,opacity] duration-300 ease-out ${
+                      isOpen
+                        ? "grid-rows-[1fr] opacity-100"
+                        : "grid-rows-[0fr] opacity-0"
+                    }`}
+                  >
+                    <div className="overflow-hidden">
+                      <div className="pb-10 pl-[4.5rem] pr-6 sm:pl-[6.5rem] sm:pr-12">
+                        <p className="text-sm leading-relaxed text-muted-foreground sm:text-base">
+                          {faq.a}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )
+            })}
           </div>
         </div>
       </section>
