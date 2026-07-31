@@ -13,10 +13,15 @@ const nav = [
 
 function Brand() {
   return (
-    <NavLink to="/" className="flex items-center gap-2.5">
-      <HyperSyncLogo className="h-7 w-7 text-primary drop-shadow-[0_0_8px_rgba(234,88,12,0.4)]" />
-      <span className="text-[16px] font-extrabold tracking-tight">
-        HyperSync
+    <NavLink
+      to="/"
+      className="flex items-center gap-2 transition-opacity hover:opacity-80"
+    >
+      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#cf4322]">
+        <HyperSyncLogo className="h-5 w-5 text-black/80" />
+      </div>
+      <span className="text-[15px] font-black tracking-tight text-black/80">
+        Hyper<span className="text-[#cf4322]">Sync</span>
       </span>
     </NavLink>
   )
@@ -24,7 +29,7 @@ function Brand() {
 
 function Nav({ className }: { className?: string }) {
   return (
-    <nav className={cn("flex items-center gap-1", className)}>
+    <nav className={cn("flex items-center gap-1.5", className)}>
       {nav.map(({ to, label, end }) => (
         <NavLink
           key={to}
@@ -32,24 +37,14 @@ function Nav({ className }: { className?: string }) {
           end={end}
           className={({ isActive }) =>
             cn(
-              "relative px-3 py-1.5 text-[13px] font-medium transition-colors",
+              "relative px-4 py-1.5 text-[13px] font-bold transition-all rounded-full",
               isActive
-                ? "text-foreground"
-                : "text-muted-foreground hover:text-foreground",
+                ? "bg-primary text-primary-foreground shadow-sm"
+                : "text-muted-foreground hover:bg-muted hover:text-foreground",
             )
           }
         >
-          {({ isActive }) => (
-            <>
-              {label}
-              <span
-                className={cn(
-                  "absolute inset-x-3 -bottom-px h-0.5 bg-primary transition-opacity",
-                  isActive ? "opacity-100" : "opacity-0",
-                )}
-              />
-            </>
-          )}
+          {label}
         </NavLink>
       ))}
     </nav>
@@ -62,12 +57,16 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="min-h-[100dvh] bg-background text-foreground">
-      <header className="sticky top-0 z-50 border-b border-border-strong bg-background/95 backdrop-blur">
-        <div className="mx-auto flex h-14 w-full max-w-[1600px] items-center gap-4 px-4 md:px-8">
+      <header className="sticky top-2 z-50 mx-auto w-full max-w-[1200px] px-3 md:top-4 md:px-6 lg:px-8">
+        <div className="flex h-14 w-full items-center justify-between rounded-full border border-border-strong bg-background/70 px-3 shadow-sm backdrop-blur-xl md:h-[60px] md:px-4">
           <Brand />
-          <Nav className="ml-4 hidden md:flex" />
-          <div className="ml-auto flex items-center gap-3">
-            <span className="hidden items-center gap-2 font-mono text-[9px] font-semibold uppercase tracking-widest text-success sm:flex">
+
+          <div className="hidden md:block absolute left-1/2 -translate-x-1/2">
+            <Nav />
+          </div>
+
+          <div className="flex items-center gap-2 md:gap-3">
+            <span className="hidden items-center gap-2 font-mono text-[9px] font-semibold uppercase tracking-widest text-success lg:flex">
               <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-success/70" />
               SYS_OPERATIONAL
             </span>
@@ -94,9 +93,10 @@ export function AppShell({ children }: { children: ReactNode }) {
             </a>
           </div>
         </div>
-        {/* Mobile row of tabs beneath the brand */}
-        <div className="mx-auto flex w-full max-w-[1600px] items-center border-t border-border px-2 md:hidden">
-          <Nav className="w-full justify-around" />
+
+        {/* Mobile row of tabs */}
+        <div className="mt-2 mx-auto flex h-12 w-full items-center rounded-full border border-border-strong bg-background/80 px-1.5 shadow-sm backdrop-blur-xl md:hidden">
+          <Nav className="w-full justify-between gap-1 [&>a]:flex-1 [&>a]:text-center [&>a]:px-2" />
         </div>
       </header>
 
@@ -125,9 +125,11 @@ function Footer() {
             <div className="flex flex-1 flex-col justify-between border-b border-border-strong p-6 md:border-b-0 md:border-r md:p-8">
               <div>
                 <div className="mb-4 flex items-center gap-2.5">
-                  <HyperSyncLogo className="h-6 w-6 text-primary drop-shadow-[0_0_8px_rgba(234,88,12,0.4)]" />
-                  <span className="text-[16px] font-extrabold tracking-tight">
-                    HyperSync
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#cf4322]">
+                    <HyperSyncLogo className="h-5 w-5 text-black/80" />
+                  </div>
+                  <span className="text-[15px] font-black tracking-tight text-black/80">
+                    Hyper<span className="text-[#cf4322]">Sync</span>
                   </span>
                 </div>
                 <p className="max-w-[280px] text-[13px] leading-relaxed text-muted-foreground">

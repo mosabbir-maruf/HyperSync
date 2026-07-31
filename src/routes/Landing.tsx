@@ -23,7 +23,7 @@ export function Landing() {
 
           <h1 className="text-[4rem] font-black leading-[0.9] tracking-tighter md:text-[6rem] lg:text-[7.5rem]">
             Direct transfer. <br />
-            <span className="text-muted-foreground">No uploads.</span>
+            <span className="text-[#cf4322]">No uploads.</span>
           </h1>
 
           <p className="mx-auto max-w-2xl text-lg font-medium leading-relaxed text-muted-foreground sm:text-xl">

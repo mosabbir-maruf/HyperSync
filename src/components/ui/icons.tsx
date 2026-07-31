@@ -162,23 +162,10 @@ export const HyperSyncLogo = (p: IconProps) => (
   >
     <path
       d="M17.5 7.5C15.6 7.5 14 8.7 13.3 10.4L12.5 12.3C11.3 15.1 8.8 16.5 6.5 16.5C4 16.5 2 14.5 2 12C2 9.5 4 7.5 6.5 7.5C8.4 7.5 10 8.7 10.7 10.4L11.5 12.3C12.7 15.1 15.2 16.5 17.5 16.5C20 16.5 22 14.5 22 12C22 9.5 20 7.5 17.5 7.5Z"
-      stroke="url(#infinity_grad)"
+      stroke="currentColor"
       strokeWidth="2.5"
       strokeLinecap="round"
       strokeLinejoin="round"
     />
-    <defs>
-      <linearGradient
-        id="infinity_grad"
-        x1="2"
-        y1="7.5"
-        x2="22"
-        y2="16.5"
-        gradientUnits="userSpaceOnUse"
-      >
-        <stop stopColor="#fb923c" />
-        <stop offset="1" stopColor="#ea580c" />
-      </linearGradient>
-    </defs>
   </svg>
 )
