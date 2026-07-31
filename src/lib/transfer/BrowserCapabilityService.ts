@@ -11,6 +11,7 @@ export interface BrowserCapabilities {
   hasTouch: boolean
   isSafari: boolean
   isIOS: boolean
+  hasOPFS: boolean
 }
 
 class BrowserCapabilityService {
@@ -30,6 +31,9 @@ class BrowserCapabilityService {
     const hasCamera = typeof navigator !== "undefined" && typeof navigator.mediaDevices !== "undefined" && typeof navigator.mediaDevices.getUserMedia !== "undefined"
     const hasTouch = typeof window !== "undefined" && ("ontouchstart" in window || navigator.maxTouchPoints > 0)
     
+    // OPFS is supported in Chrome 109+, Safari 15.2+, Firefox 111+
+    const hasOPFS = typeof navigator !== "undefined" && !!navigator.storage && typeof navigator.storage.getDirectory === "function"
+    
     // Minimal fallback user-agent detection ONLY for known bugs/restrictions where feature detection is impossible.
     // Safari iOS restricts Blob creation sizes and background operations.
     const ua = typeof navigator !== "undefined" ? navigator.userAgent : ""
@@ -48,6 +52,7 @@ class BrowserCapabilityService {
       hasTouch,
       isSafari,
       isIOS,
+      hasOPFS,
       maxDataChannelMessageSize: 256 * 1024,
     }
 

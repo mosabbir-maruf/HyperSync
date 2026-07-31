@@ -1,6 +1,7 @@
 import { browserCapabilityService } from "./BrowserCapabilityService"
 import { BrowserDownloadProvider } from "./BrowserDownloadProvider"
 import { FileSystemAccessProvider } from "./FileSystemAccessProvider"
+import { OpfsDownloadProvider } from "./OpfsDownloadProvider"
 import type { SaveProvider } from "./SaveProvider"
 import type { FileMetadata } from "./types"
 import { sanitizeFilename } from "../utils"
@@ -28,7 +29,20 @@ export class DownloadManager {
       }
     }
 
-    // In-memory fallback — works for most files, may struggle with very large ones
+    // Fallback 1: Origin Private File System (OPFS)
+    // Streams to sandboxed disk instead of RAM. Solves Android OOM crashes.
+    if (caps.hasOPFS) {
+      try {
+        const opfs = new OpfsDownloadProvider(meta)
+        await opfs.initialize()
+        return opfs
+      } catch (e) {
+        console.warn("OPFS initialization failed, falling back to RAM", e)
+      }
+    }
+
+    // Fallback 2: In-memory Blob (legacy)
+    // Works for small files, but struggles with memory pressure on large files on mobile.
     return new BrowserDownloadProvider(meta)
   }
 }
