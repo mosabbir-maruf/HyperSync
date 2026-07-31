@@ -44,20 +44,17 @@ function Toggle({
       aria-checked={checked}
       onClick={() => onChange(!checked)}
       className={cn(
-        "relative h-6 w-11 rounded-full border transition-colors",
-        checked
-          ? "border-primary bg-primary"
-          : "border-border-strong bg-secondary",
+        "relative inline-flex h-6 w-11 shrink-0 items-center rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+        checked ? "bg-primary" : "bg-secondary border-border-strong",
       )}
     >
       <span
         className={cn(
-          "absolute top-0.5 h-4.5 w-4.5 rounded-full transition-transform",
+          "pointer-events-none block h-5 w-5 rounded-full shadow-lg transition-transform",
           checked
             ? "translate-x-5 bg-primary-foreground"
-            : "translate-x-0.5 bg-muted-foreground",
+            : "translate-x-0 bg-muted-foreground",
         )}
-        style={{ height: "18px", width: "18px" }}
       />
     </button>
   )

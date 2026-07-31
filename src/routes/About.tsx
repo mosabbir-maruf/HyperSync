@@ -42,7 +42,7 @@ export function About() {
   return (
     <div className="flex flex-col">
       {/* Hero */}
-      <section className="relative flex min-h-[60vh] flex-col items-center justify-center overflow-hidden border-b border-border-strong px-4 py-24 text-center sm:px-8">
+      <section className="relative flex min-h-[60vh] flex-col items-center justify-center overflow-hidden px-4 py-24 text-center sm:px-8">
         <div className="relative z-10 max-w-3xl space-y-8">
           <div className="mx-auto flex w-max items-center gap-3">
             <span className="label-mono">HyperSync</span>
@@ -64,7 +64,7 @@ export function About() {
       </section>
 
       {/* Philosophy Grid */}
-      <section className="border-b border-border-strong bg-background py-24 md:py-32">
+      <section className="bg-background py-24 md:py-32">
         <div className="mx-auto max-w-[1200px] px-6 md:px-12">
           <div className="mb-12 flex items-center gap-6 md:mb-20">
             <h2 className="text-3xl font-black tracking-tighter md:text-5xl">
@@ -108,7 +108,7 @@ export function About() {
       </section>
 
       {/* Architecture List */}
-      <section className="border-b border-border-strong bg-background py-24 md:py-32">
+      <section className="bg-background py-24 md:py-32">
         <div className="mx-auto max-w-[1200px] px-6 md:px-12">
           <div className="mb-12 flex items-center gap-6 md:mb-20">
             <span className="h-px flex-1 bg-border-strong" />
@@ -247,7 +247,7 @@ export function About() {
           </div>
 
           {/* Card Container */}
-          <div className="relative overflow-hidden rounded-3xl border border-border-strong bg-card p-8 md:p-12 lg:p-16">
+          <div className="relative overflow-hidden rounded-3xl border border-border-strong bg-background p-8 md:p-12 lg:p-16">
             {/* ambient glow */}
             <div className="pointer-events-none absolute -right-24 -top-24 h-80 w-80 rounded-full bg-primary/10 blur-[120px]" />
             {/* corner ticks */}
@@ -267,7 +267,7 @@ export function About() {
                     draggable={false}
                   />
                   <span
-                    className="absolute -bottom-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full bg-card"
+                    className="absolute -bottom-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full bg-background"
                     title="Verified"
                   >
                     <svg

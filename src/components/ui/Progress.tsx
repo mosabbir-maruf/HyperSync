@@ -20,7 +20,10 @@ export function Progress({
   const pct = Math.round(Math.min(1, Math.max(0, value)) * 100)
   return (
     <div
-      className={cn("h-1 w-full overflow-hidden rounded-full bg-secondary", className)}
+      className={cn(
+        "h-1 w-full overflow-hidden rounded-full bg-secondary",
+        className,
+      )}
       role="progressbar"
       aria-valuenow={pct}
       aria-valuemin={0}
