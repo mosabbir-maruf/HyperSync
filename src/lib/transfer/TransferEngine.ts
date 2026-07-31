@@ -271,8 +271,25 @@ export class TransferEngine {
     try {
       while (this.messageQueue.length > 0) {
         const data = this.messageQueue.shift()
-        if (typeof data !== "string") this.binaryQueueSize--
-        await this.handleMessageData(data)
+
+        if (typeof data === "string") {
+          // Control messages are small JSON — handle synchronously
+          const msg = decodeControl(data)
+          if (msg) this.handleControl(msg)
+        } else {
+          // Binary chunks — handle synchronously, never yield between chunks
+          // Yielding here was the cause of the ~6 MB/s cap
+          if (data instanceof ArrayBuffer) {
+            this.binaryQueueSize--
+            if (this.currentReceivingId) {
+              const receiver = this.receivers.get(this.currentReceivingId)
+              if (receiver) await receiver.handleChunk(data as ArrayBuffer)
+            }
+          } else {
+            this.binaryQueueSize--
+            await this.handleBinaryData(data)
+          }
+        }
 
         // Backpressure: resume sender only when queue drains to low-water mark
         if (this.receiverPaused && this.binaryQueueSize <= TransferEngine.RESUME_AT && this.currentReceivingId) {
@@ -285,31 +302,20 @@ export class TransferEngine {
     }
   }
 
-  private async handleMessageData(data: unknown) {
-    if (typeof data === "string") {
-      const msg = decodeControl(data)
-      if (msg) this.handleControl(msg)
-      return
-    }
-    
+  private async handleBinaryData(data: unknown) {
     let buffer: ArrayBuffer
-    if (data instanceof ArrayBuffer || (data && (data as any).constructor?.name === "ArrayBuffer")) {
-      buffer = data as ArrayBuffer
-    } else if (data instanceof Blob || (data && typeof (data as any).arrayBuffer === "function")) {
-      buffer = await (data as any).arrayBuffer()
-    } else if (data instanceof Uint8Array || (data && (data as any).constructor?.name === "Uint8Array")) {
+    if (data instanceof Uint8Array || (data && (data as any).constructor?.name === "Uint8Array")) {
       const u8 = data as any
       buffer = u8.buffer.slice(u8.byteOffset, u8.byteOffset + u8.byteLength)
+    } else if (data instanceof Blob || (data && typeof (data as any).arrayBuffer === "function")) {
+      buffer = await (data as any).arrayBuffer()
     } else {
-      console.warn("[TransferEngine] Unknown binary data type received:", data)
+      console.warn("[TransferEngine] Unknown binary data type:", data)
       return
     }
-
     if (this.currentReceivingId) {
       const receiver = this.receivers.get(this.currentReceivingId)
-      if (receiver) {
-        await receiver.handleChunk(buffer)
-      }
+      if (receiver) await receiver.handleChunk(buffer)
     }
   }
 

@@ -44,6 +44,6 @@ export function getIceServers(): RTCIceServer[] {
 
 export const RTC_CONFIG: RTCConfiguration = {
   iceServers: getIceServers(),
-  bundlePolicy: "balanced",
-  iceCandidatePoolSize: 10,
+  bundlePolicy: "max-bundle",     // single DTLS handshake, lower overhead
+  iceCandidatePoolSize: 16,
 }
