@@ -44,8 +44,8 @@ export const HEADER_SIZE = 36 + 4 + 8 + 4 + 1
 // A larger send window keeps a high-bandwidth, low-latency LAN link busy.
 // The low-water mark is half the high-water mark to prevent rapid stop/start
 // cycles while the browser drains a small buffer.
-export const HIGH_WATER_MARK = 8 * 1024 * 1024
-export const LOW_WATER_MARK = 4 * 1024 * 1024
+export const HIGH_WATER_MARK = 4 * 1024 * 1024   // 4 MB — 16×256KB chunks in-flight, keeps pipe saturated
+export const LOW_WATER_MARK  = 1 * 1024 * 1024   // 1 MB resume threshold
 
 const encoder = new TextEncoder()
 const decoder = new TextDecoder()
