@@ -27,7 +27,7 @@ export function Home() {
         </div>
         <h1 className="text-4xl font-black tracking-tighter md:text-6xl lg:text-7xl">
           Pick a device.{" "}
-          <span className="text-muted-foreground">Start sending.</span>
+          <span className="text-[#cf4322]">Start sending.</span>
         </h1>
       </header>
 

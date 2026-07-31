@@ -43,8 +43,8 @@ export function History() {
             </Button>
           )}
         </div>
-        <h1 className="text-4xl font-black tracking-tighter md:text-5xl">
-          History. <span className="text-muted-foreground">Local device.</span>
+        <h1 className="text-4xl font-black tracking-tighter md:text-6xl lg:text-7xl">
+          History. <span className="text-[#cf4322]">Local device.</span>
         </h1>
       </header>
 

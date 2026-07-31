@@ -79,8 +79,8 @@ export function Settings() {
           <span className="label-mono">System configuration</span>
           <span className="h-px flex-1 bg-border" />
         </div>
-        <h1 className="text-4xl font-black tracking-tighter md:text-5xl">
-          Settings. <span className="text-muted-foreground">Local device.</span>
+        <h1 className="text-4xl font-black tracking-tighter md:text-6xl lg:text-7xl">
+          Settings. <span className="text-[#cf4322]">Local device.</span>
         </h1>
       </header>
 

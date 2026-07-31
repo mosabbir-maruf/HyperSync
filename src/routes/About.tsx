@@ -51,9 +51,9 @@ export function About() {
               About
             </span>
           </div>
-          <h1 className="text-4xl font-black leading-[0.9] tracking-tighter sm:text-5xl md:text-6xl lg:text-7xl">
+          <h1 className="text-4xl font-black leading-[0.9] tracking-tighter md:text-6xl lg:text-7xl">
             File transfer that stays <br />
-            <span className="text-muted-foreground">between devices.</span>
+            <span className="text-[#cf4322]">between devices.</span>
           </h1>
           <p className="mx-auto max-w-xl text-lg font-medium leading-relaxed text-muted-foreground sm:text-xl">
             HyperSync moves files straight from one device to another over an
