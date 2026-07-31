@@ -31,7 +31,7 @@ export function History() {
       <header className="space-y-5">
         <div className="flex items-center gap-3">
           <span className="label-mono">Transfer log</span>
-          <span className="h-px flex-1 bg-border" />
+          <span className="h-px flex-1 bg-border-strong" />
           {entries.length > 0 && (
             <Button
               variant="ghost"

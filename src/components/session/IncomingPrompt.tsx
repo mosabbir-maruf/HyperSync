@@ -45,7 +45,7 @@ export function IncomingPrompt({
           </li>
         ))}
       </ul>
-      <div className="flex gap-px border-t border-border bg-border">
+      <div className="flex gap-px border-t border-border-strong bg-border-strong">
         <Button
           variant="ghost"
           className="flex-1 rounded-none bg-card"

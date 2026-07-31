@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { Link } from "react-router-dom"
 import {
   ShieldIcon,
   BoltIcon,
@@ -46,7 +47,7 @@ export function About() {
         <div className="relative z-10 max-w-3xl space-y-8">
           <div className="mx-auto flex w-max items-center gap-3">
             <span className="label-mono">HyperSync</span>
-            <span className="h-px w-8 bg-border" />
+            <span className="h-px w-8 bg-border-strong" />
             <span className="font-mono text-[10px] uppercase tracking-widest text-primary">
               About
             </span>
@@ -60,6 +61,29 @@ export function About() {
             encrypted WebRTC channel. No accounts, no uploads, and no cloud
             copies.
           </p>
+
+          <div className="flex flex-wrap items-center justify-center gap-2 pt-2">
+            <Link
+              to="/about"
+              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+              className="inline-flex h-9 items-center rounded-full bg-primary px-5 font-mono text-[10px] font-bold uppercase tracking-widest text-primary-foreground transition-colors hover:bg-primary/90"
+            >
+              About Us
+            </Link>
+            {[
+              { href: "#architecture", label: "Architecture" },
+              { href: "#maker", label: "Maintainer" },
+              { href: "#faq", label: "FAQ" },
+            ].map((item) => (
+              <a
+                key={item.href}
+                href={item.href}
+                className="inline-flex h-9 items-center rounded-full border border-border-strong bg-background px-5 font-mono text-[10px] font-bold uppercase tracking-widest text-foreground transition-colors hover:bg-muted"
+              >
+                {item.label}
+              </a>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -108,7 +132,7 @@ export function About() {
       </section>
 
       {/* Architecture List */}
-      <section id="architecture" className="bg-background py-24 md:py-32">
+      <section id="architecture" className="scroll-mt-24 bg-background py-24 md:py-32">
         <div className="mx-auto max-w-[1273px] px-6 md:px-12">
           <div className="mb-12 flex items-center gap-6 md:mb-20">
             <span className="h-px flex-1 bg-border-strong" />
@@ -150,7 +174,7 @@ export function About() {
       </section>
 
       {/* Creator Card */}
-      <section id="maker" className="bg-background py-24 md:py-32">
+      <section id="maker" className="scroll-mt-24 bg-background py-24 md:py-32">
         <div className="mx-auto max-w-[1273px] px-6 md:px-12">
           <div className="mb-12 flex items-center gap-6 md:mb-20">
             <h2 className="text-3xl font-black tracking-tighter md:text-5xl">
@@ -260,7 +284,7 @@ export function About() {
       </section>
 
       {/* FAQ */}
-      <section id="faq" className="bg-background py-24 md:py-32">
+      <section id="faq" className="scroll-mt-24 bg-background py-24 md:py-32">
         <div className="mx-auto max-w-[1273px] px-6 md:px-12">
           <div className="mb-12 flex items-center gap-6 md:mb-20">
             <h2 className="text-3xl font-black tracking-tighter md:text-5xl">

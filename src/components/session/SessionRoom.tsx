@@ -35,7 +35,7 @@ export function SessionRoom() {
         <section className="space-y-3">
           <div className="flex items-center gap-3">
             <span className="label-mono">Transfers</span>
-            <span className="h-px flex-1 bg-border" />
+            <span className="h-px flex-1 bg-border-strong" />
             <span className="label-mono">{state.items.length}</span>
           </div>
           <div className="space-y-2">

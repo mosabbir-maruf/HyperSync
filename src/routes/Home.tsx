@@ -17,7 +17,7 @@ export function Home() {
       <header className="space-y-5">
         <div className="flex items-center gap-3">
           <span className="label-mono">Direct transfer · no uploads</span>
-          <span className="h-px flex-1 bg-border" />
+          <span className="h-px flex-1 bg-border-strong" />
           <Link
             to="/settings"
             className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground transition-colors hover:text-foreground"
@@ -42,7 +42,7 @@ export function Home() {
       <section className="space-y-4">
         <div className="flex items-center gap-3">
           <span className="label-mono">Not showing up?</span>
-          <span className="h-px flex-1 bg-border" />
+          <span className="h-px flex-1 bg-border-strong" />
         </div>
         <div className="grid overflow-hidden rounded-3xl border border-border-strong sm:grid-cols-2">
           <Link
