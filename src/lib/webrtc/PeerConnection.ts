@@ -30,6 +30,7 @@ export class PeerConnection {
   private makingOffer = false
   private closed = false
   private pendingIce: RTCIceCandidateInit[] = []
+  private signalQueue: Promise<void> = Promise.resolve()
   public readonly stats: WebRTCStatsCollector
 
   constructor(
@@ -154,7 +155,11 @@ export class PeerConnection {
       }),
       this.signaling.on(
         "signal",
-        ({ signal }) => void this.handleSignal(signal),
+        ({ signal }) => {
+          this.signalQueue = this.signalQueue
+            .then(() => this.handleSignal(signal))
+            .catch(err => console.error("Signal processing error:", err))
+        }
       ),
       this.signaling.on("peer-left", () => {
         this.setState("disconnected")
