@@ -15,7 +15,7 @@ export function Changelog() {
   return (
     <div className="flex flex-col">
       {/* Hero */}
-      <section className="relative flex min-h-[40vh] flex-col items-center justify-center overflow-hidden px-4 py-24 text-center sm:px-8">
+      <section className="relative flex min-h-[60vh] flex-col items-center justify-center overflow-hidden px-4 py-24 text-center sm:px-8">
         <div className="relative z-10 max-w-3xl space-y-8">
           <div className="mx-auto flex w-max items-center gap-3">
             <span className="label-mono">HyperSync</span>
@@ -25,7 +25,8 @@ export function Changelog() {
             </span>
           </div>
           <h1 className="text-4xl font-black leading-[0.9] tracking-tighter md:text-6xl lg:text-7xl">
-            Changelog
+            Project <br />
+            <span className="text-[#cf4322]">Changelog.</span>
           </h1>
           <p className="mx-auto max-w-xl text-lg font-medium leading-relaxed text-muted-foreground sm:text-xl">
             Stay up to date with the latest features, improvements, and bug fixes in HyperSync.
@@ -35,7 +36,7 @@ export function Changelog() {
 
       {/* Timeline Entries */}
       <section className="bg-background pb-24 md:pb-32">
-        <div className="mx-auto max-w-5xl px-6 md:px-12">
+        <div className="mx-auto max-w-[1273px] px-6 md:px-12">
           <div className="relative">
             {/* Timeline Vertical Line (Desktop) */}
             <div className="absolute left-[16px] top-4 bottom-0 w-px bg-border-strong md:left-[200px]" />
