@@ -1,3 +1,4 @@
+import { useState } from "react"
 import {
   ShieldIcon,
   BoltIcon,
@@ -6,6 +7,38 @@ import {
 } from "../components/ui/icons"
 
 export function About() {
+  const [openIndex, setOpenIndex] = useState<number | null>(null)
+
+  const faqs = [
+    {
+      q: "How does HyperSync transfer files?",
+      a: "HyperSync opens a direct WebRTC peer connection between two browsers and streams files over a data channel in small chunks. The signaling backend only exchanges connection details (SDP + ICE) during setup, then gets out of the way entirely.",
+    },
+    {
+      q: "Is there any privacy risk or tracking?",
+      a: "No accounts, no uploads, and no cloud copies. Bytes flow peer-to-peer from one device to another, and the signaling backend never sees your files. There is zero telemetry and zero analytics.",
+    },
+    {
+      q: "Does it work without internet?",
+      a: "Devices on the same local network are discovered automatically, and the transfer itself streams directly over your Wi-Fi or LAN. Files never need to travel through the public internet.",
+    },
+    {
+      q: "How fast is the transfer?",
+      a: "Because data bypasses internet bottlenecks and streams directly device-to-device, transfers run at the maximum speed your local network can handle. Files stream in chunks with backpressure so buffers never overflow.",
+    },
+    {
+      q: "Which devices are supported?",
+      a: "Any device with a modern web browser — macOS, Windows, Linux, iOS, and Android. No apps to download, no accounts to create, and no permissions to grant. Just open the URL and start transferring.",
+    },
+    {
+      q: "Are large files handled well?",
+      a: "Yes. Files are sliced into chunks and streamed with live progress, pause, resume, and retry. Large files never load fully into memory.",
+    },
+    {
+      q: "Is HyperSync free and open source?",
+      a: "Yes. HyperSync is completely free and open source. The code is available on GitHub for audit and collaboration.",
+    },
+  ]
   return (
     <div className="flex flex-col">
       {/* Hero */}
@@ -40,7 +73,7 @@ export function About() {
             <span className="h-px flex-1 bg-border-strong" />
           </div>
 
-          <div className="grid overflow-hidden rounded-3xl border border-border-strong bg-border-strong sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-px overflow-hidden rounded-3xl border border-border-strong bg-border-strong sm:grid-cols-2 lg:grid-cols-3">
             {[
               {
                 icon: <RadarIcon width={24} height={24} />,
@@ -75,7 +108,7 @@ export function About() {
       </section>
 
       {/* Architecture List */}
-      <section className="bg-card py-24 md:py-32">
+      <section className="border-b border-border-strong bg-background py-24 md:py-32">
         <div className="mx-auto max-w-[1200px] px-6 md:px-12">
           <div className="mb-12 flex items-center gap-6 md:mb-20">
             <span className="h-px flex-1 bg-border-strong" />
@@ -84,7 +117,7 @@ export function About() {
             </h2>
           </div>
 
-          <div className="grid overflow-hidden rounded-3xl border border-border-strong bg-border-strong sm:grid-cols-3">
+          <div className="grid gap-px overflow-hidden rounded-3xl border border-border-strong bg-border-strong sm:grid-cols-3">
             {[
               [
                 "01",
@@ -112,6 +145,93 @@ export function About() {
                 </p>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section className="bg-background py-24 md:py-32">
+        <div className="mx-auto max-w-[1200px] px-6 md:px-12">
+          <div className="mb-12 flex items-center gap-6 md:mb-20">
+            <h2 className="text-3xl font-black tracking-tighter md:text-5xl">
+              FAQ
+            </h2>
+            <span className="h-px flex-1 bg-border-strong" />
+          </div>
+
+          <div className="space-y-3">
+            {faqs.map((faq, idx) => {
+              const isOpen = openIndex === idx
+              return (
+                <div
+                  key={idx}
+                  className={`overflow-hidden rounded-2xl border bg-card transition-colors duration-300 ${
+                    isOpen
+                      ? "border-primary/40"
+                      : "border-border-strong hover:border-border"
+                  }`}
+                >
+                  <button
+                    onClick={() => setOpenIndex(isOpen ? null : idx)}
+                    className="flex w-full cursor-pointer items-center justify-between gap-4 p-5 text-left sm:p-6"
+                  >
+                    <div className="flex min-w-0 items-start gap-3 sm:items-center sm:gap-4">
+                      <div
+                        className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full transition-colors duration-300 sm:mt-0 ${
+                          isOpen
+                            ? "bg-primary text-primary-foreground"
+                            : "border border-border-strong bg-background text-muted-foreground"
+                        }`}
+                      >
+                        <span className="font-mono text-[10px] font-bold">
+                          {String(idx + 1).padStart(2, "0")}
+                        </span>
+                      </div>
+                      <span
+                        className={`text-sm font-semibold transition-colors duration-300 sm:text-base ${
+                          isOpen ? "text-foreground" : "text-muted-foreground"
+                        }`}
+                      >
+                        {faq.q}
+                      </span>
+                    </div>
+                    <div
+                      className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-border-strong bg-background transition-transform duration-300 ${
+                        isOpen ? "rotate-180 border-primary/30" : ""
+                      }`}
+                    >
+                      <svg
+                        className={`h-3.5 w-3.5 ${
+                          isOpen ? "text-primary" : "text-muted-foreground"
+                        }`}
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth={2.5}
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M19 9l-7 7-7-7"
+                        />
+                      </svg>
+                    </div>
+                  </button>
+
+                  <div
+                    className={`overflow-hidden transition-all duration-500 ease-in-out ${
+                      isOpen ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
+                    }`}
+                  >
+                    <div className="pb-6 pl-10 pr-5 pt-1 sm:pl-11 sm:pr-6 sm:pb-6">
+                      <p className="text-sm leading-relaxed text-muted-foreground sm:text-[15px]">
+                        {faq.a}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )
+            })}
           </div>
         </div>
       </section>

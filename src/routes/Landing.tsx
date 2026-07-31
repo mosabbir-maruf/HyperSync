@@ -34,12 +34,12 @@ export function Landing() {
           <div className="flex justify-center pt-4">
             <Link
               to="/app"
-              className="group flex h-14 items-center gap-4 border border-border-strong bg-card pl-6 pr-2 transition-colors hover:bg-muted"
+              className="group flex h-14 items-center gap-4 rounded-full border border-border-strong bg-card pl-6 pr-2 transition-colors hover:bg-muted"
             >
               <span className="font-bold uppercase tracking-tight">
                 Initialize Radar
               </span>
-              <span className="flex h-10 w-10 items-center justify-center bg-primary text-primary-foreground transition-transform group-hover:scale-105">
+              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground transition-transform group-hover:scale-105">
                 →
               </span>
             </Link>
@@ -57,7 +57,7 @@ export function Landing() {
             <span className="h-px flex-1 bg-border-strong" />
           </div>
 
-          <div className="grid gap-px bg-border-strong border border-border-strong sm:grid-cols-2">
+          <div className="grid gap-px overflow-hidden rounded-3xl border border-border-strong bg-border-strong sm:grid-cols-2">
             {[
               {
                 title: "Zero Infrastructure",
@@ -97,7 +97,7 @@ export function Landing() {
       </section>
 
       {/* 3. HOW IT WORKS */}
-      <section className="border-b border-border-strong bg-card py-24 md:py-32">
+      <section className="border-b border-border-strong bg-background py-24 md:py-32">
         <div className="mx-auto max-w-[1200px] px-6 md:px-12">
           <div className="mb-12 flex items-center gap-6 md:mb-20">
             <span className="h-px flex-1 bg-border-strong" />
@@ -106,7 +106,7 @@ export function Landing() {
             </h2>
           </div>
 
-          <div className="grid gap-px bg-border-strong sm:grid-cols-3 border border-border-strong">
+          <div className="grid gap-px overflow-hidden rounded-3xl border border-border-strong bg-border-strong sm:grid-cols-3">
             {[
               {
                 step: "01",
@@ -141,22 +141,34 @@ export function Landing() {
       </section>
 
       {/* 4. Final Call to Action */}
-      <section className="flex min-h-[50vh] flex-col items-center justify-center px-4 py-32 text-center md:px-8">
-        <div className="max-w-2xl space-y-8">
-          <h2 className="text-4xl font-black tracking-tighter sm:text-5xl md:text-6xl">
-            Ready to initialize <br /> transfer?
-          </h2>
-          <p className="mx-auto max-w-xl text-lg text-muted-foreground">
-            No accounts. No sign-ups. No installation. Just open the radar and
-            start sending files instantly.
-          </p>
-          <div className="pt-8 flex justify-center">
-            <Link
-              to="/app"
-              className="inline-flex h-12 items-center justify-center bg-primary px-8 font-mono text-[13px] font-bold uppercase tracking-[0.1em] text-primary-foreground transition-colors hover:bg-primary/90"
-            >
-              Start Transfer &rarr;
-            </Link>
+      <section className="bg-background py-24 md:py-32">
+        <div className="mx-auto max-w-[1200px] px-6 md:px-12">
+          <div className="relative overflow-hidden rounded-3xl border border-border-strong bg-background px-8 py-20 text-center md:py-24">
+            {/* ambient glow */}
+            <div className="pointer-events-none absolute -right-24 -top-24 h-80 w-80 rounded-full bg-primary/10 blur-[120px]" />
+            {/* corner ticks */}
+            <span className="absolute left-4 top-4 h-2 w-2 border-l border-t border-border-strong" />
+            <span className="absolute right-4 top-4 h-2 w-2 border-r border-t border-border-strong" />
+            <span className="absolute bottom-4 left-4 h-2 w-2 border-b border-l border-border-strong" />
+            <span className="absolute bottom-4 right-4 h-2 w-2 border-b border-r border-border-strong" />
+
+            <div className="relative z-10 mx-auto max-w-3xl space-y-8">
+              <h2 className="text-4xl font-black tracking-tighter text-foreground sm:text-5xl md:text-6xl">
+                Ready to initialize <br /> transfer?
+              </h2>
+              <p className="mx-auto max-w-xl text-lg text-muted-foreground">
+                No accounts. No sign-ups. No installation. Just open the radar
+                and start sending files instantly.
+              </p>
+              <div className="flex justify-center pt-8">
+                <Link
+                  to="/app"
+                  className="inline-flex h-12 items-center justify-center rounded-full bg-primary px-8 font-mono text-sm font-bold uppercase tracking-[0.1em] text-primary-foreground transition-colors hover:bg-primary/90 active:scale-[0.98]"
+                >
+                  Start Transfer &rarr;
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
       </section>
