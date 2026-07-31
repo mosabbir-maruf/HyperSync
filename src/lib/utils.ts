@@ -83,16 +83,16 @@ export function clamp(n: number, min: number, max: number): number {
   return Math.min(Math.max(n, min), max)
 }
 
-// Restrained device-avatar palette — no pink, no purple, no neon.
+// Avatar palette — vivid enough to pop on dark backgrounds, works on light too.
 const AVATAR_COLORS = [
-  "#cf4321", // rust
-  "#b7791f", // amber
-  "#3f7d42", // pine
-  "#2f6f6a", // teal
-  "#7a5c3e", // clay
-  "#4a5a6a", // slate
-  "#8a5a2b", // ochre
-  "#556b2f", // olive
+  "#cf4322", // rust (brand)
+  "#d97706", // amber
+  "#059669", // emerald
+  "#0891b2", // cyan
+  "#7c3aed", // violet
+  "#db2777", // pink
+  "#ea580c", // orange
+  "#16a34a", // green
 ]
 
 function hashString(input: string): number {
