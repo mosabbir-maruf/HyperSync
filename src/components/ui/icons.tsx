@@ -154,27 +154,16 @@ export const RadarIcon = (p: IconProps) => (
 )
 
 export const DropSyncLogo = (p: IconProps) => (
-  <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" {...p}>
+  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" {...p}>
     <path
-      d="M16 3C16 3 7.5 13.5 7.5 19.5C7.5 24.2 11.3 28 16 28C20.7 28 24.5 24.2 24.5 19.5C24.5 13.5 16 3 16 3Z"
-      fill="url(#logo_grad)"
-    />
-    <path
-      d="M13 16L16 13L19 16M16 13V20.5"
-      stroke="#121316"
-      strokeWidth="2.2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    <path
-      d="M19 21.5L16 24.5L13 21.5"
-      stroke="#121316"
-      strokeWidth="2.2"
+      d="M17.5 7.5C15.6 7.5 14 8.7 13.3 10.4L12.5 12.3C11.3 15.1 8.8 16.5 6.5 16.5C4 16.5 2 14.5 2 12C2 9.5 4 7.5 6.5 7.5C8.4 7.5 10 8.7 10.7 10.4L11.5 12.3C12.7 15.1 15.2 16.5 17.5 16.5C20 16.5 22 14.5 22 12C22 9.5 20 7.5 17.5 7.5Z"
+      stroke="url(#infinity_grad)"
+      strokeWidth="2.5"
       strokeLinecap="round"
       strokeLinejoin="round"
     />
     <defs>
-      <linearGradient id="logo_grad" x1="16" y1="3" x2="16" y2="28" gradientUnits="userSpaceOnUse">
+      <linearGradient id="infinity_grad" x1="2" y1="7.5" x2="22" y2="16.5" gradientUnits="userSpaceOnUse">
         <stop stopColor="#fb923c" />
         <stop offset="1" stopColor="#ea580c" />
       </linearGradient>
