@@ -119,12 +119,12 @@ export function AppShell({ children }: { children: ReactNode }) {
 
 function Footer() {
   return (
-    <footer className="mt-16 mb-4 w-full">
+    <footer className="mt-16 pb-12 md:pb-8 w-full">
       <div className="mx-auto w-full max-w-[1273px] px-6 md:px-12">
         <div className="w-full overflow-hidden rounded-3xl border border-border-strong bg-background">
           <div className="flex w-full flex-col md:flex-row">
             {/* Brand & Description */}
-            <div className="flex flex-[1.5] flex-col justify-between border-b border-border-strong p-6 md:border-b-0 md:border-r md:p-8">
+            <div className="flex flex-[1.5] flex-col justify-between border-b border-border-strong p-4 sm:p-6 md:border-b-0 md:border-r md:p-8">
               <div>
                 <div className="mb-4 flex items-center gap-2.5">
                   <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#cf4322]">
@@ -157,7 +157,7 @@ function Footer() {
 
             {/* Links */}
             <div className="grid flex-[2.5] grid-cols-2 lg:grid-cols-3">
-              <div className="flex flex-col gap-4 border-r border-b border-border-strong lg:border-b-0 p-6 md:p-8">
+              <div className="flex flex-col gap-4 border-r border-b border-border-strong lg:border-b-0 p-4 sm:p-6 md:p-8">
                 <h4 className="font-mono text-[10px] font-bold uppercase tracking-widest text-primary">
                   Application
                 </h4>
@@ -183,7 +183,7 @@ function Footer() {
                 </nav>
               </div>
 
-              <div className="flex flex-col gap-4 border-b border-border-strong lg:border-b-0 lg:border-r p-6 md:p-8">
+              <div className="flex flex-col gap-4 border-b border-border-strong lg:border-b-0 lg:border-r p-4 sm:p-6 md:p-8">
                 <h4 className="font-mono text-[10px] font-bold uppercase tracking-widest text-primary">
                   Resources
                 </h4>
@@ -221,7 +221,7 @@ function Footer() {
                 </nav>
               </div>
 
-              <div className="col-span-2 flex flex-col gap-4 p-6 lg:col-span-1 md:p-8">
+              <div className="col-span-2 flex flex-col gap-4 p-4 sm:p-6 lg:col-span-1 md:p-8">
                 <h4 className="font-mono text-[10px] font-bold uppercase tracking-widest text-primary">
                   Legal
                 </h4>
