@@ -11,7 +11,7 @@ export function Landing() {
   return (
     <div className="flex flex-col">
       {/* 1. HERO - Swiss Technical */}
-      <section className="relative flex min-h-[85vh] flex-col items-center justify-center overflow-hidden border-b border-border-strong px-4 py-32 text-center sm:px-8">
+      <section className="relative flex min-h-[85vh] flex-col items-center justify-center overflow-hidden px-4 py-32 text-center sm:px-8">
         <div className="relative z-10 max-w-4xl space-y-10">
           <div className="mx-auto flex w-max items-center gap-3">
             <span className="label-mono">HyperSync v2.0</span>
@@ -48,7 +48,7 @@ export function Landing() {
       </section>
 
       {/* 2. THE PROTOCOL - Swiss Grid */}
-      <section className="border-b border-border-strong bg-background py-24 md:py-32">
+      <section className="bg-background py-24 md:py-32">
         <div className="mx-auto max-w-[1200px] px-6 md:px-12">
           <div className="mb-12 flex items-center gap-6 md:mb-20">
             <h2 className="text-3xl font-black tracking-tighter md:text-5xl">
@@ -97,7 +97,7 @@ export function Landing() {
       </section>
 
       {/* 3. HOW IT WORKS */}
-      <section className="border-b border-border-strong bg-background py-24 md:py-32">
+      <section className="bg-background py-24 md:py-32">
         <div className="mx-auto max-w-[1200px] px-6 md:px-12">
           <div className="mb-12 flex items-center gap-6 md:mb-20">
             <span className="h-px flex-1 bg-border-strong" />
