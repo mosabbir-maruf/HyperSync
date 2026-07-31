@@ -68,6 +68,43 @@ function ScrollToTop() {
   return null
 }
 
+function RouteTitle() {
+  const { pathname } = useLocation()
+  useEffect(() => {
+    const base = "HyperSync"
+    switch (pathname) {
+      case "/":
+        document.title = `${base} — Secure Peer-to-Peer Local File Transfer`
+        break
+      case "/app":
+        document.title = `Devices | ${base}`
+        break
+      case "/send":
+      case "/create":
+        document.title = `Send Files | ${base}`
+        break
+      case "/join":
+        document.title = `Join Session | ${base}`
+        break
+      case "/history":
+        document.title = `History | ${base}`
+        break
+      case "/settings":
+        document.title = `Settings | ${base}`
+        break
+      case "/about":
+        document.title = `About Us | ${base}`
+        break
+      case "/changelog":
+        document.title = `Changelog | ${base}`
+        break
+      default:
+        document.title = base
+    }
+  }, [pathname])
+  return null
+}
+
 export default function App() {
   return (
     <ThemeProvider>
@@ -75,6 +112,7 @@ export default function App() {
         <SessionProvider>
           <BrowserRouter>
             <ScrollToTop />
+            <RouteTitle />
             <DialogProvider>
               <LobbyProvider>
                 <AppShell>
