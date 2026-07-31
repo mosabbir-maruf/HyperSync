@@ -1,7 +1,7 @@
 import type { ReactNode } from "react"
 import { NavLink } from "react-router-dom"
 import { ThemeToggle } from "./ThemeToggle"
-import { ShieldIcon } from "../ui/icons"
+import { ShieldIcon, DropSyncLogo } from "../ui/icons"
 import { cn } from "../../lib/utils"
 
 const nav = [
@@ -13,10 +13,8 @@ const nav = [
 function Brand() {
   return (
     <NavLink to="/" className="flex items-center gap-2.5">
-      <span className="flex h-7 w-7 items-center justify-center bg-primary text-primary-foreground">
-        <span className="font-mono text-sm font-medium">D</span>
-      </span>
-      <span className="text-[15px] font-extrabold tracking-tight">
+      <DropSyncLogo className="h-7 w-7 drop-shadow-[0_0_8px_rgba(234,88,12,0.4)]" />
+      <span className="text-[16px] font-extrabold tracking-tight">
         DropSync
       </span>
     </NavLink>

@@ -152,3 +152,32 @@ export const RadarIcon = (p: IconProps) => (
     <circle cx="12" cy="12" r="1" fill="currentColor" stroke="none" />
   </svg>
 )
+
+export const DropSyncLogo = (p: IconProps) => (
+  <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" {...p}>
+    <path
+      d="M16 3C16 3 7.5 13.5 7.5 19.5C7.5 24.2 11.3 28 16 28C20.7 28 24.5 24.2 24.5 19.5C24.5 13.5 16 3 16 3Z"
+      fill="url(#logo_grad)"
+    />
+    <path
+      d="M13 16L16 13L19 16M16 13V20.5"
+      stroke="#121316"
+      strokeWidth="2.2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M19 21.5L16 24.5L13 21.5"
+      stroke="#121316"
+      strokeWidth="2.2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <defs>
+      <linearGradient id="logo_grad" x1="16" y1="3" x2="16" y2="28" gradientUnits="userSpaceOnUse">
+        <stop stopColor="#fb923c" />
+        <stop offset="1" stopColor="#ea580c" />
+      </linearGradient>
+    </defs>
+  </svg>
+)
