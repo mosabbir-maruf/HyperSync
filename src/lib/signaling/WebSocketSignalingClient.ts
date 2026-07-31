@@ -265,6 +265,7 @@ export class WebSocketSignalingClient extends SignalingEmitter implements Signal
     this.lobbyWs = new WebSocket(wsUrl)
     
     this.lobbyWs.onopen = () => {
+      console.log("[Lobby] WebSocket opened");
       this.lobbyWs?.send(JSON.stringify({
         type: "ANNOUNCE",
         peerId: this.peerId,
@@ -275,19 +276,37 @@ export class WebSocketSignalingClient extends SignalingEmitter implements Signal
         if (this.lobbyWs?.readyState === WebSocket.OPEN) {
           this.lobbyWs.send(JSON.stringify({ type: "PING" }))
         }
-      }, 20000)
+      }, 30000)
     }
 
     this.lobbyWs.onmessage = (event) => {
       try {
         const msg = JSON.parse(event.data)
+        console.log("[Lobby] Received message:", msg.type, msg);
         if (msg.type === "ROSTER") {
           this.emit({ type: "roster", devices: msg.payload.devices })
         } else if (msg.type === "INVITE") {
-          this.emit({ type: "invite", code: msg.payload.code })
+          this.emit({
+            type: "invite",
+            from: "remote", // In a real app we'd map this to a name
+            fromName: "Someone",
+            code: msg.payload.code
+          })
         }
       } catch (err) {
-        console.error("Lobby message error", err)
+        console.warn("[Lobby] Failed to parse message", err)
+      }
+    }
+
+    this.lobbyWs.onerror = (err) => {
+      console.error("[Lobby] WebSocket error:", err)
+    }
+
+    this.lobbyWs.onclose = (ev) => {
+      console.log("[Lobby] WebSocket closed", ev.code, ev.reason)
+      if (this.lobbyPingInterval) {
+        clearInterval(this.lobbyPingInterval)
+        this.lobbyPingInterval = null
       }
     }
   }
