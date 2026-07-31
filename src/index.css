@@ -136,6 +136,21 @@ body {
   color: var(--primary-foreground);
 }
 
+/* Theme change animation (View Transitions circular reveal) */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+::view-transition-old(root) { z-index: 1; }
+::view-transition-new(root) { z-index: 9999; }
+
+/* Fallback smooth transition for browsers without the View Transitions API. */
+html.theme-anim,
+html.theme-anim body {
+  transition: background-color 0.4s ease;
+}
+
 /* Lightweight entrance animations for toasts + dialogs (no external plugin). */
 @keyframes ds-fade-in {
   from { opacity: 0; }
