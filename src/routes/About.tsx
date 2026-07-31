@@ -90,7 +90,7 @@ export function About() {
       </section>
 
       {/* Philosophy Grid */}
-      <section className="bg-background py-24 md:py-32">
+      <section className="bg-background mt-10 pb-24 md:pb-32">
         <div className="mx-auto max-w-[1273px] px-6 md:px-12">
           <div className="mb-12 flex items-center gap-6 md:mb-20">
             <h2 className="text-3xl font-black tracking-tighter md:text-5xl">

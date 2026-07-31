@@ -50,7 +50,7 @@ export function Changelog() {
       </section>
 
       {/* Timeline Entries */}
-      <section className="bg-background pb-24 md:pb-32">
+      <section className="bg-background mt-10 pb-24 md:pb-32">
         <div className="mx-auto max-w-[1273px] px-6 md:px-12">
           <div className="relative">
             {/* Timeline Vertical Line (Desktop) */}
