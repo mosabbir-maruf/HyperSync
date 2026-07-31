@@ -6,9 +6,10 @@ import { PerformanceOverlay } from "../ui/PerformanceOverlay"
 import { cn } from "../../lib/utils"
 
 const nav = [
-  { to: "/app", label: "Devices", end: false },
-  { to: "/history", label: "History", end: false },
-  { to: "/settings", label: "Settings", end: false },
+  { to: "/app", label: "Devices" },
+  { to: "/history", label: "History" },
+  { to: "/settings", label: "Settings" },
+  { to: "/about", label: "About" },
 ]
 
 function Brand() {
@@ -109,19 +110,19 @@ export function AppShell({ children }: { children: ReactNode }) {
         {children}
       </main>
 
-      <Footer isLanding={isLanding} />
+      <Footer isNarrow={isLanding || location.pathname === "/about"} />
       <PerformanceOverlay />
     </div>
   )
 }
 
-function Footer({ isLanding }: { isLanding: boolean }) {
+function Footer({ isNarrow }: { isNarrow: boolean }) {
   return (
     <footer className="mt-16 mb-4 w-full">
       <div
         className={cn(
           "mx-auto w-full px-4 md:px-8",
-          isLanding ? "max-w-[1240px]" : "max-w-[1600px]",
+          isNarrow ? "max-w-[1240px]" : "max-w-[1600px]",
         )}
       >
         <div className="w-full overflow-hidden rounded-3xl border border-border-strong bg-background">
@@ -171,6 +172,12 @@ function Footer({ isLanding }: { isLanding: boolean }) {
                     className="text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground"
                   >
                     Settings
+                  </NavLink>
+                  <NavLink
+                    to="/about"
+                    className="text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground"
+                  >
+                    About
                   </NavLink>
                 </nav>
               </div>
