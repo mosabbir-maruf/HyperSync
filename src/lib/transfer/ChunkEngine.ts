@@ -13,7 +13,11 @@ export class ChunkEngine {
     private readonly file: Blob,
     private readonly transferId: string
   ) {
-    this.chunkSize = ChunkStrategy.getOptimalChunkSize(file.size)
+    this.chunkSize = ChunkEngine.getChunkSize(file.size)
+  }
+
+  static getChunkSize(fileSize: number): number {
+    return ChunkStrategy.getOptimalChunkSize(fileSize)
   }
 
   public get chunkCount(): number {

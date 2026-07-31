@@ -5,6 +5,8 @@ import { WebSocketSignalingClient } from "./WebSocketSignalingClient"
 export type { SignalingClient } from "./SignalingClient"
 export * from "./types"
 
+const DEFAULT_SIGNALING_URL = "https://dropsync2-0-backend.thevamp-cloud.workers.dev"
+
 /**
  * The application depends only on this interface. This browser-only frontend
  * deliberately ships an in-memory mock and does not contain Worker/WebSocket
@@ -12,17 +14,11 @@ export * from "./types"
  * without changing React, pairing, WebRTC, or transfer modules.
  */
 export function createSignalingClient(): SignalingClient {
-  // Use the explicitly provided URL, or dynamically infer it from the current hostname.
-  // This allows local network testing (e.g. from a phone) without needing to hardcode the IP in .env
-  let wsUrl = import.meta.env.VITE_WS_URL
-  if (!wsUrl) {
-    if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
-      const protocol = window.location.protocol === "https:" ? "https:" : "http:"
-      wsUrl = `${protocol}//${window.location.hostname}:8787`
-    } else {
-      wsUrl = "https://dropsync2-0-backend.thevamp-cloud.workers.dev"
-    }
-  }
+  // Every device must use the same presence service. The old localhost
+  // fallback split a desktop opened on localhost from a phone opened through
+  // the desktop's LAN IP, so they quietly joined different lobbies. Set
+  // VITE_WS_URL explicitly when testing a local worker.
+  const wsUrl = import.meta.env.VITE_WS_URL || DEFAULT_SIGNALING_URL
   
   // If explicitly requested, use in-memory mock for dev testing without backend
   if (import.meta.env.VITE_USE_MOCK_SIGNALING === "true") {

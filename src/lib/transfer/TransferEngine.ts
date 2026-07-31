@@ -48,13 +48,14 @@ export class TransferEngine {
     
     for (const file of files) {
       const id = makeTransferId()
+      const chunkCount = Math.ceil(file.size / ChunkEngine.getChunkSize(file.size))
       const meta: FileMetadata = {
         transferId: id,
         fileName: file.name,
         fileSize: file.size,
         mimeType: file.type || "application/octet-stream",
         lastModified: file.lastModified,
-        chunkCount: Math.ceil(file.size / (256 * 1024)),
+        chunkCount,
         checksumMethod: "SHA-256-CHUNK-XOR",
         protocolVersion: CURRENT_PROTOCOL_VERSION
       }

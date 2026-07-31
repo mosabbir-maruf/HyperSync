@@ -23,6 +23,10 @@ export class WebSocketSignalingClient extends SignalingEmitter implements Signal
   // Lobby connection
   private lobbyWs: WebSocket | null = null
   private lobbyPingInterval: number | null = null
+  private lobbyReconnectTimeout: number | null = null
+  private lobbyReconnectAttempts = 0
+  private lobbyProfile: Omit<DevicePresence, "peerId"> | null = null
+  private shouldKeepLobbyConnected = false
 
   constructor(private readonly url: string) {
     super()
@@ -261,36 +265,55 @@ export class WebSocketSignalingClient extends SignalingEmitter implements Signal
   }
 
   announce(profile: Omit<DevicePresence, "peerId">): void {
-    const wsUrl = this.url.replace(/^http/, "ws") + "/lobby"
-    this.lobbyWs = new WebSocket(wsUrl)
-    
-    this.lobbyWs.onopen = () => {
-      console.log("[Lobby] WebSocket opened");
-      this.lobbyWs?.send(JSON.stringify({
-        type: "ANNOUNCE",
-        peerId: this.peerId,
-        payload: { profile }
-      }))
+    this.lobbyProfile = profile
+    this.shouldKeepLobbyConnected = true
 
-      this.lobbyPingInterval = window.setInterval(() => {
-        if (this.lobbyWs?.readyState === WebSocket.OPEN) {
-          this.lobbyWs.send(JSON.stringify({ type: "PING" }))
-        }
-      }, 30000)
+    if (this.lobbyWs?.readyState === WebSocket.OPEN) {
+      this.sendLobbyAnnouncement()
+      return
     }
 
-    this.lobbyWs.onmessage = (event) => {
+    this.connectLobby()
+  }
+
+  private connectLobby(): void {
+    if (!this.shouldKeepLobbyConnected || !this.lobbyProfile) return
+    if (this.lobbyWs?.readyState === WebSocket.OPEN || this.lobbyWs?.readyState === WebSocket.CONNECTING) return
+
+    this.clearLobbyReconnectTimeout()
+
+    const endpoint = new URL(this.url)
+    endpoint.protocol = endpoint.protocol === "https:" ? "wss:" : "ws:"
+    endpoint.pathname = "/lobby"
+    endpoint.search = ""
+    endpoint.hash = ""
+
+    const ws = new WebSocket(endpoint.toString())
+    this.lobbyWs = ws
+
+    ws.onopen = () => {
+      if (this.lobbyWs !== ws) return
+      this.lobbyReconnectAttempts = 0
+      this.sendLobbyAnnouncement()
+      this.startLobbyPing(ws)
+    }
+
+    ws.onmessage = (event) => {
       try {
         const msg = JSON.parse(event.data)
-        console.log("[Lobby] Received message:", msg.type, msg);
-        if (msg.type === "ROSTER") {
-          this.emit({ type: "roster", devices: msg.payload.devices })
-        } else if (msg.type === "INVITE") {
+        if (msg.type === "ROSTER" && Array.isArray(msg.payload?.devices)) {
+          // Keep the frontend safe with older workers that broadcast the
+          // complete roster, including the requesting device.
+          const devices = msg.payload.devices.filter(
+            (device: DevicePresence) => device?.peerId && device.peerId !== this.peerId,
+          )
+          this.emit({ type: "roster", devices })
+        } else if (msg.type === "INVITE" && typeof msg.payload?.code === "string") {
           this.emit({
             type: "invite",
-            from: "remote", // In a real app we'd map this to a name
-            fromName: "Someone",
-            code: msg.payload.code
+            from: msg.payload.from ?? "remote",
+            fromName: msg.payload.fromName ?? "Someone",
+            code: msg.payload.code,
           })
         }
       } catch (err) {
@@ -298,16 +321,61 @@ export class WebSocketSignalingClient extends SignalingEmitter implements Signal
       }
     }
 
-    this.lobbyWs.onerror = (err) => {
-      console.error("[Lobby] WebSocket error:", err)
+    ws.onerror = () => {
+      // Browsers follow this with close. Reconnect there so a failure cannot
+      // create overlapping lobby sockets.
+      console.warn("[Lobby] WebSocket error")
     }
 
-    this.lobbyWs.onclose = (ev) => {
+    ws.onclose = (ev) => {
+      if (this.lobbyWs !== ws) return
       console.log("[Lobby] WebSocket closed", ev.code, ev.reason)
-      if (this.lobbyPingInterval) {
-        clearInterval(this.lobbyPingInterval)
-        this.lobbyPingInterval = null
+      this.lobbyWs = null
+      this.stopLobbyPing()
+      this.emit({ type: "roster", devices: [] })
+      this.scheduleLobbyReconnect()
+    }
+  }
+
+  private sendLobbyAnnouncement(): void {
+    if (!this.lobbyProfile || this.lobbyWs?.readyState !== WebSocket.OPEN) return
+    this.lobbyWs.send(JSON.stringify({
+      type: "ANNOUNCE",
+      peerId: this.peerId,
+      payload: { profile: this.lobbyProfile },
+    }))
+  }
+
+  private startLobbyPing(ws: WebSocket): void {
+    this.stopLobbyPing()
+    this.lobbyPingInterval = window.setInterval(() => {
+      if (this.lobbyWs === ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({ type: "PING" }))
       }
+    }, 15_000)
+  }
+
+  private stopLobbyPing(): void {
+    if (this.lobbyPingInterval !== null) {
+      clearInterval(this.lobbyPingInterval)
+      this.lobbyPingInterval = null
+    }
+  }
+
+  private scheduleLobbyReconnect(): void {
+    if (!this.shouldKeepLobbyConnected || this.lobbyReconnectTimeout !== null) return
+    const delay = Math.min(1_000 * 2 ** this.lobbyReconnectAttempts, 15_000)
+    this.lobbyReconnectAttempts++
+    this.lobbyReconnectTimeout = window.setTimeout(() => {
+      this.lobbyReconnectTimeout = null
+      this.connectLobby()
+    }, delay)
+  }
+
+  private clearLobbyReconnectTimeout(): void {
+    if (this.lobbyReconnectTimeout !== null) {
+      clearTimeout(this.lobbyReconnectTimeout)
+      this.lobbyReconnectTimeout = null
     }
   }
 
@@ -322,12 +390,17 @@ export class WebSocketSignalingClient extends SignalingEmitter implements Signal
   }
 
   close(): void {
+    this.shouldKeepLobbyConnected = false
+    this.lobbyProfile = null
+    this.clearLobbyReconnectTimeout()
+    this.stopLobbyPing()
     this.sendMessage("LEAVE", {})
     if (this.ws) {
       this.ws.close(1000, "Normal closure")
     }
     if (this.lobbyWs) {
       this.lobbyWs.close()
+      this.lobbyWs = null
     }
     this.cleanup()
     this.setState("closed")
@@ -339,10 +412,8 @@ export class WebSocketSignalingClient extends SignalingEmitter implements Signal
       clearInterval(this.pingInterval)
       this.pingInterval = null
     }
-    if (this.lobbyPingInterval) {
-      clearInterval(this.lobbyPingInterval)
-      this.lobbyPingInterval = null
-    }
+    this.stopLobbyPing()
+    this.clearLobbyReconnectTimeout()
     this.ws = null
     this.lobbyWs = null
     this.code = null

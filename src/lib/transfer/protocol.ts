@@ -41,8 +41,14 @@ export function decodeControl(raw: string): ControlMessage | null {
 // [ ...      ] Chunk payload bytes
 
 export const HEADER_SIZE = 36 + 4 + 8 + 4 + 1
-export const HIGH_WATER_MARK = 2 * 1024 * 1024   // 2 MB send buffer limit (prevents SCTP congestion collapse)
-export const LOW_WATER_MARK = 1 * 1024 * 1024    // 1 MB resume threshold
+// A larger send window keeps a high-bandwidth, low-latency LAN link busy.
+// The low-water mark is half the high-water mark to prevent rapid stop/start
+// cycles while the browser drains a small buffer.
+export const HIGH_WATER_MARK = 8 * 1024 * 1024
+export const LOW_WATER_MARK = 4 * 1024 * 1024
+
+const encoder = new TextEncoder()
+const decoder = new TextDecoder()
 
 import type { ChunkHeader } from "./types"
 
@@ -50,7 +56,6 @@ export function encodeChunk(header: ChunkHeader, data: ArrayBuffer): ArrayBuffer
   const buf = new ArrayBuffer(HEADER_SIZE + data.byteLength)
   const view = new DataView(buf)
 
-  const encoder = new TextEncoder()
   const idBytes = encoder.encode(header.transferId)
   for (let i = 0; i < 36; i++) {
     view.setUint8(i, i < idBytes.length ? idBytes[i] : 0)
@@ -69,7 +74,6 @@ export function decodeChunk(buffer: ArrayBuffer): { header: ChunkHeader; data: A
   const view = new DataView(buffer)
 
   const idBytes = new Uint8Array(buffer, 0, 36)
-  const decoder = new TextDecoder()
   const transferId = decoder.decode(idBytes).replace(/\0/g, "")
 
   const chunkIndex = view.getUint32(36, true)
