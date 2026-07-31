@@ -33,7 +33,7 @@ export function ToastViewport() {
           role={t.kind === "error" ? "alert" : "status"}
           aria-live={t.kind === "error" ? "assertive" : "polite"}
           className={cn(
-            "pointer-events-auto relative w-full max-w-sm overflow-hidden border border-border-strong bg-card ds-slide-up",
+            "pointer-events-auto relative w-full max-w-sm overflow-hidden rounded-2xl border border-border-strong bg-card ds-slide-up",
           )}
         >
           <span
@@ -58,7 +58,7 @@ export function ToastViewport() {
                 </p>
               )}
               {t.kind === "progress" && typeof t.progress === "number" && (
-                <div className="mt-2 h-1 w-full bg-secondary">
+                <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-secondary">
                   <div
                     className="h-full bg-primary transition-[width] duration-150"
                     style={{
@@ -71,7 +71,7 @@ export function ToastViewport() {
             <button
               onClick={() => toast.dismiss(t.id)}
               aria-label="Dismiss notification"
-              className="shrink-0 rounded-sm p-1 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+              className="shrink-0 rounded-full p-1 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
             >
               <CloseIcon width={14} height={14} />
             </button>

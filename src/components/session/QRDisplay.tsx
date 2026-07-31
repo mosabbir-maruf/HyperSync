@@ -13,7 +13,7 @@ export function QRDisplay({
   const { resolved } = useTheme()
   const payload = qrCodeService.create(value, { dark: resolved === "dark" })
   return (
-    <div className="inline-flex border border-border-strong bg-card p-4">
+    <div className="inline-flex rounded-2xl border border-border-strong bg-card p-4">
       <QRCodeSVG
         value={payload.value}
         size={size}

@@ -106,7 +106,7 @@ export function DialogProvider({ children }: { children: ReactNode }) {
           />
           <div
             ref={panelRef}
-            className="relative w-full max-w-sm border border-border-strong bg-card ds-zoom-in"
+            className="relative w-full max-w-sm overflow-hidden rounded-2xl border border-border-strong bg-card ds-zoom-in"
           >
             <div className="space-y-2 p-5">
               <h2

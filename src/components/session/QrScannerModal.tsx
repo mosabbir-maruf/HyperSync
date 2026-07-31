@@ -97,7 +97,7 @@ export function QrScannerModal({
           <h3 className="text-base font-semibold">Scan QR Code</h3>
           <button
             onClick={onClose}
-            className="rounded-md p-1 text-muted-foreground hover:bg-secondary hover:text-foreground"
+            className="rounded-full p-1 text-muted-foreground hover:bg-secondary hover:text-foreground"
           >
             ✕
           </button>

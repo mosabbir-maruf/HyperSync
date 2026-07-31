@@ -17,9 +17,9 @@ export function IncomingPrompt({
   const total = files.reduce((sum, f) => sum + f.fileSize, 0)
 
   return (
-    <div className="border border-primary">
+    <div className="overflow-hidden rounded-2xl border border-primary">
       <div className="flex items-center gap-3 border-b border-border bg-accent px-4 py-3">
-        <span className="flex h-8 w-8 items-center justify-center bg-primary text-primary-foreground">
+        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground">
           <DownloadIcon width={17} height={17} />
         </span>
         <div>

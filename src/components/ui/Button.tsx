@@ -37,7 +37,7 @@ export function Button({
   return (
     <button
       className={cn(
-        "inline-flex items-center justify-center rounded-sm font-medium transition-all duration-150",
+        "inline-flex items-center justify-center rounded-full font-medium transition-all duration-150",
         "outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
         "disabled:opacity-40 disabled:pointer-events-none select-none",
         variants[variant],
@@ -63,7 +63,7 @@ export function IconButton({
       aria-label={label}
       title={label}
       className={cn(
-        "inline-flex h-9 w-9 items-center justify-center rounded-sm text-muted-foreground",
+        "inline-flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground",
         "transition-colors hover:bg-secondary hover:text-foreground",
         "outline-none focus-visible:ring-2 focus-visible:ring-ring",
         "disabled:opacity-40 disabled:pointer-events-none",

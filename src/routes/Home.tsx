@@ -32,7 +32,7 @@ export function Home() {
       </header>
 
       {!supported && (
-        <div className="border-l-2 border-warning bg-card px-4 py-3 text-sm">
+        <div className="rounded-2xl border-l-2 border-warning bg-card px-4 py-3 text-sm">
           This browser lacks the WebRTC support required for direct transfer.
           Try a recent Chrome, Edge, Safari, or Firefox.
         </div>
@@ -45,12 +45,12 @@ export function Home() {
           <span className="label-mono">Not showing up?</span>
           <span className="h-px flex-1 bg-border" />
         </div>
-        <div className="grid border border-border-strong sm:grid-cols-2">
+        <div className="grid overflow-hidden rounded-3xl border border-border-strong sm:grid-cols-2">
           <Link
             to="/send"
             className="group flex items-center gap-3 border-b border-border-strong p-5 transition-colors hover:bg-card sm:border-b-0 sm:border-r"
           >
-            <span className="flex h-10 w-10 items-center justify-center bg-primary text-primary-foreground">
+            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground">
               <QrIcon width={20} height={20} />
             </span>
             <div>
@@ -67,7 +67,7 @@ export function Home() {
             to="/join"
             className="group flex items-center gap-3 p-5 transition-colors hover:bg-card"
           >
-            <span className="flex h-10 w-10 items-center justify-center border border-border-strong">
+            <span className="flex h-10 w-10 items-center justify-center rounded-full border border-border-strong">
               <QrIcon width={20} height={20} />
             </span>
             <div>

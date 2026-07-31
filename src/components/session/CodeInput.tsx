@@ -54,7 +54,7 @@ export function CodeInput({
           <div
             key={i}
             className={
-              "flex h-14 flex-1 items-center justify-center border font-mono text-2xl font-medium " +
+              "flex h-14 flex-1 items-center justify-center rounded-xl border font-mono text-2xl font-medium " +
               (i === Math.min(raw.length, 5) && raw.length < 6
                 ? "border-primary bg-accent"
                 : "border-border-strong bg-card")

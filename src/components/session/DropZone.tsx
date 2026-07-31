@@ -43,12 +43,12 @@ export function DropZone({
       tabIndex={0}
       aria-label="Choose, paste, or drop files to send"
       className={cn(
-        "flex flex-col items-center justify-center gap-4 border-2 border-dashed px-6 py-14 text-center transition-colors",
+        "flex flex-col items-center justify-center gap-4 rounded-3xl border-2 border-dashed px-6 py-14 text-center transition-colors",
         dragging ? "border-primary bg-accent" : "border-border-strong bg-card",
         disabled && "opacity-50",
       )}
     >
-      <span className="flex h-12 w-12 items-center justify-center border border-border-strong text-primary">
+      <span className="flex h-12 w-12 items-center justify-center rounded-2xl border border-border-strong text-primary">
         <SendIcon width={22} height={22} />
       </span>
       <div className="space-y-1">
@@ -61,7 +61,7 @@ export function DropZone({
         type="button"
         disabled={disabled}
         onClick={() => void selectFiles()}
-        className="rounded-sm bg-primary px-4 py-2 text-[13px] font-semibold text-primary-foreground transition-all hover:bg-[color-mix(in_srgb,var(--primary)_88%,#000)] disabled:pointer-events-none disabled:opacity-50"
+        className="rounded-full bg-primary px-4 py-2 text-[13px] font-semibold text-primary-foreground transition-all hover:bg-[color-mix(in_srgb,var(--primary)_88%,#000)] disabled:pointer-events-none disabled:opacity-50"
       >
         Choose files
       </button>

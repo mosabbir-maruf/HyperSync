@@ -48,10 +48,10 @@ export function TransferRow({
   const DirIcon = item.direction === "send" ? SendIcon : ReceiveIcon
 
   return (
-    <div className="flex items-center gap-3.5 border border-border bg-card px-4 py-3">
+    <div className="flex items-center gap-3.5 rounded-2xl border border-border bg-card px-4 py-3">
       <span
         className={cn(
-          "flex h-9 w-9 shrink-0 items-center justify-center",
+          "flex h-9 w-9 shrink-0 items-center justify-center rounded-full",
           item.status === "completed"
             ? "bg-success text-primary-foreground"
             : item.status === "failed"
@@ -135,7 +135,7 @@ export function TransferRow({
           <a
             href={item.blobUrl}
             download={sanitizeFilename(item.name)}
-            className="inline-flex h-9 w-9 items-center justify-center text-primary transition-colors hover:bg-secondary"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-full text-primary transition-colors hover:bg-secondary"
             aria-label="Save file"
             title="Save file"
           >

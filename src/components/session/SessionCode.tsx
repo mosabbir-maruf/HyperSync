@@ -21,7 +21,7 @@ export function SessionCode({ code }: { code: string }) {
       <span className="label-mono">Pairing code</span>
       <button
         onClick={copy}
-        className="group mt-2 flex w-full items-center gap-3 border border-border-strong bg-card px-4 py-3 transition-colors hover:bg-secondary"
+        className="group mt-2 flex w-full items-center gap-3 rounded-2xl border border-border-strong bg-card px-4 py-3 transition-colors hover:bg-secondary"
         aria-label="Copy pairing code"
       >
         <span className="font-mono text-[28px] font-medium tracking-[0.22em]">

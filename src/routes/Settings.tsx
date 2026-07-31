@@ -44,7 +44,7 @@ function Toggle({
       aria-checked={checked}
       onClick={() => onChange(!checked)}
       className={cn(
-        "relative h-6 w-11 border transition-colors",
+        "relative h-6 w-11 rounded-full border transition-colors",
         checked
           ? "border-primary bg-primary"
           : "border-border-strong bg-secondary",
@@ -52,7 +52,7 @@ function Toggle({
     >
       <span
         className={cn(
-          "absolute top-0.5 h-4.5 w-4.5 transition-transform",
+          "absolute top-0.5 h-4.5 w-4.5 rounded-full transition-transform",
           checked
             ? "translate-x-5 bg-primary-foreground"
             : "translate-x-0.5 bg-muted-foreground",
@@ -103,7 +103,7 @@ export function Settings() {
         </h2>
         <Card className="divide-y divide-border">
           <Row title="Theme">
-            <div className="inline-flex border border-border-strong">
+            <div className="inline-flex overflow-hidden rounded-full border border-border-strong">
               {themes.map((t) => (
                 <button
                   key={t.value}
@@ -222,7 +222,7 @@ export function Settings() {
         </Card>
       </section>
 
-      <p className="border-l-2 border-border-strong px-4 py-1 text-[12px] leading-relaxed text-muted-foreground">
+      <p className="rounded-2xl border-l-2 border-border-strong px-4 py-1 text-[12px] leading-relaxed text-muted-foreground">
         HyperSync never uploads file contents. Our backend only relays the
         messages that let two devices open a direct connection.
       </p>

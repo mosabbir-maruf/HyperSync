@@ -39,7 +39,7 @@ export function ConnectionStatus({ phase }: { phase: SessionPhase }) {
   const s = MAP[phase]
   return (
     <span className="inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest">
-      <span className={cn("h-1.5 w-1.5", s.dot)} />
+      <span className={cn("h-1.5 w-1.5 rounded-full", s.dot)} />
       <span className={s.text}>{s.label}</span>
     </span>
   )

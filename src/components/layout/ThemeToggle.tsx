@@ -13,7 +13,7 @@ export function ThemeToggle() {
     <div
       role="radiogroup"
       aria-label="Theme"
-      className="inline-flex items-center border border-border"
+      className="inline-flex items-center overflow-hidden rounded-full border border-border"
     >
       {options.map(({ value, label }) => (
         <button

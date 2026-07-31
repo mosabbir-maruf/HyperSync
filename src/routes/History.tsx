@@ -44,7 +44,7 @@ export function History() {
 
       {entries.length === 0 ? (
         <Card className="flex flex-col items-center gap-3 px-6 py-16 text-center">
-          <span className="flex h-12 w-12 items-center justify-center border border-border-strong text-muted-foreground">
+          <span className="flex h-12 w-12 items-center justify-center rounded-2xl border border-border-strong text-muted-foreground">
             <HistoryIcon width={22} height={22} />
           </span>
           <p className="text-sm font-bold tracking-tight">No transfers yet</p>
@@ -58,7 +58,7 @@ export function History() {
           {entries.map((e) => (
             <li key={e.id}>
               <Card className="flex items-center gap-3 px-3.5 py-3">
-                <span className="flex h-9 w-9 shrink-0 items-center justify-center border border-border-strong text-muted-foreground">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-border-strong text-muted-foreground">
                   {e.direction === "send" ? (
                     <SendIcon width={17} height={17} />
                   ) : (
@@ -75,7 +75,7 @@ export function History() {
                 </div>
                 <span
                   className={
-                    "flex h-6 w-6 items-center justify-center " +
+                    "flex h-6 w-6 items-center justify-center rounded-full " +
                     (e.status === "completed"
                       ? "bg-success text-primary-foreground"
                       : "bg-muted text-muted-foreground")

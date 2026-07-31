@@ -53,7 +53,7 @@ export function SessionRoom() {
         </section>
       )}
 
-      <div className="flex items-start gap-3 border-l-2 border-success bg-card px-4 py-3">
+      <div className="flex items-start gap-3 rounded-2xl border-l-2 border-success bg-card px-4 py-3">
         <ShieldIcon
           width={16}
           height={16}

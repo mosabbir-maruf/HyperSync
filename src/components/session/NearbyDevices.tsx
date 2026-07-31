@@ -73,7 +73,7 @@ export function NearbyDevices() {
       </div>
 
       {/* Main Radar Surface Canvas */}
-      <div className="relative flex min-h-[480px] flex-col justify-between overflow-hidden border border-border-strong bg-card shadow-sm md:min-h-[540px] lg:min-h-[600px]">
+      <div className="relative flex min-h-[480px] flex-col justify-between overflow-hidden rounded-3xl border border-border-strong bg-card shadow-sm md:min-h-[540px] lg:min-h-[600px]">
         {/* Precision hairline grid background pattern */}
         <div
           aria-hidden
@@ -212,7 +212,7 @@ export function NearbyDevices() {
 
           {/* Ultra-minimal Local Device Chip ("YOU") with Inline Rename */}
           <div className="mt-6 flex justify-center">
-            <div className="inline-flex items-center gap-2 rounded-sm border border-border bg-background/90 px-3 py-1.5 font-mono text-[11px] shadow-xs backdrop-blur">
+            <div className="inline-flex items-center gap-2 rounded-full border border-border bg-background/90 px-3 py-1.5 font-mono text-[11px] shadow-xs backdrop-blur">
               <Avatar
                 name={thisDevice.name}
                 color={thisDevice.color}
