@@ -108,7 +108,7 @@ export function About() {
       </section>
 
       {/* Architecture List */}
-      <section className="bg-background py-24 md:py-32">
+      <section id="architecture" className="bg-background py-24 md:py-32">
         <div className="mx-auto max-w-[1273px] px-6 md:px-12">
           <div className="mb-12 flex items-center gap-6 md:mb-20">
             <span className="h-px flex-1 bg-border-strong" />
@@ -150,7 +150,7 @@ export function About() {
       </section>
 
       {/* Creator Card */}
-      <section className="bg-background py-24 md:py-32">
+      <section id="maker" className="bg-background py-24 md:py-32">
         <div className="mx-auto max-w-[1273px] px-6 md:px-12">
           <div className="mb-12 flex items-center gap-6 md:mb-20">
             <h2 className="text-3xl font-black tracking-tighter md:text-5xl">
@@ -260,7 +260,7 @@ export function About() {
       </section>
 
       {/* FAQ */}
-      <section className="bg-background py-24 md:py-32">
+      <section id="faq" className="bg-background py-24 md:py-32">
         <div className="mx-auto max-w-[1273px] px-6 md:px-12">
           <div className="mb-12 flex items-center gap-6 md:mb-20">
             <h2 className="text-3xl font-black tracking-tighter md:text-5xl">
@@ -341,7 +341,11 @@ export function About() {
       </section>
 
       {/* Legal & Privacy */}
-      <section className="bg-background pb-24 md:pb-32">
+      <section
+        id="privacy"
+        className="relative bg-background pt-16 pb-24 md:pt-24 md:pb-32"
+      >
+        <div id="terms" className="absolute top-0" />
         <div className="mx-auto max-w-[1273px] px-6 md:px-12">
           <div className="grid gap-px overflow-hidden rounded-3xl border border-border-strong bg-border-strong sm:grid-cols-2">
             {/* Privacy Policy */}

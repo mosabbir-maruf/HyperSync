@@ -123,7 +123,7 @@ function Footer() {
         <div className="w-full overflow-hidden rounded-3xl border border-border-strong bg-background">
           <div className="flex w-full flex-col md:flex-row">
             {/* Brand & Description */}
-            <div className="flex flex-1 flex-col justify-between border-b border-border-strong p-6 md:border-b-0 md:border-r md:p-8">
+            <div className="flex flex-[1.5] flex-col justify-between border-b border-border-strong p-6 md:border-b-0 md:border-r md:p-8">
               <div>
                 <div className="mb-4 flex items-center gap-2.5">
                   <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#cf4322]">
@@ -137,6 +137,17 @@ function Footer() {
                   Direct peer-to-peer file transfer. No accounts, no uploads,
                   and no cloud copies. Built for speed and absolute privacy.
                 </p>
+
+                <div className="mt-6 flex flex-wrap items-center gap-4">
+                  <div className="flex items-center gap-2 font-mono text-[9px] font-semibold uppercase tracking-widest text-success">
+                    <span className="flex h-1.5 w-1.5 rounded-full bg-success/70" />
+                    <span>SYS_OPERATIONAL</span>
+                  </div>
+                  <div className="flex items-center gap-2 font-mono text-[9px] font-semibold uppercase tracking-widest text-success">
+                    <ShieldIcon width={12} height={12} />
+                    <span>E2E Encrypted</span>
+                  </div>
+                </div>
               </div>
               <div className="mt-8 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
                 © {new Date().getFullYear()} HYPERSYNC
@@ -144,8 +155,8 @@ function Footer() {
             </div>
 
             {/* Links */}
-            <div className="grid flex-[1.5] grid-cols-2 sm:grid-cols-2">
-              <div className="flex flex-col gap-4 border-r border-border-strong p-6 md:p-8">
+            <div className="grid flex-[2.5] grid-cols-2 lg:grid-cols-3">
+              <div className="flex flex-col gap-4 border-r border-b border-border-strong lg:border-b-0 p-6 md:p-8">
                 <h4 className="font-mono text-[10px] font-bold uppercase tracking-widest text-primary">
                   Application
                 </h4>
@@ -168,30 +179,59 @@ function Footer() {
                   >
                     Settings
                   </NavLink>
+                </nav>
+              </div>
+
+              <div className="flex flex-col gap-4 border-b border-border-strong lg:border-b-0 lg:border-r p-6 md:p-8">
+                <h4 className="font-mono text-[10px] font-bold uppercase tracking-widest text-primary">
+                  Resources
+                </h4>
+                <nav className="flex flex-col gap-3">
                   <NavLink
                     to="/about"
                     className="text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground"
                   >
-                    About
+                    About Us
                   </NavLink>
+                  <a
+                    href="/about#architecture"
+                    className="text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground"
+                  >
+                    Architecture
+                  </a>
+                  <a
+                    href="/about#maker"
+                    className="text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground"
+                  >
+                    Maintainer
+                  </a>
+                  <a
+                    href="/about#faq"
+                    className="text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground"
+                  >
+                    FAQ
+                  </a>
                 </nav>
               </div>
 
-              <div className="col-span-2 flex flex-col justify-between p-6 sm:col-span-1 md:p-8 border-t border-border-strong sm:border-t-0">
-                <div>
-                  <h4 className="mb-4 font-mono text-[10px] font-bold uppercase tracking-widest text-primary">
-                    System Status
-                  </h4>
-                  <div className="flex items-center gap-2 font-mono text-[9px] font-semibold uppercase tracking-widest text-success">
-                    <span className="flex h-1.5 w-1.5 rounded-full bg-success/70" />
-                    <span>SYS_OPERATIONAL</span>
-                  </div>
-                </div>
-
-                <div className="mt-8 flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
-                  <ShieldIcon width={14} height={14} className="text-success" />
-                  <span>E2E Encrypted</span>
-                </div>
+              <div className="col-span-2 flex flex-col gap-4 p-6 lg:col-span-1 md:p-8">
+                <h4 className="font-mono text-[10px] font-bold uppercase tracking-widest text-primary">
+                  Legal
+                </h4>
+                <nav className="flex flex-col gap-3">
+                  <a
+                    href="/about#privacy"
+                    className="text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground"
+                  >
+                    Privacy Policy
+                  </a>
+                  <a
+                    href="/about#terms"
+                    className="text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground"
+                  >
+                    Terms & Conditions
+                  </a>
+                </nav>
               </div>
             </div>
           </div>
