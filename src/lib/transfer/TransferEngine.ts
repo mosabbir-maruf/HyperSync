@@ -102,6 +102,7 @@ export class TransferEngine {
 
       let bytesSent = 0
       let chunksSent = 0
+      let lastProgressTime = 0
 
       for await (const { header, buffer } of engine.generateChunks(ac.signal)) {
         if (ac.signal.aborted) break
@@ -114,23 +115,27 @@ export class TransferEngine {
         bytesSent += header.length
         chunksSent++
 
-        const { speed, eta } = meter.sample(bytesSent)
+        const now = performance.now()
+        if (now - lastProgressTime > 50 || header.isLastChunk) {
+          lastProgressTime = now
+          const { speed, eta } = meter.sample(bytesSent)
 
-        const progress: TransferProgress = {
-          transferId: meta.transferId,
-          bytesSent,
-          bytesReceived: 0,
-          chunksSent,
-          chunksReceived: 0,
-          totalBytes: file.size,
-          totalChunks: engine.chunkCount,
-          percentage: (bytesSent / file.size) * 100,
-          speedBytesPerSecond: speed,
-          estimatedTimeRemainingSeconds: eta ?? 0
+          const progress: TransferProgress = {
+            transferId: meta.transferId,
+            bytesSent,
+            bytesReceived: 0,
+            chunksSent,
+            chunksReceived: 0,
+            totalBytes: file.size,
+            totalChunks: engine.chunkCount,
+            percentage: (bytesSent / file.size) * 100,
+            speedBytesPerSecond: speed,
+            estimatedTimeRemainingSeconds: eta ?? 0
+          }
+
+          this.emit({ type: "LocalProgress", progress })
+          this.emit({ type: "ChunkSent", transferId: meta.transferId, progress })
         }
-
-        this.emit({ type: "LocalProgress", progress })
-        this.emit({ type: "ChunkSent", transferId: meta.transferId, progress })
       }
 
       if (ac.signal.aborted) {

@@ -10,6 +10,7 @@ export class ChunkReceiver {
   private meter: RateMeter
   private bytesReceived = 0
   private chunksReceived = 0
+  private lastProgressTime = 0
   private isAborted = false
   private writeChain: Promise<void> = Promise.resolve()
 
@@ -62,20 +63,24 @@ export class ChunkReceiver {
       this.bytesReceived += header.length
       this.chunksReceived++
 
-      const { speed, eta } = this.meter.sample(this.bytesReceived)
+      const now = performance.now()
+      if (now - this.lastProgressTime > 50 || header.isLastChunk) {
+        this.lastProgressTime = now
+        const { speed, eta } = this.meter.sample(this.bytesReceived)
 
-      this.onProgress({
-        transferId: this.meta.transferId,
-        bytesSent: 0,
-        bytesReceived: this.bytesReceived,
-        chunksSent: 0,
-        chunksReceived: this.chunksReceived,
-        totalBytes: this.meta.fileSize,
-        totalChunks: this.meta.chunkCount,
-        percentage: (this.bytesReceived / this.meta.fileSize) * 100,
-        speedBytesPerSecond: speed,
-        estimatedTimeRemainingSeconds: eta ?? 0
-      })
+        this.onProgress({
+          transferId: this.meta.transferId,
+          bytesSent: 0,
+          bytesReceived: this.bytesReceived,
+          chunksSent: 0,
+          chunksReceived: this.chunksReceived,
+          totalBytes: this.meta.fileSize,
+          totalChunks: this.meta.chunkCount,
+          percentage: (this.bytesReceived / this.meta.fileSize) * 100,
+          speedBytesPerSecond: speed,
+          estimatedTimeRemainingSeconds: eta ?? 0
+        })
+      }
 
     } catch (err) {
       this.abort()
