@@ -74,15 +74,22 @@ export function Settings() {
 
   return (
     <div className="space-y-10">
-      <header className="space-y-5">
-        <div className="flex items-center gap-3">
-          <span className="label-mono">System configuration</span>
-          <span className="h-px flex-1 bg-border-strong" />
+      {/* Hero */}
+      <section className="relative flex flex-col items-center justify-center overflow-hidden px-4 pt-8 pb-12 text-center sm:px-8">
+        <div className="relative z-10 max-w-3xl space-y-8">
+          <div className="mx-auto flex w-max items-center gap-3">
+            <span className="label-mono">System configuration</span>
+            <span className="h-px w-8 bg-border-strong" />
+            <span className="font-mono text-[10px] uppercase tracking-widest text-primary">
+              Local Device
+            </span>
+          </div>
+          <h1 className="text-4xl font-black leading-[0.9] tracking-tighter md:text-6xl lg:text-7xl">
+            Settings. <br />
+            <span className="text-[#cf4322]">Local device.</span>
+          </h1>
         </div>
-        <h1 className="text-4xl font-black tracking-tighter md:text-6xl lg:text-7xl">
-          Settings. <span className="text-[#cf4322]">Local device.</span>
-        </h1>
-      </header>
+      </section>
 
       <section className="space-y-2">
         <h2 className="label-mono px-1">Identity</h2>

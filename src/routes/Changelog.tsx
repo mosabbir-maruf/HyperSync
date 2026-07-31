@@ -15,7 +15,7 @@ export function Changelog() {
   return (
     <div className="flex flex-col">
       {/* Hero */}
-      <section className="relative flex min-h-[60vh] flex-col items-center justify-center overflow-hidden px-4 py-24 text-center sm:px-8">
+      <section className="relative flex flex-col items-center justify-center overflow-hidden px-4 pt-16 pb-20 text-center sm:px-8">
         <div className="relative z-10 max-w-3xl space-y-8">
           <div className="mx-auto flex w-max items-center gap-3">
             <span className="label-mono">HyperSync</span>

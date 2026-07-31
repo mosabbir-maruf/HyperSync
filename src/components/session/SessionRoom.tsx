@@ -33,7 +33,7 @@ export function SessionRoom({ onLeave }: { onLeave: () => void }) {
   return (
     <>
       {/* ── Mobile: full height layout ─────────────────────────────────── */}
-      <div className="md:hidden flex flex-col h-[600px]">
+      <div className="md:hidden flex flex-col h-[700px]">
         {messagingCtrl ? (
           <ChatPanel
             controller={messagingCtrl}
@@ -49,7 +49,7 @@ export function SessionRoom({ onLeave }: { onLeave: () => void }) {
 
       {/* ── Desktop: full width layout ─────────────────────────────────── */}
       <div className="hidden md:flex flex-col items-center">
-        <div className="w-full h-[700px]">
+        <div className="w-full h-[800px]">
           {messagingCtrl ? (
             <ChatPanel 
               controller={messagingCtrl} 

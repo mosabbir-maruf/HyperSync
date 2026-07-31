@@ -16,21 +16,25 @@ export function Home() {
 
   return (
     <div className="space-y-10">
-      <header className="space-y-5">
-        <div className="flex items-center gap-3">
-          <span className="label-mono">Direct transfer · no uploads</span>
-          <span className="h-px flex-1 bg-border-strong" />
-          <Link
-            to="/settings"
-            className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground transition-colors hover:text-foreground"
-          >
-            Rename device
-          </Link>
+      {/* Hero */}
+      <section className="relative flex flex-col items-center justify-center overflow-hidden px-4 pt-8 pb-12 text-center sm:px-8">
+        <div className="relative z-10 max-w-3xl space-y-8">
+          <div className="mx-auto flex w-max items-center gap-3">
+            <span className="label-mono">Direct transfer · no uploads</span>
+            <span className="h-px w-8 bg-border-strong" />
+            <Link
+              to="/settings"
+              className="font-mono text-[10px] uppercase tracking-widest text-primary transition-colors hover:text-primary/80"
+            >
+              Rename device
+            </Link>
+          </div>
+          <h1 className="text-4xl font-black leading-[0.9] tracking-tighter md:text-6xl lg:text-7xl">
+            Pick a device. <br />
+            <span className="text-[#cf4322]">Start sending.</span>
+          </h1>
         </div>
-        <h1 className="text-4xl font-black tracking-tighter md:text-6xl lg:text-7xl">
-          Pick a device. <span className="text-[#cf4322]">Start sending.</span>
-        </h1>
-      </header>
+      </section>
 
       {!supported && (
         <div className="rounded-2xl border-l-2 border-warning bg-card px-4 py-3 text-sm">
