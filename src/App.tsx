@@ -39,6 +39,9 @@ const Settings = lazy(() =>
 const About = lazy(() =>
   import("./routes/About").then((module) => ({ default: module.About })),
 )
+const Changelog = lazy(() =>
+  import("./routes/Changelog").then((module) => ({ default: module.Changelog })),
+)
 
 function ScrollToTop() {
   const { pathname, hash } = useLocation()
@@ -88,6 +91,7 @@ export default function App() {
                       <Route path="/history" element={<History />} />
                       <Route path="/settings" element={<Settings />} />
                       <Route path="/about" element={<About />} />
+                      <Route path="/changelog" element={<Changelog />} />
                       <Route path="*" element={<Navigate to="/" replace />} />
                     </Routes>
                   </Suspense>

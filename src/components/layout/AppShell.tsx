@@ -10,6 +10,7 @@ const nav = [
   { to: "/history", label: "History" },
   { to: "/settings", label: "Settings" },
   { to: "/about", label: "About" },
+  { to: "/changelog", label: "Changelog" },
 ]
 
 function Brand() {
@@ -211,6 +212,12 @@ function Footer() {
                   >
                     FAQ
                   </Link>
+                  <NavLink
+                    to="/changelog"
+                    className="text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground"
+                  >
+                    Changelog
+                  </NavLink>
                 </nav>
               </div>
 

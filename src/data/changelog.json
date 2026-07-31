@@ -1,0 +1,21 @@
+[
+  {
+    "version": "1.0.0",
+    "date": "2026-08-01",
+    "title": "Initial Release",
+    "changes": [
+      {
+        "type": "added",
+        "description": "Initial release of HyperSync."
+      },
+      {
+        "type": "added",
+        "description": "Direct peer-to-peer file transfer."
+      },
+      {
+        "type": "added",
+        "description": "End-to-end encryption for all transfers."
+      }
+    ]
+  }
+]

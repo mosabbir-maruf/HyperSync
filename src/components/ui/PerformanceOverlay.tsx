@@ -3,11 +3,9 @@ import {
   PipelineProfiler,
   type PipelineMetrics,
 } from "../../lib/transfer/PipelineProfiler"
-import { useSession } from "../../state/SessionProvider"
 import { useSettings } from "../../state/SettingsProvider"
 
 export function PerformanceOverlay() {
-  const { session } = useSession()
   const { settings } = useSettings()
   const [pipelineStats, setPipelineStats] =
     useState<ReturnType<typeof PipelineProfiler.prototype.getAveragesAndReset> | null>(
@@ -20,17 +18,12 @@ export function PerformanceOverlay() {
     const timer = setInterval(
       () => {
         setPipelineStats(PipelineProfiler.get().getAveragesAndReset())
-
-        // We can grab the latest WebRTC stats if the session has a peer connection
-        if (session?.peerConnection?.stats) {
-          setRtcStats(session.peerConnection.stats.getLastMetrics())
-        }
       },
       1000,
     )
 
     return () => clearInterval(timer)
-  }, [session])
+  }, [])
 
   if (!settings.developerMode) return null
   if (!pipelineStats && !rtcStats) return null
