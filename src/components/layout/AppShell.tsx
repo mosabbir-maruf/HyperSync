@@ -66,7 +66,11 @@ export function AppShell({ children }: { children: ReactNode }) {
         <div className="mx-auto flex h-14 w-full max-w-[1600px] items-center gap-4 px-4 md:px-8">
           <Brand />
           <Nav className="ml-4 hidden md:flex" />
-          <div className="ml-auto">
+          <div className="ml-auto flex items-center gap-3">
+            <span className="hidden items-center gap-2 font-mono text-[9px] font-semibold uppercase tracking-widest text-success sm:flex">
+              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-success/70" />
+              SYS_OPERATIONAL
+            </span>
             <ThemeToggle />
           </div>
         </div>
