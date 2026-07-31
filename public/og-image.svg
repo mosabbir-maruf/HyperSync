@@ -1,0 +1,172 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;700;900&amp;family=DM+Mono:wght@400;500&amp;display=swap');
+      .font-sans { font-family: 'Archivo', 'Helvetica Neue', Arial, sans-serif; }
+      .font-mono { font-family: 'DM Mono', 'SF Mono', 'Consolas', monospace; }
+    </style>
+    <!-- Radar sweep gradient -->
+    <linearGradient id="sweepGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#cf4321" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#cf4321" stop-opacity="0.35"/>
+    </linearGradient>
+    <clipPath id="radarClip">
+      <circle cx="900" cy="315" r="200"/>
+    </clipPath>
+  </defs>
+
+  <!-- Background: warm paper -->
+  <rect width="1200" height="630" fill="#efece4"/>
+
+  <!-- ─── Corner tick marks (engineering drawing style) ─── -->
+  <!-- Top-left -->
+  <line x1="40" y1="40" x2="80" y2="40" stroke="#1b1a16" stroke-width="1.2"/>
+  <line x1="40" y1="40" x2="40" y2="80" stroke="#1b1a16" stroke-width="1.2"/>
+  <!-- Top-right -->
+  <line x1="1160" y1="40" x2="1120" y2="40" stroke="#1b1a16" stroke-width="1.2"/>
+  <line x1="1160" y1="40" x2="1160" y2="80" stroke="#1b1a16" stroke-width="1.2"/>
+  <!-- Bottom-left -->
+  <line x1="40" y1="590" x2="80" y2="590" stroke="#1b1a16" stroke-width="1.2"/>
+  <line x1="40" y1="590" x2="40" y2="550" stroke="#1b1a16" stroke-width="1.2"/>
+  <!-- Bottom-right -->
+  <line x1="1160" y1="590" x2="1120" y2="590" stroke="#1b1a16" stroke-width="1.2"/>
+  <line x1="1160" y1="590" x2="1160" y2="550" stroke="#1b1a16" stroke-width="1.2"/>
+
+  <!-- ─── Top hairline rule ─── -->
+  <line x1="60" y1="72" x2="1140" y2="72" stroke="#1b1a16" stroke-width="0.8" stroke-opacity="0.3"/>
+
+  <!-- ─── Top-left: Favicon icon + brand label ─── -->
+  <!-- Icon: 18px circle, scale=18/48=0.375, centered at (69, 57) to align with text baseline y=62 -->
+  <g transform="translate(60, 48) scale(0.375)">
+    <circle cx="24" cy="24" r="24" fill="#cf4321"/>
+    <g transform="translate(6 6) scale(1.5)">
+      <path d="M17.5 7.5C15.6 7.5 14 8.7 13.3 10.4L12.5 12.3C11.3 15.1 8.8 16.5 6.5 16.5C4 16.5 2 14.5 2 12C2 9.5 4 7.5 6.5 7.5C8.4 7.5 10 8.7 10.7 10.4L11.5 12.3C12.7 15.1 15.2 16.5 17.5 16.5C20 16.5 22 14.5 22 12C22 9.5 20 7.5 17.5 7.5Z"
+        fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+  </g>
+  <!-- Brand label: gap of 6px after 18px icon (60+18+6=84) -->
+  <text x="84" y="62" class="font-mono" font-family="'DM Mono', 'SF Mono', monospace" font-size="10" font-weight="500" letter-spacing="2.5" fill="#726c5f" text-anchor="start">HYPERSYNC v2.0</text>
+
+  <!-- ─── Top-right: tech label aligned with top bar ─── -->
+  <text x="1140" y="62" class="font-mono" font-family="'DM Mono', 'SF Mono', monospace" font-size="10" font-weight="500" letter-spacing="2" fill="#726c5f" text-anchor="end">WebRTC · No Install</text>
+
+  <!-- ─── Right side: Radar instrument ─── -->
+
+
+
+  <!-- Radar concentric rings -->
+  <circle cx="900" cy="315" r="200" fill="none" stroke="#1b1a16" stroke-width="0.8" stroke-opacity="0.18"/>
+  <circle cx="900" cy="315" r="160" fill="none" stroke="#1b1a16" stroke-width="0.6" stroke-opacity="0.14"/>
+  <circle cx="900" cy="315" r="120" fill="none" stroke="#1b1a16" stroke-width="0.6" stroke-opacity="0.12"/>
+  <circle cx="900" cy="315" r="80"  fill="none" stroke="#1b1a16" stroke-width="0.6" stroke-opacity="0.12"/>
+  <circle cx="900" cy="315" r="40"  fill="none" stroke="#1b1a16" stroke-width="0.6" stroke-opacity="0.12"/>
+
+  <!-- Radar crosshair lines -->
+  <line x1="700" y1="315" x2="1100" y2="315" stroke="#1b1a16" stroke-width="0.7" stroke-opacity="0.15"/>
+  <line x1="900" y1="115" x2="900"  y2="515" stroke="#1b1a16" stroke-width="0.7" stroke-opacity="0.15"/>
+  <!-- Diagonal crosshairs (45°) -->
+  <line x1="759" y1="174" x2="1041" y2="456" stroke="#1b1a16" stroke-width="0.5" stroke-opacity="0.1"/>
+  <line x1="1041" y1="174" x2="759" y2="456" stroke="#1b1a16" stroke-width="0.5" stroke-opacity="0.1"/>
+
+  <!-- Radar sweep wedge (at ~330°, pointing upper-left) -->
+  <g clip-path="url(#radarClip)">
+    <path d="M900 315 L730 145 A200 200 0 0 1 900 115 Z" fill="url(#sweepGrad)" opacity="0.5"/>
+    <path d="M900 315 L730 145 A200 200 0 0 1 900 115 Z" fill="#cf4321" opacity="0.07"/>
+  </g>
+
+  <!-- Sweep arm line -->
+  <line x1="900" y1="315" x2="758" y2="148" stroke="#cf4321" stroke-width="1.5" stroke-opacity="0.75"/>
+
+  <!-- Radar device icons (signal contacts) -->
+
+  <!-- Device 1: Laptop @ (820, 235) — primary contact, vermilion -->
+  <g transform="translate(820,235)" opacity="0.92">
+    <!-- pulse ring -->
+    <circle cx="0" cy="0" r="14" fill="#cf4321" fill-opacity="0.12" stroke="#cf4321" stroke-width="0.6" stroke-opacity="0.4"/>
+    <!-- laptop screen -->
+    <rect x="-9" y="-9" width="18" height="12" rx="1.5" fill="none" stroke="#cf4321" stroke-width="1.5"/>
+    <!-- laptop screen inner -->
+    <rect x="-7" y="-7" width="14" height="8" rx="0.5" fill="#cf4321" fill-opacity="0.18"/>
+    <!-- laptop base -->
+    <path d="M-11 3 L11 3 L9 6 L-9 6 Z" fill="none" stroke="#cf4321" stroke-width="1.4" stroke-linejoin="round"/>
+    <!-- hinge dot -->
+    <circle cx="0" cy="3" r="0.8" fill="#cf4321"/>
+  </g>
+
+  <!-- Device 2: Smartphone @ (960, 270) — secondary contact -->
+  <g transform="translate(960,270)" opacity="0.75">
+    <!-- pulse ring -->
+    <circle cx="0" cy="0" r="11" fill="#cf4321" fill-opacity="0.08" stroke="#cf4321" stroke-width="0.5" stroke-opacity="0.3"/>
+    <!-- phone body -->
+    <rect x="-5" y="-9" width="10" height="18" rx="2" fill="none" stroke="#cf4321" stroke-width="1.4"/>
+    <!-- phone screen -->
+    <rect x="-3.5" y="-7" width="7" height="12" rx="0.8" fill="#cf4321" fill-opacity="0.15"/>
+    <!-- home button -->
+    <circle cx="0" cy="7" r="1" fill="#cf4321" fill-opacity="0.7"/>
+    <!-- camera dot -->
+    <circle cx="0" cy="-8" r="0.6" fill="#cf4321"/>
+  </g>
+
+  <!-- Device 3: Monitor @ (875, 390) — tertiary contact, muted -->
+  <g transform="translate(875,390)" opacity="0.5">
+    <!-- monitor screen -->
+    <rect x="-8" y="-8" width="16" height="11" rx="1.2" fill="none" stroke="#1b1a16" stroke-width="1.3"/>
+    <!-- monitor inner -->
+    <rect x="-6" y="-6" width="12" height="7" rx="0.5" fill="#1b1a16" fill-opacity="0.1"/>
+    <!-- monitor neck -->
+    <line x1="0" y1="3" x2="0" y2="6" stroke="#1b1a16" stroke-width="1.3"/>
+    <!-- monitor stand -->
+    <line x1="-4" y1="6" x2="4" y2="6" stroke="#1b1a16" stroke-width="1.3" stroke-linecap="round"/>
+  </g>
+
+  <!-- Radar center dot -->
+  <circle cx="900" cy="315" r="4" fill="#1b1a16" opacity="0.7"/>
+  <circle cx="900" cy="315" r="1.5" fill="#cf4321"/>
+
+  <!-- Tick marks around outer ring -->
+  <g stroke="#1b1a16" stroke-width="0.8" stroke-opacity="0.25">
+    <!-- 12 o'clock -->
+    <line x1="900" y1="113" x2="900" y2="125"/>
+    <!-- 3 o'clock -->
+    <line x1="1098" y1="315" x2="1086" y2="315"/>
+    <!-- 6 o'clock -->
+    <line x1="900" y1="517" x2="900" y2="505"/>
+    <!-- 9 o'clock -->
+    <line x1="702" y1="315" x2="714" y2="315"/>
+    <!-- 45-deg marks -->
+    <line x1="1041" y1="174" x2="1033" y2="182"/>
+    <line x1="1041" y1="456" x2="1033" y2="448"/>
+    <line x1="759"  y1="456" x2="767"  y2="448"/>
+    <line x1="759"  y1="174" x2="767"  y2="182"/>
+  </g>
+
+  <!-- Ring distance labels -->
+  <text x="945" y="279" class="font-mono" font-family="'DM Mono', 'SF Mono', monospace" font-size="7" fill="#726c5f" opacity="0.7">80m</text>
+  <text x="985" y="240" class="font-mono" font-family="'DM Mono', 'SF Mono', monospace" font-size="7" fill="#726c5f" opacity="0.7">120m</text>
+
+  <!-- ─── Left side: Main content ─── -->
+
+  <!-- Vertical rule left of text block -->
+  <line x1="60" y1="110" x2="60" y2="520" stroke="#1b1a16" stroke-width="0.8" stroke-opacity="0.15"/>
+
+  <!-- Main headline -->
+  <text x="80" y="220" class="font-sans" font-family="'Archivo', 'Helvetica Neue', Arial, sans-serif" font-size="92" font-weight="900" letter-spacing="-4" fill="#1b1a16" text-anchor="start">Direct</text>
+  <text x="80" y="315" class="font-sans" font-family="'Archivo', 'Helvetica Neue', Arial, sans-serif" font-size="92" font-weight="900" letter-spacing="-4" fill="#1b1a16" text-anchor="start">transfer.</text>
+  <text x="80" y="415" class="font-sans" font-family="'Archivo', 'Helvetica Neue', Arial, sans-serif" font-size="92" font-weight="900" letter-spacing="-4" fill="#cf4321" text-anchor="start">No uploads.</text>
+
+  <!-- Sub-descriptor -->
+  <text x="80" y="465" class="font-sans" font-family="'Archivo', 'Helvetica Neue', Arial, sans-serif" font-size="17" font-weight="500" fill="#726c5f" text-anchor="start" letter-spacing="0.2">Peer-to-peer file transfer. No servers. No accounts.</text>
+
+  <!-- ─── Bottom divider rule ─── -->
+  <line x1="60" y1="548" x2="1140" y2="548" stroke="#1b1a16" stroke-width="0.8" stroke-opacity="0.3"/>
+
+  <!-- ─── Bottom bar ─── -->
+  <!-- Left: author credit -->
+  <text x="60" y="576" class="font-mono" font-family="'DM Mono', 'SF Mono', monospace" font-size="10" fill="#726c5f" text-anchor="start" letter-spacing="1">by Mosabbir Maruf</text>
+  <!-- Center: URL -->
+  <text x="600" y="576" class="font-mono" font-family="'DM Mono', 'SF Mono', monospace" font-size="11" font-weight="500" fill="#cf4321" text-anchor="middle" letter-spacing="1.5">hypersync.pages.dev</text>
+  <!-- Right bottom: PWA + speed note -->
+  <text x="1140" y="576" class="font-mono" font-family="'DM Mono', 'SF Mono', monospace" font-size="10" fill="#726c5f" text-anchor="end" letter-spacing="1">PWA · LAN-speed</text>
+
+
+</svg>

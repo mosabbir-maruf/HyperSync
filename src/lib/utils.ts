@@ -117,6 +117,25 @@ export function initials(name: string): string {
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
 }
 
+export const MARVEL_CHARACTERS = [
+  "Iron Man", "Spider-Man", "Thor", "Hulk", "Black Widow",
+  "Captain America", "Doctor Strange", "Black Panther", "Captain Marvel",
+  "Wolverine", "Deadpool", "Ant-Man", "Scarlet Witch", "Vision",
+  "Hawkeye", "Daredevil", "Star-Lord", "Groot", "Rocket Raccoon",
+  "Gamora", "Drax"
+]
+
+const MARVEL_ROSTER = new Set(MARVEL_CHARACTERS)
+
+/** Returns the local URL for a Marvel avatar if the name matches, otherwise null. */
+export function getMarvelAvatarUrl(name: string): string | null {
+  if (MARVEL_ROSTER.has(name)) {
+    const safeFilename = name.toLowerCase().replace(/[^a-z0-9]/g, "-")
+    return `/avatars/${safeFilename}.jpg`
+  }
+  return null
+}
+
 /** Coarse platform label derived from the user agent. */
 export function detectPlatform(): string {
   return getCapabilities().platform

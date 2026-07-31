@@ -160,7 +160,7 @@ export function NearbyDevices() {
                   aria-hidden
                   className="animate-signal-pulse absolute inset-2 rounded-full border border-border-strong bg-background"
                 />
-                <RadarIcon
+                <HyperSyncLogo
                   width={28}
                   height={28}
                   className="relative text-primary"
@@ -217,7 +217,6 @@ export function NearbyDevices() {
                 name={thisDevice.name}
                 color={thisDevice.color}
                 size={18}
-                className="rounded-xs"
               />
 
               {isEditingName ? (

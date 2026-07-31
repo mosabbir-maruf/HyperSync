@@ -40,31 +40,9 @@ interface SettingsContextValue {
   update: (patch: Partial<Settings>) => void
 }
 
-const SettingsContext = createContext<SettingsContextValue | null>(null)
+import { MARVEL_CHARACTERS } from "../lib/utils"
 
-const MARVEL_CHARACTERS = [
-  "Iron Man",
-  "Spider-Man",
-  "Thor",
-  "Hulk",
-  "Black Widow",
-  "Captain America",
-  "Doctor Strange",
-  "Black Panther",
-  "Captain Marvel",
-  "Wolverine",
-  "Deadpool",
-  "Ant-Man",
-  "Scarlet Witch",
-  "Vision",
-  "Hawkeye",
-  "Daredevil",
-  "Star-Lord",
-  "Groot",
-  "Rocket Raccoon",
-  "Gamora",
-  "Drax",
-]
+const SettingsContext = createContext<SettingsContextValue | null>(null)
 
 function randomName(): string {
   const bytes = new Uint8Array(1)
