@@ -39,23 +39,23 @@ export function SessionSurface() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-extrabold tracking-tight">
-            {connected
-              ? "Connected"
-              : state.role === "guest"
+      {!connected && (
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-extrabold tracking-tight">
+              {state.role === "guest"
                 ? "Joining…"
                 : "Waiting for device"}
-          </h1>
-          <div className="mt-2">
-            <ConnectionStatus phase={state.connectionState} />
+            </h1>
+            <div className="mt-2">
+              <ConnectionStatus phase={state.connectionState} />
+            </div>
           </div>
+          <Button variant="secondary" size="sm" onClick={leave}>
+            End session
+          </Button>
         </div>
-        <Button variant="secondary" size="sm" onClick={leave}>
-          End session
-        </Button>
-      </div>
+      )}
 
       {state.error && (
         <div className="rounded-2xl border-l-2 border-destructive bg-card px-4 py-3 text-sm text-destructive">
@@ -63,7 +63,7 @@ export function SessionSurface() {
         </div>
       )}
       {connected ? (
-        <SessionRoom />
+        <SessionRoom onLeave={leave} />
       ) : (
         <div className="flex flex-col items-center gap-6 rounded-2xl border border-border-strong bg-card p-6 md:flex-row md:gap-8 md:p-8">
           {state.info && <QRDisplay value={state.info.joinUrl} />}

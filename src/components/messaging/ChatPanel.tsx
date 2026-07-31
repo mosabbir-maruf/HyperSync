@@ -7,13 +7,12 @@ import {
 } from "react"
 import { MessageList } from "./MessageList"
 import { MessageInput } from "./MessageInput"
-import { ChatStatusBar } from "./ChatStatusBar"
 import type { MessagingManager } from "../../state/managers/MessagingManager"
 import type { SessionManager } from "../../state/managers/SessionManager"
-import { ConnectionState } from "../../state/managers/ConnectionStateManager"
 import { cn } from "../../lib/utils"
 import { storageProvider } from "../../browser/FileSelectionService"
 import { Avatar } from "../ui/Avatar"
+import { Button } from "../ui/Button"
 import { SendIcon } from "../ui/icons"
 import type { TimelineItem } from "./MessageList"
 
@@ -23,6 +22,7 @@ interface ChatPanelProps {
   /** Whether the panel is currently visible (for unread tracking). */
   visible: boolean
   onFiles?: (files: File[]) => void
+  onLeave: () => void
 }
 
 /**
@@ -37,7 +37,7 @@ interface ChatPanelProps {
  * - Forwarding send / typing events to controller
  * - Emoji recent-use tracking
  */
-export function ChatPanel({ controller, sessionController, visible, onFiles }: ChatPanelProps) {
+export function ChatPanel({ controller, sessionController, visible, onFiles, onLeave }: ChatPanelProps) {
   const [dragging, setDragging] = useState(false)
 
   // Subscribe to messaging state
@@ -145,21 +145,38 @@ export function ChatPanel({ controller, sessionController, visible, onFiles }: C
       )}
 
       {/* Header */}
-      <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-3">
+      <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-3 shrink-0">
         <div className="flex items-center gap-3 min-w-0">
-          <Avatar name={state.peerName || "Guest"} size="sm" />
-          <span
-            className="label-mono truncate"
-            title={state.peerName || "Conversation"}
-          >
-            {state.peerName || "Conversation"}
-          </span>
+          <div className="relative">
+            <Avatar name={state.peerName || "Guest"} size="sm" />
+            <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-card bg-success" title="Online"></span>
+          </div>
+          <div className="flex flex-col">
+            <span
+              className="font-bold truncate text-[15px] leading-tight text-foreground"
+              title={state.peerName || "Conversation"}
+            >
+              {state.peerName || "Conversation"}
+            </span>
+            <span className="text-[11px] font-medium text-muted-foreground leading-none mt-1">
+              {state.isRemoteTyping ? (
+                <span className="text-primary animate-pulse">Typing...</span>
+              ) : (
+                "Connected"
+              )}
+            </span>
+          </div>
         </div>
-        <ChatStatusBar
-          status={sessionState.connectionState}
-          unreadCount={state.unreadCount}
-          isRemoteTyping={state.isRemoteTyping}
-        />
+        <div className="flex items-center gap-4">
+          <Button variant="secondary" size="sm" onClick={onLeave} className="h-7 text-xs px-2.5 hidden sm:inline-flex">
+            End session
+          </Button>
+          <Button variant="secondary" size="sm" onClick={onLeave} className="h-7 w-7 p-0 sm:hidden" aria-label="End session">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </Button>
+        </div>
       </div>
 
       {/* Message list — flex-1 fills available height */}

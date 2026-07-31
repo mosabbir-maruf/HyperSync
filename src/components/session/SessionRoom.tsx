@@ -4,7 +4,7 @@ import { useSettings } from "../../state/SettingsProvider"
 import { ChatPanel } from "../messaging/ChatPanel"
 
 /** The active session surface, shared by both host and guest once connected. */
-export function SessionRoom() {
+export function SessionRoom({ onLeave }: { onLeave: () => void }) {
   const { controller, state, getMessagingController } = useSession()
   const { settings } = useSettings()
   const [messagingCtrl, setMessagingCtrl] = useState(getMessagingController())
@@ -40,6 +40,7 @@ export function SessionRoom() {
             sessionController={controller}
             visible={true}
             onFiles={(files) => controller.sendFiles(files)}
+            onLeave={onLeave}
           />
         ) : (
           <ChatPlaceholder />
@@ -55,6 +56,7 @@ export function SessionRoom() {
               sessionController={controller}
               visible={true} 
               onFiles={(files) => controller.sendFiles(files)}
+              onLeave={onLeave}
             />
           ) : (
             <ChatPlaceholder />
