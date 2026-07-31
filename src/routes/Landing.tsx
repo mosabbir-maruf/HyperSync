@@ -81,7 +81,7 @@ export function Landing() {
               },
             ].map((feature, i) => (
               <div key={i} className="group bg-background p-8 md:p-12">
-                <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-2xl border border-border-strong bg-card text-foreground">
+                <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-2xl border border-border-strong bg-card text-[#cf4322]">
                   {feature.icon}
                 </div>
                 <h3 className="mb-3 text-xl font-bold tracking-tight">
