@@ -66,7 +66,7 @@ export function Settings() {
   const { clear } = useHistory()
   const caps = capabilityService.get()
 
-  const themes: { value: ThemePreference; label: string }[] = [
+  const themes: { value: ThemePreference label: string }[] = [
     { value: "light", label: "Light" },
     { value: "dark", label: "Dark" },
     { value: "system", label: "System" },

@@ -42,13 +42,34 @@ interface SettingsContextValue {
 
 const SettingsContext = createContext<SettingsContextValue | null>(null)
 
-const ADJECTIVES = ["Swift", "Quiet", "Bright", "Calm", "Bold", "Keen", "Warm"]
-const NOUNS = ["Falcon", "Otter", "Maple", "Harbor", "Comet", "Cedar", "Willow"]
+const MARVEL_CHARACTERS = [
+  "Iron Man",
+  "Spider-Man",
+  "Thor",
+  "Hulk",
+  "Black Widow",
+  "Captain America",
+  "Doctor Strange",
+  "Black Panther",
+  "Captain Marvel",
+  "Wolverine",
+  "Deadpool",
+  "Ant-Man",
+  "Scarlet Witch",
+  "Vision",
+  "Hawkeye",
+  "Daredevil",
+  "Star-Lord",
+  "Groot",
+  "Rocket Raccoon",
+  "Gamora",
+  "Drax",
+]
 
 function randomName(): string {
-  const bytes = new Uint8Array(2)
+  const bytes = new Uint8Array(1)
   crypto.getRandomValues(bytes)
-  return `${ADJECTIVES[bytes[0] % ADJECTIVES.length]} ${NOUNS[bytes[1] % NOUNS.length]}`
+  return MARVEL_CHARACTERS[bytes[0] % MARVEL_CHARACTERS.length]
 }
 
 export function SettingsProvider({ children }: { children: ReactNode }) {

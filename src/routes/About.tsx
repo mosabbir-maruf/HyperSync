@@ -134,7 +134,10 @@ export function About() {
       </section>
 
       {/* Architecture List */}
-      <section id="architecture" className="scroll-mt-24 bg-background py-24 md:py-32">
+      <section
+        id="architecture"
+        className="scroll-mt-24 bg-background py-24 md:py-32"
+      >
         <div className="mx-auto max-w-[1273px] px-6 md:px-12">
           <div className="mb-12 flex items-center gap-6 md:mb-20">
             <span className="h-px flex-1 bg-border-strong" />
@@ -371,7 +374,10 @@ export function About() {
         <div className="mx-auto max-w-[1273px] px-6 md:px-12">
           <div className="grid gap-px overflow-hidden rounded-3xl border border-border-strong bg-border-strong sm:grid-cols-2">
             {/* Privacy Policy */}
-            <div id="privacy" className="scroll-mt-24 bg-background p-8 md:p-12">
+            <div
+              id="privacy"
+              className="scroll-mt-24 bg-background p-8 md:p-12"
+            >
               <div className="mb-6 font-mono text-[10px] font-bold uppercase tracking-widest text-primary">
                 Privacy Policy
               </div>
