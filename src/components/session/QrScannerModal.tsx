@@ -8,7 +8,11 @@ interface QrScannerModalProps {
   onScan: (code: string) => void
 }
 
-export function QrScannerModal({ isOpen, onClose, onScan }: QrScannerModalProps) {
+export function QrScannerModal({
+  isOpen,
+  onClose,
+  onScan,
+}: QrScannerModalProps) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const [error, setError] = useState<string | null>(null)
 
@@ -23,11 +27,15 @@ export function QrScannerModal({ isOpen, onClose, onScan }: QrScannerModalProps)
       try {
         setError(null)
         stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: "environment", width: { ideal: 1280 }, height: { ideal: 720 } }
+          video: {
+            facingMode: "environment",
+            width: { ideal: 1280 },
+            height: { ideal: 720 },
+          },
         })
 
         if (!active) {
-          stream.getTracks().forEach(t => t.stop())
+          stream.getTracks().forEach((t) => t.stop())
           return
         }
 
@@ -38,7 +46,9 @@ export function QrScannerModal({ isOpen, onClose, onScan }: QrScannerModalProps)
 
         // Use native browser BarcodeDetector API if supported (Chrome, Edge, Android Chrome, Safari 17+)
         if ("BarcodeDetector" in window) {
-          const detector = new (window as any).BarcodeDetector({ formats: ["qr_code"] })
+          const detector = new (window as any).BarcodeDetector({
+            formats: ["qr_code"],
+          })
           const scanFrame = async () => {
             if (!active || !videoRef.current) return
             try {
@@ -74,7 +84,7 @@ export function QrScannerModal({ isOpen, onClose, onScan }: QrScannerModalProps)
     return () => {
       active = false
       if (animFrameId) cancelAnimationFrame(animFrameId)
-      if (stream) stream.getTracks().forEach(t => t.stop())
+      if (stream) stream.getTracks().forEach((t) => t.stop())
     }
   }, [isOpen, onScan, onClose])
 
@@ -110,7 +120,9 @@ export function QrScannerModal({ isOpen, onClose, onScan }: QrScannerModalProps)
 
           {error && (
             <div className="absolute inset-0 flex flex-col items-center justify-center p-4 text-center bg-background/95">
-              <p className="text-sm font-medium text-destructive mb-2">{error}</p>
+              <p className="text-sm font-medium text-destructive mb-2">
+                {error}
+              </p>
               <p className="text-xs text-muted-foreground mb-4">
                 Please allow camera permissions in your browser.
               </p>

@@ -157,3 +157,36 @@ body {
   .ds-slide-up,
   .ds-zoom-in { animation: none; }
 }
+
+/* Radar & Precision Instrument Animations */
+@keyframes ds-radar-sweep {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+@keyframes ds-signal-pulse {
+  0% { transform: scale(0.95); opacity: 0.9; }
+  50% { transform: scale(1.08); opacity: 0.4; }
+  100% { transform: scale(0.95); opacity: 0.9; }
+}
+@keyframes ds-ping-wave {
+  0% { transform: scale(0.4); opacity: 0.8; }
+  80%, 100% { transform: scale(2.2); opacity: 0; }
+}
+@keyframes ds-spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.animate-radar-sweep {
+  animation: ds-radar-sweep 10s linear infinite;
+}
+.animate-signal-pulse {
+  animation: ds-signal-pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+.animate-ping-wave {
+  animation: ds-ping-wave 2.5s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+.animate-spin-slow {
+  animation: ds-spin-slow 6s linear infinite;
+}
+

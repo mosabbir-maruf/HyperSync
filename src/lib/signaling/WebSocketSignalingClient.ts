@@ -8,7 +8,10 @@ import type {
   SignalingConnectionState,
 } from "./types"
 
-export class WebSocketSignalingClient extends SignalingEmitter implements SignalingClient {
+export class WebSocketSignalingClient
+  extends SignalingEmitter
+  implements SignalingClient
+{
   state: SignalingConnectionState = "idle"
 
   private ws: WebSocket | null = null
@@ -32,15 +35,19 @@ export class WebSocketSignalingClient extends SignalingEmitter implements Signal
     super()
   }
 
-  override on<T extends import("./types").SignalingEventType>(
+  on<T extends import("./types").SignalingEventType,>(
     type: T,
-    handler: import("./types").SignalingEventHandler<T>
+    handler: import("./types").SignalingEventHandler<T>,
   ): import("./types").Unsubscribe {
     const unsub = super.on(type, handler)
     if (type === "peer-joined" && this.hasPeerJoined) {
       setTimeout(() => {
         try {
-          (handler as any)({ type: "peer-joined", peerId: this.joinedPeerId })
+          const emitPeerJoined = handler as (event: {
+            type: "peer-joined"
+            peerId: string | null
+          }) => void
+          emitPeerJoined({ type: "peer-joined", peerId: this.joinedPeerId })
         } catch (e) {
           console.warn("Error replaying peer-joined handler", e)
         }
@@ -54,14 +61,21 @@ export class WebSocketSignalingClient extends SignalingEmitter implements Signal
     this.emit({ type: "state", state })
   }
 
-  private buildInfo(sessionId: string, code: string, role: "host" | "guest"): SessionInfo {
+  private buildInfo(
+    sessionId: string,
+    code: string,
+    role: "host" | "guest",
+  ): SessionInfo {
     const url = new URL(window.location.href)
     url.hash = ""
     url.search = `?code=${encodeURIComponent(code)}`
     return { sessionId, code, role, joinUrl: url.toString() }
   }
 
-  private async connectWebSocket(code: string, role: "host" | "guest"): Promise<void> {
+  private async connectWebSocket(
+    code: string,
+    role: "host" | "guest",
+  ): Promise<void> {
     return new Promise((resolve, reject) => {
       // Connect to the room by its URL
       const wsUrl = new URL(this.url)
@@ -76,7 +90,7 @@ export class WebSocketSignalingClient extends SignalingEmitter implements Signal
         console.log(`[Signaling] WebSocket open, role=${role}, sending JOIN`)
         // Send JOIN message
         this.sendMessage("JOIN", { role })
-        
+
         // Start heartbeat
         this.pingInterval = window.setInterval(() => {
           if (ws.readyState === WebSocket.OPEN) {
@@ -103,10 +117,12 @@ export class WebSocketSignalingClient extends SignalingEmitter implements Signal
       }
 
       ws.onclose = (ev) => {
-        console.log(`[Signaling] WebSocket closed code=${ev.code} reason=${ev.reason}`)
+        console.log(
+          `[Signaling] WebSocket closed code=${ev.code} reason=${ev.reason}`,
+        )
         this.cleanup()
         if (ev.code === 4004 || ev.code === 4003) {
-           this.emit({ type: "error", message: "Session expired or full" })
+          this.emit({ type: "error", message: "Session expired or full" })
         }
         this.emit({ type: "peer-left", peerId: "remote" })
         if (this.state === "connecting") {
@@ -117,7 +133,11 @@ export class WebSocketSignalingClient extends SignalingEmitter implements Signal
     })
   }
 
-  private handleMessage(msg: any, resolve: (val?: any) => void, reject: (err: Error) => void) {
+  private handleMessage(
+    msg: any,
+    resolve: (val?: any) => void,
+    reject: (err: Error) => void,
+  ) {
     switch (msg.type) {
       case "HELLO":
         // Our own join succeeded
@@ -141,31 +161,52 @@ export class WebSocketSignalingClient extends SignalingEmitter implements Signal
           const joinedRole = msg.payload?.joinedRole as string | undefined
           const yourRole = msg.payload?.yourRole as string | undefined
           const joinedPeerId = msg.payload?.joinedPeerId || "remote"
-          console.log(`[Signaling] READY payload: joinedRole=${joinedRole} yourRole=${yourRole} this.role=${this.role}`)
+          console.log(
+            `[Signaling] READY payload: joinedRole=${joinedRole} yourRole=${yourRole} this.role=${this.role}`,
+          )
           // If the server sends READY and a GUEST just joined, notify the HOST to start negotiation
-          if (joinedRole === "GUEST" && (yourRole === "HOST" || this.role === "host")) {
+          if (
+            joinedRole === "GUEST" &&
+            (yourRole === "HOST" || this.role === "host")
+          ) {
             this.hasPeerJoined = true
             this.joinedPeerId = joinedPeerId
-            console.log(`[Signaling] Emitting peer-joined (we are host, guest joined)`)
+            console.log(
+              `[Signaling] Emitting peer-joined (we are host, guest joined)`,
+            )
             this.emit({ type: "peer-joined", peerId: joinedPeerId })
           }
           // If no payload (fallback for old server), emit for host only
           if (!joinedRole && this.role === "host") {
             this.hasPeerJoined = true
             this.joinedPeerId = "remote"
-            console.log(`[Signaling] Emitting peer-joined (fallback, no payload)`)
+            console.log(
+              `[Signaling] Emitting peer-joined (fallback, no payload)`,
+            )
             this.emit({ type: "peer-joined", peerId: "remote" })
           }
         }
         break
       case "OFFER":
-        this.emit({ type: "signal", from: msg.peerId, signal: { kind: "offer", sdp: msg.payload.offer } })
+        this.emit({
+          type: "signal",
+          from: msg.peerId,
+          signal: { kind: "offer", sdp: msg.payload.offer },
+        })
         break
       case "ANSWER":
-        this.emit({ type: "signal", from: msg.peerId, signal: { kind: "answer", sdp: msg.payload.answer } })
+        this.emit({
+          type: "signal",
+          from: msg.peerId,
+          signal: { kind: "answer", sdp: msg.payload.answer },
+        })
         break
       case "ICE":
-        this.emit({ type: "signal", from: msg.peerId, signal: { kind: "ice", candidate: msg.payload.candidate } })
+        this.emit({
+          type: "signal",
+          from: msg.peerId,
+          signal: { kind: "ice", candidate: msg.payload.candidate },
+        })
         break
       case "ERROR":
       case "SESSION_FULL":
@@ -173,7 +214,10 @@ export class WebSocketSignalingClient extends SignalingEmitter implements Signal
         if (this.state === "connecting") {
           reject(new Error(msg.payload?.message || msg.type))
         } else {
-          this.emit({ type: "error", message: msg.payload?.message || msg.type })
+          this.emit({
+            type: "error",
+            message: msg.payload?.message || msg.type,
+          })
         }
         break
       case "PONG":
@@ -183,14 +227,16 @@ export class WebSocketSignalingClient extends SignalingEmitter implements Signal
 
   private sendMessage(type: string, payload: any) {
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-      this.ws.send(JSON.stringify({
-        type,
-        protocolVersion: 1,
-        sessionId: this.sessionId,
-        peerId: this.peerId,
-        timestamp: Date.now(),
-        payload
-      }))
+      this.ws.send(
+        JSON.stringify({
+          type,
+          protocolVersion: 1,
+          sessionId: this.sessionId,
+          peerId: this.peerId,
+          timestamp: Date.now(),
+          payload,
+        }),
+      )
     }
   }
 
@@ -199,16 +245,16 @@ export class WebSocketSignalingClient extends SignalingEmitter implements Signal
     try {
       // Step 1: Create session via HTTP API
       const res = await fetch(`${this.url}/session`, {
-        method: "POST"
+        method: "POST",
       })
       if (!res.ok) throw new Error("Failed to create session")
-      
+
       const data = await res.json()
       if (!data.success) throw new Error(data.error?.message || "Unknown error")
-      
+
       const code = data.data.sessionCode
       const roomId = data.data.sessionId || data.data.id
-      
+
       this.code = code
       this.sessionId = roomId
       this.role = "host"
@@ -231,15 +277,15 @@ export class WebSocketSignalingClient extends SignalingEmitter implements Signal
       const res = await fetch(`${this.url}/join`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sessionCode: normalizedCode })
+        body: JSON.stringify({ sessionCode: normalizedCode }),
       })
       if (!res.ok) throw new Error("Failed to join session")
-      
+
       const data = await res.json()
       if (!data.success) throw new Error(data.error?.message || "Unknown error")
-      
+
       const roomId = data.data.sessionId || data.data.id
-      
+
       this.code = normalizedCode
       this.sessionId = roomId
       this.role = "guest"
@@ -278,7 +324,11 @@ export class WebSocketSignalingClient extends SignalingEmitter implements Signal
 
   private connectLobby(): void {
     if (!this.shouldKeepLobbyConnected || !this.lobbyProfile) return
-    if (this.lobbyWs?.readyState === WebSocket.OPEN || this.lobbyWs?.readyState === WebSocket.CONNECTING) return
+    if (
+      this.lobbyWs?.readyState === WebSocket.OPEN ||
+      this.lobbyWs?.readyState === WebSocket.CONNECTING
+    )
+      return
 
     this.clearLobbyReconnectTimeout()
 
@@ -305,10 +355,14 @@ export class WebSocketSignalingClient extends SignalingEmitter implements Signal
           // Keep the frontend safe with older workers that broadcast the
           // complete roster, including the requesting device.
           const devices = msg.payload.devices.filter(
-            (device: DevicePresence) => device?.peerId && device.peerId !== this.peerId,
+            (device: DevicePresence) =>
+              device?.peerId && device.peerId !== this.peerId,
           )
           this.emit({ type: "roster", devices })
-        } else if (msg.type === "INVITE" && typeof msg.payload?.code === "string") {
+        } else if (
+          msg.type === "INVITE" &&
+          typeof msg.payload?.code === "string"
+        ) {
           this.emit({
             type: "invite",
             from: msg.payload.from ?? "remote",
@@ -338,12 +392,15 @@ export class WebSocketSignalingClient extends SignalingEmitter implements Signal
   }
 
   private sendLobbyAnnouncement(): void {
-    if (!this.lobbyProfile || this.lobbyWs?.readyState !== WebSocket.OPEN) return
-    this.lobbyWs.send(JSON.stringify({
-      type: "ANNOUNCE",
-      peerId: this.peerId,
-      payload: { profile: this.lobbyProfile },
-    }))
+    if (!this.lobbyProfile || this.lobbyWs?.readyState !== WebSocket.OPEN)
+      return
+    this.lobbyWs.send(
+      JSON.stringify({
+        type: "ANNOUNCE",
+        peerId: this.peerId,
+        payload: { profile: this.lobbyProfile },
+      }),
+    )
   }
 
   private startLobbyPing(ws: WebSocket): void {
@@ -363,7 +420,8 @@ export class WebSocketSignalingClient extends SignalingEmitter implements Signal
   }
 
   private scheduleLobbyReconnect(): void {
-    if (!this.shouldKeepLobbyConnected || this.lobbyReconnectTimeout !== null) return
+    if (!this.shouldKeepLobbyConnected || this.lobbyReconnectTimeout !== null)
+      return
     const delay = Math.min(1_000 * 2 ** this.lobbyReconnectAttempts, 15_000)
     this.lobbyReconnectAttempts++
     this.lobbyReconnectTimeout = window.setTimeout(() => {
@@ -381,11 +439,13 @@ export class WebSocketSignalingClient extends SignalingEmitter implements Signal
 
   invite(targetPeerId: string, code: string): void {
     if (this.lobbyWs && this.lobbyWs.readyState === WebSocket.OPEN) {
-      this.lobbyWs.send(JSON.stringify({
-        type: "INVITE",
-        peerId: this.peerId,
-        payload: { targetPeerId, code }
-      }))
+      this.lobbyWs.send(
+        JSON.stringify({
+          type: "INVITE",
+          peerId: this.peerId,
+          payload: { targetPeerId, code },
+        }),
+      )
     }
   }
 

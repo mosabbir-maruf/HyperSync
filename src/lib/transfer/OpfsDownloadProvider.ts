@@ -24,7 +24,9 @@ export class OpfsDownloadProvider implements SaveProvider {
   async initialize(): Promise<void> {
     this.opfsDir = await navigator.storage.getDirectory()
     // Create a temporary file in OPFS
-    this.fileHandle = await this.opfsDir.getFileHandle(this.tempFileName, { create: true })
+    this.fileHandle = await this.opfsDir.getFileHandle(this.tempFileName, {
+      create: true,
+    })
     this.writable = await this.fileHandle.createWritable()
   }
 
@@ -56,17 +58,21 @@ export class OpfsDownloadProvider implements SaveProvider {
     // but for DropSync we want ephemeral transfers.
     // We cannot delete the file right now, otherwise the downloadUrl breaks immediately.
     // We will clean it up on window unload or next load.
-    
+
     return { downloadUrl, blob: file }
   }
 
   async abort() {
     if (this.writable) {
-      try { await this.writable.close() } catch {}
+      try {
+        await this.writable.close()
+      } catch {}
       this.writable = null
     }
     if (this.opfsDir && this.fileHandle) {
-      try { await this.opfsDir.removeEntry(this.tempFileName) } catch {}
+      try {
+        await this.opfsDir.removeEntry(this.tempFileName)
+      } catch {}
     }
   }
 

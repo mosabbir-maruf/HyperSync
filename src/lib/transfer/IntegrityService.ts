@@ -16,7 +16,7 @@ export class IncrementalHasher {
 
     const hashBuffer = await crypto.subtle.digest("SHA-256", buffer)
     const hashArray = new Uint8Array(hashBuffer)
-    
+
     // XOR the chunk hash into the final hash
     for (let i = 0; i < 32; i++) {
       this.finalHash[i] ^= hashArray[i]
@@ -47,14 +47,14 @@ export class IntegrityService {
       await hasher.update(buffer)
       offset += chunkSize
       // Yield so we don't starve the send loop
-      await new Promise<void>(r => setTimeout(r, 0))
+      await new Promise<void>((r) => setTimeout(r, 0))
     }
     return hasher.digest()
   }
 
   async verifyChecksum(file: Blob, expectedChecksum: string): Promise<boolean> {
     if (expectedChecksum === "unsupported") return true
-    
+
     const hasher = this.createHasher()
     const chunkSize = 2 * 1024 * 1024
     let offset = 0

@@ -21,10 +21,10 @@ export interface SessionInfo {
 export type SignalingConnectionState = "idle" | "connecting" | "connected" | "closed" | "error"
 
 /** Messages relayed between the two peers of a session, verbatim. */
-export type PeerSignal = { kind: "offer"; sdp: RTCSessionDescriptionInit } | {
+export type PeerSignal = { kind: "offer" sdp: RTCSessionDescriptionInit } | {
   kind: "answer"
   sdp: RTCSessionDescriptionInit
-} | { kind: "ice"; candidate: RTCIceCandidateInit }
+} | { kind: "ice" candidate: RTCIceCandidateInit }
 
 /**
  * A device advertising itself on the local discovery lobby. Carries only a
@@ -44,13 +44,13 @@ export interface DevicePresence {
 export type SignalingEvent = {
   type: "state"
   state: SignalingConnectionState
-} | { type: "peer-joined"; peerId: string } | {
+} | { type: "peer-joined" peerId: string } | {
   type: "peer-left"
   peerId: string
-} | { type: "signal"; from: string; signal: PeerSignal } | {
+} | { type: "signal" from: string signal: PeerSignal } | {
   type: "roster"
   devices: DevicePresence[]
-} | { type: "invite"; from: string; fromName: string; code: string } | {
+} | { type: "invite" from: string fromName: string code: string } | {
   type: "error"
   message: string
 }

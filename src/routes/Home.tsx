@@ -25,10 +25,9 @@ export function Home() {
             Rename device
           </Link>
         </div>
-        <h1 className="max-w-2xl text-[2.25rem] font-extrabold leading-[1.03] tracking-tight md:text-5xl">
-          Pick a device.
-          <br />
-          Start sending.
+        <h1 className="text-4xl font-black tracking-tighter md:text-6xl lg:text-7xl">
+          Pick a device.{" "}
+          <span className="text-muted-foreground">Start sending.</span>
         </h1>
       </header>
 

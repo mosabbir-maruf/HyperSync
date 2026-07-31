@@ -108,7 +108,8 @@ export function JoinSession() {
       </Card>
 
       <p className="text-center text-[12px] leading-relaxed text-muted-foreground">
-        Point your camera at the QR code on the sending device to connect automatically.
+        Point your camera at the QR code on the sending device to connect
+        automatically.
       </p>
 
       <QrScannerModal

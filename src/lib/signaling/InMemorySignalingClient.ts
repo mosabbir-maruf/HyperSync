@@ -25,7 +25,6 @@ export class InMemorySignalingClient
   private readonly peerId = randomId()
   private code: string | null = null
 
-
   private setState(state: SignalingConnectionState): void {
     this.state = state
     this.emit({ type: "state", state })
@@ -49,7 +48,10 @@ export class InMemorySignalingClient
     return this.buildInfo(sessionId, code, "host")
   }
 
-  async joinSession(code: string, _role: "host" | "guest" = "guest"): Promise<SessionInfo> {
+  async joinSession(
+    code: string,
+    _role: "host" | "guest" = "guest",
+  ): Promise<SessionInfo> {
     this.setState("connecting")
     const normalizedCode = normalizeCode(code)
     if (!signalingHub.hasSession(normalizedCode)) {

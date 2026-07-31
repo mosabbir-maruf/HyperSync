@@ -13,7 +13,7 @@ export class RateMeter {
   }
 
   /** Feed the cumulative byte count; returns smoothed speed + ETA. */
-  sample(bytesTransferred: number): { speed: number; eta: number | null } {
+  sample(bytesTransferred: number): { speed: number eta: number | null } {
     const now = performance.now()
     const dt = (now - this.lastTime) / 1000
     if (dt > 0.05) {

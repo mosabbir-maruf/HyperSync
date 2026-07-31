@@ -52,7 +52,7 @@ export interface PooledBuffer {
 
 interface QItem {
   pb: PooledBuffer
-  wireLen: number   // total bytes to send (header + payload)
+  wireLen: number // total bytes to send (header + payload)
   payloadLen: number
   isLast: boolean
 }
@@ -67,19 +67,19 @@ export class SendPipeline {
 
   // ── Completion tracking ─────────────────────────────────────────────────
   private producerDone = false
-  private isAllSent    = false
+  private isAllSent = false
   private readonly allSentResolvers: Array<() => void> = []
 
   // ── Progress ────────────────────────────────────────────────────────────
   private readonly meter: RateMeter
-  private bytesSent      = 0
-  private chunksSent     = 0
+  private bytesSent = 0
+  private chunksSent = 0
   private lastProgressMs = 0
 
   // ── Metrics ─────────────────────────────────────────────────────────────
-  private lastSendTime    = performance.now()
-  private queueStarves    = 0
-  private poolExhausts    = 0
+  private lastSendTime = performance.now()
+  private queueStarves = 0
+  private poolExhausts = 0
   private fillSamples: number[] = []
   private metricsTimer: ReturnType<typeof setInterval> | null = null
 
@@ -96,11 +96,11 @@ export class SendPipeline {
     // (HIGH_WATER_MARK - LOW_WATER_MARK) / chunkSize, plus 4 headroom.
     const { HIGH_WATER_MARK: H, LOW_WATER_MARK: L } = SendPipeline
     const gapChunks = Math.ceil((H - L) / chunkSize)
-    const poolSize  = gapChunks + 4   // e.g. 8MB-4MB=4MB/256KB=16 + 4 = 20
+    const poolSize = gapChunks + 4 // e.g. 8MB-4MB=4MB/256KB=16 + 4 = 20
 
     const wireCapacity = HEADER_SIZE + chunkSize
     this.pool = Array.from({ length: poolSize }, () => ({
-      view: new Uint8Array(new ArrayBuffer(wireCapacity))
+      view: new Uint8Array(new ArrayBuffer(wireCapacity)),
     }))
 
     // Wire the consumer to the DataChannel — stays active for the whole transfer
@@ -112,7 +112,8 @@ export class SendPipeline {
 
   // Import watermarks as statics so they can be read without an instance
   static readonly HIGH_WATER_MARK = HIGH_WATER_MARK
-  static readonly LOW_WATER_MARK  = 4 * 1024 * 1024   // keep in sync with protocol.ts
+  static readonly LOW_WATER_MARK =
+    4 * 1024 * 1024 // keep in sync with protocol.ts
 
   // ── Producer API ─────────────────────────────────────────────────────────
 
@@ -124,7 +125,7 @@ export class SendPipeline {
   async acquireBuffer(): Promise<PooledBuffer> {
     if (this.pool.length > 0) return this.pool.pop()!
     this.poolExhausts++
-    await new Promise<void>(r => this.poolWaiters.push(r))
+    await new Promise<void>((r) => this.poolWaiters.push(r))
     return this.pool.pop()!
   }
 
@@ -133,7 +134,12 @@ export class SendPipeline {
    * Immediately attempts a flush — if the channel has capacity right now,
    * this chunk is sent before the method returns.
    */
-  push(pb: PooledBuffer, wireLen: number, payloadLen: number, isLast: boolean): void {
+  push(
+    pb: PooledBuffer,
+    wireLen: number,
+    payloadLen: number,
+    isLast: boolean,
+  ): void {
     this.queue.push({ pb, wireLen, payloadLen, isLast })
     this._flush()
   }
@@ -147,7 +153,7 @@ export class SendPipeline {
   /** Resolves when every chunk has been handed to channel.send(). */
   waitUntilDone(): Promise<void> {
     if (this.isAllSent) return Promise.resolve()
-    return new Promise<void>(r => this.allSentResolvers.push(r))
+    return new Promise<void>((r) => this.allSentResolvers.push(r))
   }
 
   /** Call after waitUntilDone() to free event listeners and timers. */
@@ -190,7 +196,10 @@ export class SendPipeline {
 
     const now = performance.now()
 
-    while (this.queue.length > 0 && this.channel.bufferedAmount < HIGH_WATER_MARK) {
+    while (
+      this.queue.length > 0 &&
+      this.channel.bufferedAmount < HIGH_WATER_MARK
+    ) {
       const item = this.queue.shift()!
 
       // channel.send() copies bytes into SCTP buffer synchronously.
@@ -198,7 +207,7 @@ export class SendPipeline {
       this.channel.send(item.pb.view.subarray(0, item.wireLen))
       this.lastSendTime = now
 
-      this.bytesSent  += item.payloadLen
+      this.bytesSent += item.payloadLen
       this.chunksSent += 1
 
       // Return buffer to pool and wake any parked producer immediately
@@ -212,15 +221,15 @@ export class SendPipeline {
         const { speed, eta } = this.meter.sample(this.bytesSent)
         this.onProgress({
           transferId: this.meta.transferId,
-          bytesSent:  this.bytesSent,
+          bytesSent: this.bytesSent,
           bytesReceived: 0,
-          chunksSent:  this.chunksSent,
+          chunksSent: this.chunksSent,
           chunksReceived: 0,
-          totalBytes:  this.meta.fileSize,
+          totalBytes: this.meta.fileSize,
           totalChunks: this.meta.chunkCount,
-          percentage:  (this.bytesSent / this.meta.fileSize) * 100,
+          percentage: (this.bytesSent / this.meta.fileSize) * 100,
           speedBytesPerSecond: speed,
-          estimatedTimeRemainingSeconds: eta ?? 0
+          estimatedTimeRemainingSeconds: eta ?? 0,
         })
       }
     }
@@ -241,37 +250,41 @@ export class SendPipeline {
   private _logMetrics(): void {
     if (this.bytesSent === 0) return
 
-    const n       = this.fillSamples.length
-    const avgFill = n > 0
-      ? this.fillSamples.reduce((a, b) => a + b, 0) / n
-      : 0
+    const n = this.fillSamples.length
+    const avgFill = n > 0 ? this.fillSamples.reduce((a, b) => a + b, 0) / n : 0
     this.fillSamples = []
 
-    const idleMs        = performance.now() - this.lastSendTime
-    const { speed }     = this.meter.sample(this.bytesSent)
-    const fillPct       = ((avgFill / HIGH_WATER_MARK) * 100).toFixed(0)
-    const rateMBps      = (speed / 1_000_000).toFixed(1)
-    const queueDepth    = this.queue.length
-    const freeBuffers   = this.pool.length
+    const idleMs = performance.now() - this.lastSendTime
+    const { speed } = this.meter.sample(this.bytesSent)
+    const fillPct = ((avgFill / HIGH_WATER_MARK) * 100).toFixed(0)
+    const rateMBps = (speed / 1_000_000).toFixed(1)
+    const queueDepth = this.queue.length
+    const freeBuffers = this.pool.length
 
     console.debug(
       `[SendPipeline] ${rateMBps} MB/s  fill=${fillPct}%` +
-      `  queue=${queueDepth}  pool=${freeBuffers}` +
-      `  idle=${idleMs.toFixed(0)}ms` +
-      `  starves=${this.queueStarves} exhausts=${this.poolExhausts}`
+        `  queue=${queueDepth}  pool=${freeBuffers}` +
+        `  idle=${idleMs.toFixed(0)}ms` +
+        `  starves=${this.queueStarves} exhausts=${this.poolExhausts}`,
     )
 
     // Diagnose the bottleneck and hint in the log
     if (this.queueStarves > 0 && this.poolExhausts === 0) {
-      console.debug("[SendPipeline] ⚠ Producer (disk) is slower than network — increase read-ahead")
+      console.debug(
+        "[SendPipeline] ⚠ Producer (disk) is slower than network — increase read-ahead",
+      )
     } else if (this.poolExhausts > 0 && this.queueStarves === 0) {
-      console.debug("[SendPipeline] ⚠ Network is slower than disk — pool/watermarks may be oversized")
+      console.debug(
+        "[SendPipeline] ⚠ Network is slower than disk — pool/watermarks may be oversized",
+      )
     } else if (idleMs > 20) {
-      console.debug(`[SendPipeline] ⚠ Sender idle ${idleMs.toFixed(0)}ms — possible stall`)
+      console.debug(
+        `[SendPipeline] ⚠ Sender idle ${idleMs.toFixed(0)}ms — possible stall`,
+      )
     }
 
     // Reset interval counters
-    this.queueStarves  = 0
-    this.poolExhausts  = 0
+    this.queueStarves = 0
+    this.poolExhausts = 0
   }
 }

@@ -1,7 +1,7 @@
 import type { SessionPhase } from "../../state/SessionController"
 import { cn } from "../../lib/utils"
 
-const MAP: Record<SessionPhase, { label: string; dot: string; text: string }> = {
+const MAP: Record<SessionPhase, { label: string dot: string text: string }> = {
   idle: {
     label: "Not connected",
     dot: "bg-muted-foreground",

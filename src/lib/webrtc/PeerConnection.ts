@@ -50,7 +50,9 @@ export class PeerConnection {
 
     pc.onicecandidate = (ev) => {
       if (ev.candidate) {
-        console.log(`[WebRTC] Gathered ICE candidate: type=${ev.candidate.type} protocol=${ev.candidate.protocol} address=${ev.candidate.address}`)
+        console.log(
+          `[WebRTC] Gathered ICE candidate: type=${ev.candidate.type} protocol=${ev.candidate.protocol} address=${ev.candidate.address}`,
+        )
         this.signaling.send({ kind: "ice", candidate: ev.candidate.toJSON() })
       } else {
         console.log(`[WebRTC] ICE gathering complete`)
@@ -75,12 +77,16 @@ export class PeerConnection {
         }
       } else if (pc.iceConnectionState === "failed") {
         console.error(`[WebRTC] ICE FAILED — no usable candidate pair found`)
-        this.events.onError?.("ICE connection failed — cannot establish direct link")
+        this.events.onError?.(
+          "ICE connection failed — cannot establish direct link",
+        )
       }
     }
 
     pc.onconnectionstatechange = () => {
-      console.log(`[WebRTC] connectionState=${pc.connectionState} iceConnectionState=${pc.iceConnectionState}`)
+      console.log(
+        `[WebRTC] connectionState=${pc.connectionState} iceConnectionState=${pc.iceConnectionState}`,
+      )
       switch (pc.connectionState) {
         case "connected":
           this.stats.start()

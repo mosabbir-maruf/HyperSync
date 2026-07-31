@@ -14,10 +14,10 @@ export class BrowserDownloadProvider implements SaveProvider {
     const blob = new Blob(this.parts, {
       type: this.meta.mimeType || "application/octet-stream",
     })
-    
+
     // Force aggressive cleanup of chunk references
     this.parts = []
-    
+
     const downloadUrl = URL.createObjectURL(blob)
     return { downloadUrl, blob }
   }

@@ -6,7 +6,7 @@ import { PerformanceOverlay } from "../ui/PerformanceOverlay"
 import { cn } from "../../lib/utils"
 
 const nav = [
-  { to: "/", label: "Devices", end: true },
+  { to: "/app", label: "Devices", end: false },
   { to: "/history", label: "History", end: false },
   { to: "/settings", label: "Settings", end: false },
 ]
@@ -60,7 +60,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-[100dvh] bg-background text-foreground">
       <header className="sticky top-0 z-20 border-b border-border-strong bg-background/95 backdrop-blur">
-        <div className="mx-auto flex h-14 w-full max-w-5xl items-center gap-4 px-4 md:px-8">
+        <div className="mx-auto flex h-14 w-full max-w-[1600px] items-center gap-4 px-4 md:px-8">
           <Brand />
           <Nav className="ml-4 hidden md:flex" />
           <div className="ml-auto">
@@ -68,12 +68,12 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
         </div>
         {/* Mobile row of tabs beneath the brand */}
-        <div className="mx-auto flex w-full max-w-5xl items-center border-t border-border px-2 md:hidden">
+        <div className="mx-auto flex w-full max-w-[1600px] items-center border-t border-border px-2 md:hidden">
           <Nav className="w-full justify-around" />
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-3xl px-4 py-8 md:px-8 md:py-12">
+      <main className="mx-auto w-full max-w-[1600px] px-4 py-8 md:px-8 md:py-12">
         {children}
       </main>
 
@@ -86,7 +86,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 function Footer() {
   return (
     <footer className="mt-8 border-t border-border-strong">
-      <div className="mx-auto grid w-full max-w-3xl gap-6 px-4 py-8 md:grid-cols-[1.4fr_1fr] md:px-8">
+      <div className="mx-auto grid w-full max-w-[1600px] gap-6 px-4 py-8 md:grid-cols-[1.4fr_1fr] md:px-8">
         <div className="flex items-start gap-3">
           <ShieldIcon
             width={18}

@@ -19,7 +19,7 @@ export function clearHistory(): void {
 }
 
 /** React hook exposing the local history list, reactive to writes. */
-export function useHistory(): { entries: HistoryEntry[]; clear: () => void } {
+export function useHistory(): { entries: HistoryEntry[] clear: () => void } {
   const [entries, setEntries] = useState<HistoryEntry[]>([])
 
   useEffect(() => {

@@ -8,6 +8,9 @@ import { DialogProvider } from "./state/DialogProvider"
 import { AppShell } from "./components/layout/AppShell"
 import { ToastViewport } from "./components/ui/ToastViewport"
 
+const Landing = lazy(() =>
+  import("./routes/Landing").then((module) => ({ default: module.Landing })),
+)
 const Home = lazy(() =>
   import("./routes/Home").then((module) => ({ default: module.Home })),
 )
@@ -42,7 +45,8 @@ export default function App() {
                 <AppShell>
                   <Suspense fallback={null}>
                     <Routes>
-                      <Route path="/" element={<Home />} />
+                      <Route path="/" element={<Landing />} />
+                      <Route path="/app" element={<Home />} />
                       <Route path="/send" element={<CreateSession />} />
                       <Route
                         path="/create"

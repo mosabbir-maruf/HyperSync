@@ -146,15 +146,20 @@ export const BoltIcon = (p: IconProps) => (
 
 export const RadarIcon = (p: IconProps) => (
   <svg {...base(p)}>
-    <path d="M19.1 4.9A10 10 0 1021 12" />
-    <path d="M16 8a6 6 0 105 4" />
-    <path d="M12 12l7-7" />
-    <circle cx="12" cy="12" r="1" fill="currentColor" stroke="none" />
+    <path d="M19.07 4.93 A 10 10 0 1 0 21 12" />
+    <path d="M16.24 7.76 A 6 6 0 1 0 18 12" />
+    <path d="M12 12 L 19 5" />
+    <circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none" />
   </svg>
 )
 
 export const DropSyncLogo = (p: IconProps) => (
-  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" {...p}>
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    {...p}
+  >
     <path
       d="M17.5 7.5C15.6 7.5 14 8.7 13.3 10.4L12.5 12.3C11.3 15.1 8.8 16.5 6.5 16.5C4 16.5 2 14.5 2 12C2 9.5 4 7.5 6.5 7.5C8.4 7.5 10 8.7 10.7 10.4L11.5 12.3C12.7 15.1 15.2 16.5 17.5 16.5C20 16.5 22 14.5 22 12C22 9.5 20 7.5 17.5 7.5Z"
       stroke="url(#infinity_grad)"
@@ -163,7 +168,14 @@ export const DropSyncLogo = (p: IconProps) => (
       strokeLinejoin="round"
     />
     <defs>
-      <linearGradient id="infinity_grad" x1="2" y1="7.5" x2="22" y2="16.5" gradientUnits="userSpaceOnUse">
+      <linearGradient
+        id="infinity_grad"
+        x1="2"
+        y1="7.5"
+        x2="22"
+        y2="16.5"
+        gradientUnits="userSpaceOnUse"
+      >
         <stop stopColor="#fb923c" />
         <stop offset="1" stopColor="#ea580c" />
       </linearGradient>

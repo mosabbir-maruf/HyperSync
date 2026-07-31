@@ -8,7 +8,7 @@ import { TransferEngine } from "../lib/transfer/TransferEngine"
 import type {
   FileMetadata,
   TransferItem,
-  TransferEvent
+  TransferEvent,
 } from "../lib/transfer/types"
 import { toast } from "../lib/notify/toast"
 import { appError, toAppError } from "../lib/errors"
@@ -54,7 +54,9 @@ export class SessionController {
     return () => this.listeners.delete(fn)
   }
 
-  getState(): SessionState { return this.state }
+  getState(): SessionState {
+    return this.state
+  }
 
   private set(patch: Partial<SessionState>): void {
     this.state = { ...this.state, ...patch }
@@ -87,7 +89,11 @@ export class SessionController {
     this.set({ items })
   }
 
-  private patchItem(id: string, patch: Partial<TransferItem>, immediate = false): void {
+  private patchItem(
+    id: string,
+    patch: Partial<TransferItem>,
+    immediate = false,
+  ): void {
     const cur = this.itemsMap.get(id)
     if (!cur) return
     this.itemsMap.set(id, { ...cur, ...patch })
@@ -163,7 +169,9 @@ export class SessionController {
 
   private attachChannel(channel: RTCDataChannel): void {
     this.engine = new TransferEngine(channel)
-    this.engine.onEvent((event: TransferEvent) => this.handleTransferEvent(event))
+    this.engine.onEvent((event: TransferEvent) =>
+      this.handleTransferEvent(event),
+    )
 
     // Ensure phase=connected regardless of when the channel opens.
     // If already open (host side), update immediately.
@@ -184,7 +192,7 @@ export class SessionController {
       case "MetadataReceived": {
         const meta = event.metadata
         if (!this.itemsMap.has(meta.transferId)) {
-           this.itemsMap.set(meta.transferId, {
+          this.itemsMap.set(meta.transferId, {
             id: meta.transferId,
             name: meta.fileName,
             size: meta.fileSize,
@@ -201,9 +209,9 @@ export class SessionController {
             connectionQuality: "unknown",
             reconnectAttempts: 0,
             startedAt: Date.now(),
-            checksumMethod: meta.checksumMethod
+            checksumMethod: meta.checksumMethod,
           })
-          
+
           if (event.type === "MetadataReceived") {
             const currentIncoming = this.state.incoming || []
             this.set({ incoming: [...currentIncoming, meta] })
@@ -219,14 +227,21 @@ export class SessionController {
       case "ChunkReceived": {
         const p = event.progress
         const transferred = p.bytesSent > 0 ? p.bytesSent : p.bytesReceived
-        const quality = p.speedBytesPerSecond === 0 ? "unknown" : p.speedBytesPerSecond < 128*1024 ? "poor" : p.speedBytesPerSecond < 1024*1024 ? "fair" : "good"
+        const quality =
+          p.speedBytesPerSecond === 0
+            ? "unknown"
+            : p.speedBytesPerSecond < 128 * 1024
+              ? "poor"
+              : p.speedBytesPerSecond < 1024 * 1024
+                ? "fair"
+                : "good"
         this.patchItem(p.transferId, {
           status: "progress",
           bytesTransferred: transferred,
           speed: p.speedBytesPerSecond,
           eta: p.estimatedTimeRemainingSeconds,
           remainingBytes: p.totalBytes - transferred,
-          connectionQuality: quality
+          connectionQuality: quality,
         })
         break
       }
@@ -241,19 +256,29 @@ export class SessionController {
         this.patchItem(event.transferId, { verification: "verifying" })
         break
       case "VerificationFinished":
-        this.patchItem(event.transferId, { verification: event.isValid ? "success" : "failed" })
+        this.patchItem(event.transferId, {
+          verification: event.isValid ? "success" : "failed",
+        })
         break
       case "DownloadCompleted":
         this.patchItem(event.transferId, { blobUrl: event.downloadUrl })
         break
       case "TransferCompleted":
-        this.patchItem(event.transferId, { 
-          status: "completed",
-          completedAt: Date.now()
-        }, true)
+        this.patchItem(
+          event.transferId,
+          {
+            status: "completed",
+            completedAt: Date.now(),
+          },
+          true,
+        )
         break
       case "TransferFailed":
-        this.patchItem(event.transferId, { status: "failed", error: event.error }, true)
+        this.patchItem(
+          event.transferId,
+          { status: "failed", error: event.error },
+          true,
+        )
         break
     }
   }
@@ -273,13 +298,23 @@ export class SessionController {
     this.engine?.rejectIncoming(ids)
   }
 
-  pause(id: string): void { this.engine?.pause(id) }
-  resume(id: string): void { this.engine?.resume(id) }
-  cancel(id: string): void { this.engine?.cancel(id) }
-  
-  retry(_id: string): void { /* Unsupported by simple engine API */ }
-  move(_id: string, _toIndex: number): void { /* Unsupported by simple engine API */ }
-  
+  pause(id: string): void {
+    this.engine?.pause(id)
+  }
+  resume(id: string): void {
+    this.engine?.resume(id)
+  }
+  cancel(id: string): void {
+    this.engine?.cancel(id)
+  }
+
+  retry(_id: string): void {
+    /* Unsupported by simple engine API */
+  }
+  move(_id: string, _toIndex: number): void {
+    /* Unsupported by simple engine API */
+  }
+
   remove(id: string): void {
     this.engine?.cancel(id)
     const item = this.itemsMap.get(id)
@@ -333,9 +368,12 @@ export class SessionController {
       const prev = this.lastStatus.get(item.id)
       if (prev === item.status) continue
       this.lastStatus.set(item.id, item.status)
-      if (prev === undefined) continue 
+      if (prev === undefined) continue
       if (item.status === "completed") {
-        toast.success(item.direction === "receive" ? "File received" : "File sent", item.name)
+        toast.success(
+          item.direction === "receive" ? "File received" : "File sent",
+          item.name,
+        )
       } else if (item.status === "failed") {
         toast.error("Transfer failed", item.name)
       }

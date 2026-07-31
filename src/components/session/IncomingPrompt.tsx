@@ -36,7 +36,9 @@ export function IncomingPrompt({
             key={f.transferId}
             className="flex items-center justify-between py-2.5 text-sm"
           >
-            <span className="truncate pr-3">{sanitizeFilename(f.fileName)}</span>
+            <span className="truncate pr-3">
+              {sanitizeFilename(f.fileName)}
+            </span>
             <span className="shrink-0 font-mono text-[11px] text-muted-foreground">
               {formatBytes(f.fileSize)}
             </span>

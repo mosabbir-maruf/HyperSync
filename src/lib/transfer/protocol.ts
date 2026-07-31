@@ -2,18 +2,25 @@ import type { FileMetadata } from "./types"
 
 export const CURRENT_PROTOCOL_VERSION = "1.0.0"
 
-export type ControlMessage =
-  | { t: "TRANSFER_INIT"; files: FileMetadata[]; protocolVersion: string }
-  | { t: "TRANSFER_ACCEPT"; ids: string[] }
-  | { t: "TRANSFER_REJECT"; ids: string[] }
-  | { t: "TRANSFER_METADATA"; metadata: FileMetadata }
-  | { t: "TRANSFER_PROGRESS"; id: string; percentage: number }
-  | { t: "TRANSFER_COMPLETE"; id: string; checksum?: string }
-  | { t: "TRANSFER_VERIFY"; id: string }
-  | { t: "TRANSFER_SUCCESS"; id: string }
-  | { t: "TRANSFER_FAILED"; id: string; reason: string }
-  | { t: "TRANSFER_CANCEL"; id: string }
-  | { t: "TRANSFER_ABORT"; id: string }
+export type ControlMessage = {
+  t: "TRANSFER_INIT"
+  files: FileMetadata[]
+  protocolVersion: string
+} | { t: "TRANSFER_ACCEPT" ids: string[] } | {
+  t: "TRANSFER_REJECT"
+  ids: string[]
+} | { t: "TRANSFER_METADATA" metadata: FileMetadata } | {
+  t: "TRANSFER_PROGRESS"
+  id: string
+  percentage: number
+} | { t: "TRANSFER_COMPLETE" id: string checksum?: string } | {
+  t: "TRANSFER_VERIFY"
+  id: string
+} | { t: "TRANSFER_SUCCESS" id: string } | {
+  t: "TRANSFER_FAILED"
+  id: string
+  reason: string
+} | { t: "TRANSFER_CANCEL" id: string } | { t: "TRANSFER_ABORT" id: string }
 
 export function encodeControl(msg: ControlMessage): string {
   return JSON.stringify(msg)
@@ -45,8 +52,8 @@ export const HEADER_SIZE = 36 + 4 + 8 + 4 + 1 // 53 bytes
 // LOW:  resume when bufferedAmount drops below bufferedAmountLowThreshold (set to LOW_WATER_MARK).
 // 8 MB window keeps a fast 5GHz LAN link continuously saturated.
 // Sender re-fills from LOW to HIGH on every bufferedamountlow event — no idle gaps.
-export const HIGH_WATER_MARK = 8 * 1024 * 1024   // 8 MB — stop threshold
-export const LOW_WATER_MARK  = 4 * 1024 * 1024   // 4 MB — resume threshold
+export const HIGH_WATER_MARK = 8 * 1024 * 1024 // 8 MB — stop threshold
+export const LOW_WATER_MARK = 4 * 1024 * 1024 // 4 MB — resume threshold
 
 import type { ChunkHeader } from "./types"
 
@@ -70,7 +77,7 @@ export function encodeChunkInto(
   sendBuf: Uint8Array,
   sendDV: DataView,
   header: ChunkHeader,
-  data: ArrayBuffer
+  data: ArrayBuffer,
 ): Uint8Array {
   // Write Transfer ID (36 bytes, zero-padded)
   const idBytes = _encoder.encode(header.transferId)
@@ -95,7 +102,10 @@ export function encodeChunkInto(
  * Legacy encode for callers that need a standalone ArrayBuffer.
  * Kept for compatibility; the hot-path sender uses encodeChunkInto instead.
  */
-export function encodeChunk(header: ChunkHeader, data: ArrayBuffer): ArrayBuffer {
+export function encodeChunk(
+  header: ChunkHeader,
+  data: ArrayBuffer,
+): ArrayBuffer {
   const buf = new ArrayBuffer(HEADER_SIZE + data.byteLength)
   const u8 = new Uint8Array(buf)
   const dv = new DataView(buf)
@@ -114,7 +124,9 @@ export function encodeChunk(header: ChunkHeader, data: ArrayBuffer): ArrayBuffer
  * The view is valid as long as the caller keeps a reference to it.
  * BrowserDownloadProvider and FileSystemAccessProvider both accept Uint8Array.
  */
-export function decodeChunk(buffer: ArrayBuffer): { header: ChunkHeader; data: Uint8Array } {
+export function decodeChunk(
+  buffer: ArrayBuffer,
+): { header: ChunkHeader data: Uint8Array } {
   const view = new DataView(buffer)
 
   // Decode the 36-byte ASCII transfer ID (zero-copy view)
@@ -122,8 +134,8 @@ export function decodeChunk(buffer: ArrayBuffer): { header: ChunkHeader; data: U
   const transferId = _decoder.decode(idBytes).replace(/\0/g, "")
 
   const chunkIndex = view.getUint32(36, true)
-  const offset     = Number(view.getBigUint64(40, true))
-  const length     = view.getUint32(48, true)
+  const offset = Number(view.getBigUint64(40, true))
+  const length = view.getUint32(48, true)
   const isLastChunk = view.getUint8(52) === 1
 
   // Zero-copy: return a typed view of the payload region, not a slice() copy
@@ -131,6 +143,6 @@ export function decodeChunk(buffer: ArrayBuffer): { header: ChunkHeader; data: U
 
   return {
     header: { transferId, chunkIndex, offset, length, isLastChunk },
-    data
+    data,
   }
 }

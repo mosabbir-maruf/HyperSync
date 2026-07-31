@@ -52,7 +52,7 @@ const CATEGORY_FALLBACK: Record<ErrorCategory, {
 export function appError(
   category: ErrorCategory,
   message?: string,
-  opts: { hint?: string; cause?: unknown } = {},
+  opts: { hint?: string cause?: unknown } = {},
 ): AppError {
   const fallback = CATEGORY_FALLBACK[category]
   return {

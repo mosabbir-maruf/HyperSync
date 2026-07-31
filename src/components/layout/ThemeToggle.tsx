@@ -1,7 +1,7 @@
 import { useTheme, type ThemePreference } from "../../state/ThemeProvider"
 import { cn } from "../../lib/utils"
 
-const options: { value: ThemePreference; label: string }[] = [
+const options: { value: ThemePreference label: string }[] = [
   { value: "light", label: "Light" },
   { value: "dark", label: "Dark" },
   { value: "system", label: "Auto" },

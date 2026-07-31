@@ -5,7 +5,8 @@ import { WebSocketSignalingClient } from "./WebSocketSignalingClient"
 export type { SignalingClient } from "./SignalingClient"
 export * from "./types"
 
-const DEFAULT_SIGNALING_URL = "https://dropsync2-0-backend.thevamp-cloud.workers.dev"
+const DEFAULT_SIGNALING_URL =
+  "https://dropsync2-0-backend.thevamp-cloud.workers.dev"
 
 /**
  * The application depends only on this interface. This browser-only frontend
@@ -19,7 +20,7 @@ export function createSignalingClient(): SignalingClient {
   // the desktop's LAN IP, so they quietly joined different lobbies. Set
   // VITE_WS_URL explicitly when testing a local worker.
   const wsUrl = import.meta.env.VITE_WS_URL || DEFAULT_SIGNALING_URL
-  
+
   // If explicitly requested, use in-memory mock for dev testing without backend
   if (import.meta.env.VITE_USE_MOCK_SIGNALING === "true") {
     return new InMemorySignalingClient()

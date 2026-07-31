@@ -42,8 +42,8 @@ export class ChunkReceiver {
     private readonly onComplete: (downloadUrl?: string, blob?: Blob) => void,
     private readonly onError: (error: string) => void,
     private readonly onEvent?: (
-      event: "DownloadStarted" | "VerificationStarted" | "VerificationFinished"
-    ) => void
+      event: "DownloadStarted" | "VerificationStarted" | "VerificationFinished",
+    ) => void,
   ) {
     this.meter = new RateMeter(meta.fileSize)
     this.signal.addEventListener("abort", this.abortHandler)
@@ -54,7 +54,9 @@ export class ChunkReceiver {
       this.sink = await DownloadManager.createSaveProvider(this.meta)
       this.meter.start()
     } catch (err) {
-      this.onError(err instanceof Error ? err.message : "Failed to initialize sink")
+      this.onError(
+        err instanceof Error ? err.message : "Failed to initialize sink",
+      )
     }
   }
 
@@ -76,7 +78,7 @@ export class ChunkReceiver {
       const decoded = decodeChunk(buffer)
       const t1 = performance.now()
       header = decoded.header
-      data   = decoded.data
+      data = decoded.data
       PipelineProfiler.get().record("decode", t1 - t0, header.length)
     } catch {
       return // malformed frame — drop silently
@@ -86,19 +88,21 @@ export class ChunkReceiver {
 
     // Append write to the serial chain (fire-and-forget)
     const sink = this.sink
-    this.writeChain = this.writeChain.then(async () => {
-      if (!this.isAborted) {
-        const t0 = performance.now()
-        await sink.write(data, header.offset)
-        const t1 = performance.now()
-        PipelineProfiler.get().record("write", t1 - t0, header.length)
-      }
-    }).catch((err: unknown) => {
-      this.abort()
-      this.onError(err instanceof Error ? err.message : "Disk write failed")
-    }) as Promise<void>
+    this.writeChain = (this.writeChain
+      .then(async () => {
+        if (!this.isAborted) {
+          const t0 = performance.now()
+          await sink.write(data, header.offset)
+          const t1 = performance.now()
+          PipelineProfiler.get().record("write", t1 - t0, header.length)
+        }
+      })
+      .catch((err: unknown) => {
+        this.abort()
+        this.onError(err instanceof Error ? err.message : "Disk write failed")
+      }) as Promise<void>)
 
-    this.bytesReceived  += header.length
+    this.bytesReceived += header.length
     this.chunksReceived += 1
 
     // Throttle progress to 50 ms (20 fps) — smooth UI without render flood
@@ -116,7 +120,7 @@ export class ChunkReceiver {
         totalChunks: this.meta.chunkCount,
         percentage: (this.bytesReceived / this.meta.fileSize) * 100,
         speedBytesPerSecond: speed,
-        estimatedTimeRemainingSeconds: eta ?? 0
+        estimatedTimeRemainingSeconds: eta ?? 0,
       })
     }
   }
@@ -134,7 +138,10 @@ export class ChunkReceiver {
         this.onEvent?.("VerificationStarted")
         // Lazy-import to avoid bundling crypto in the hot path
         const { integrityService } = await import("./IntegrityService")
-        const isValid = await integrityService.verifyChecksum(result.blob, expectedChecksum)
+        const isValid = await integrityService.verifyChecksum(
+          result.blob,
+          expectedChecksum,
+        )
         this.onEvent?.("VerificationFinished")
         if (!isValid) {
           this.onError("Checksum verification failed")
@@ -144,7 +151,9 @@ export class ChunkReceiver {
 
       this.onComplete(result.downloadUrl, result.blob)
     } catch (err) {
-      this.onError(err instanceof Error ? err.message : "Failed to close save provider")
+      this.onError(
+        err instanceof Error ? err.message : "Failed to close save provider",
+      )
     }
   }
 

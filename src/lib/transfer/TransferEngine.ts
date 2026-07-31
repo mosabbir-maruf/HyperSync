@@ -2,8 +2,17 @@ import { TransferQueue, QueuedTransfer } from "./TransferQueue"
 import { ChunkEngine } from "./ChunkEngine"
 import { ChunkReceiver } from "./ChunkReceiver"
 import { FlowController } from "./FlowController"
-import { encodeControl, decodeControl, CURRENT_PROTOCOL_VERSION } from "./protocol"
-import { TransferEvent, TransferEventHandler, FileMetadata, TransferProgress } from "./types"
+import {
+  encodeControl,
+  decodeControl,
+  CURRENT_PROTOCOL_VERSION,
+} from "./protocol"
+import {
+  TransferEvent,
+  TransferEventHandler,
+  FileMetadata,
+  TransferProgress,
+} from "./types"
 import { RateMeter } from "./rateMeter"
 import { makeTransferId } from "../utils"
 
@@ -37,14 +46,14 @@ export class TransferEngine {
   private acceptedIds = new Set<string>()
 
   // Binary message processing: run synchronously without yielding between chunks
-  private messageQueue: ArrayBuffer[] = []   // binary only
-  private controlQueue: string[] = []        // control text only
+  private messageQueue: ArrayBuffer[] = [] // binary only
+  private controlQueue: string[] = [] // control text only
   private isProcessingBinary = false
 
   constructor(private readonly channel: RTCDataChannel) {
     channel.binaryType = "arraybuffer"
     channel.onmessage = (ev) => this.onMessage(ev.data)
-    channel.onclose   = () => this.failAll("DataChannel closed")
+    channel.onclose = () => this.failAll("DataChannel closed")
   }
 
   onEvent(handler: TransferEventHandler): () => void {
@@ -71,14 +80,18 @@ export class TransferEngine {
         lastModified: file.lastModified,
         chunkCount: Math.ceil(file.size / (256 * 1024)),
         checksumMethod: "SHA-256-CHUNK-XOR",
-        protocolVersion: CURRENT_PROTOCOL_VERSION
+        protocolVersion: CURRENT_PROTOCOL_VERSION,
       }
       metas.push(meta)
       this.queue.add({ metadata: meta, file, direction: "send" })
       this.emit({ type: "TransferQueued", metadata: meta })
     }
 
-    this.sendControl({ t: "TRANSFER_INIT", files: metas, protocolVersion: CURRENT_PROTOCOL_VERSION })
+    this.sendControl({
+      t: "TRANSFER_INIT",
+      files: metas,
+      protocolVersion: CURRENT_PROTOCOL_VERSION,
+    })
     // Wait for TRANSFER_ACCEPT before starting — do NOT call startNext() here
   }
 
@@ -86,9 +99,10 @@ export class TransferEngine {
     if (this.activeSendId) return
 
     const next = this.queue.items.find(
-      t => t.direction === "send"
-        && this.acceptedIds.has(t.metadata.transferId)
-        && !this.abortControllers.has(t.metadata.transferId)
+      (t) =>
+        t.direction === "send" &&
+        this.acceptedIds.has(t.metadata.transferId) &&
+        !this.abortControllers.has(t.metadata.transferId),
     )
     if (!next) return
 
@@ -100,10 +114,10 @@ export class TransferEngine {
   }
 
   private async processSend(transfer: QueuedTransfer) {
-    const meta   = transfer.metadata
-    const file   = transfer.file!
+    const meta = transfer.metadata
+    const file = transfer.file!
     const engine = new ChunkEngine(file, meta.transferId)
-    const ac     = new AbortController()
+    const ac = new AbortController()
     this.abortControllers.set(meta.transferId, ac)
 
     // Setup the decoupled send pipeline
@@ -111,7 +125,7 @@ export class TransferEngine {
       this.channel,
       meta,
       engine.chunkSize,
-      (progress) => this.emit({ type: "LocalProgress", progress })
+      (progress) => this.emit({ type: "LocalProgress", progress }),
     )
 
     try {
@@ -134,18 +148,17 @@ export class TransferEngine {
 
       this.sendControl({ t: "TRANSFER_COMPLETE", id: meta.transferId })
       this.emit({ type: "TransferCompleted", transferId: meta.transferId })
-
     } catch (err) {
       if (!ac.signal.aborted) {
         this.emit({
           type: "TransferFailed",
           transferId: meta.transferId,
-          error: err instanceof Error ? err.message : "Send failed"
+          error: err instanceof Error ? err.message : "Send failed",
         })
       }
     } finally {
       this.abortControllers.delete(meta.transferId)
-      transfer.file = undefined as any
+      transfer.file = (undefined as any)
     }
   }
 
@@ -153,7 +166,7 @@ export class TransferEngine {
 
   async acceptIncoming(ids: string[]) {
     for (const id of ids) {
-      const queued = this.queue.items.find(t => t.metadata.transferId === id)
+      const queued = this.queue.items.find((t) => t.metadata.transferId === id)
       if (!queued) continue
 
       const ac = new AbortController()
@@ -165,7 +178,12 @@ export class TransferEngine {
         (progress) => this.emit({ type: "LocalProgress", progress }),
         async (downloadUrl, blob) => {
           this.emit({ type: "TransferCompleted", transferId: id })
-          if (downloadUrl) this.emit({ type: "DownloadCompleted", transferId: id, downloadUrl })
+          if (downloadUrl)
+            this.emit({
+              type: "DownloadCompleted",
+              transferId: id,
+              downloadUrl,
+            })
           this.cleanupReceiver(id)
         },
         (error) => {
@@ -173,10 +191,17 @@ export class TransferEngine {
           this.cleanupReceiver(id)
         },
         (evt) => {
-          if (evt === "VerificationStarted")  this.emit({ type: "VerificationStarted",  transferId: id })
-          if (evt === "VerificationFinished") this.emit({ type: "VerificationFinished", transferId: id, isValid: true })
-          if (evt === "DownloadStarted")      this.emit({ type: "DownloadStarted",      transferId: id })
-        }
+          if (evt === "VerificationStarted")
+            this.emit({ type: "VerificationStarted", transferId: id })
+          if (evt === "VerificationFinished")
+            this.emit({
+              type: "VerificationFinished",
+              transferId: id,
+              isValid: true,
+            })
+          if (evt === "DownloadStarted")
+            this.emit({ type: "DownloadStarted", transferId: id })
+        },
       )
       await receiver.initialize()
       this.receivers.set(id, receiver)
@@ -191,8 +216,12 @@ export class TransferEngine {
 
   // ── Controls ──────────────────────────────────────────────────────────────
 
-  pause(id: string)  { this.emit({ type: "BufferPause",  transferId: id }) }
-  resume(id: string) { this.emit({ type: "BufferResume", transferId: id }) }
+  pause(id: string) {
+    this.emit({ type: "BufferPause", transferId: id })
+  }
+  resume(id: string) {
+    this.emit({ type: "BufferResume", transferId: id })
+  }
 
   cancel(id: string) {
     this.abortControllers.get(id)?.abort()
@@ -209,7 +238,8 @@ export class TransferEngine {
   }
 
   private sendControl(msg: Parameters<typeof encodeControl>[0]) {
-    if (this.channel.readyState === "open") this.channel.send(encodeControl(msg))
+    if (this.channel.readyState === "open")
+      this.channel.send(encodeControl(msg))
   }
 
   // ── Message handling ──────────────────────────────────────────────────────
@@ -222,7 +252,7 @@ export class TransferEngine {
       return
     }
 
-    if (!(data instanceof ArrayBuffer)) return  // safety guard
+    if (!(data instanceof ArrayBuffer)) return // safety guard
 
     // Binary chunk — push to queue, dispatch processor if not already running
     this.messageQueue.push(data)
@@ -307,10 +337,18 @@ export class TransferEngine {
 
   private failAll(reason: string) {
     for (const t of this.queue.items) {
-      this.emit({ type: "TransferFailed", transferId: t.metadata.transferId, error: reason })
+      this.emit({
+        type: "TransferFailed",
+        transferId: t.metadata.transferId,
+        error: reason,
+      })
     }
     if (this.activeSendId) {
-      this.emit({ type: "TransferFailed", transferId: this.activeSendId, error: reason })
+      this.emit({
+        type: "TransferFailed",
+        transferId: this.activeSendId,
+        error: reason,
+      })
     }
     for (const ac of this.abortControllers.values()) ac.abort()
     this.queue.clear()
@@ -322,6 +360,6 @@ export class TransferEngine {
   destroy() {
     this.failAll("Engine destroyed")
     this.channel.onmessage = null
-    this.channel.onclose   = null
+    this.channel.onclose = null
   }
 }

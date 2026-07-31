@@ -11,7 +11,7 @@ export interface PipelineMetrics {
  */
 export class PipelineProfiler {
   private static instance = new PipelineProfiler()
-  
+
   static get() {
     return PipelineProfiler.instance
   }
@@ -29,7 +29,11 @@ export class PipelineProfiler {
     return () => this.subscribers.delete(callback)
   }
 
-  record(stage: "read" | "encode" | "decode" | "write", durationMs: number, bytes: number) {
+  record(
+    stage: "read" | "encode" | "decode" | "write",
+    durationMs: number,
+    bytes: number,
+  ) {
     const s = this.stats[stage]
     s.totalTime += durationMs
     s.totalBytes += bytes
@@ -39,22 +43,50 @@ export class PipelineProfiler {
       timestamp: performance.now(),
       stage,
       durationMs,
-      bytes
+      bytes,
     }
-    
+
     for (const cb of this.subscribers) cb(metrics)
   }
 
   getAveragesAndReset() {
     const result = {
-      readMs: this.stats.read.count ? this.stats.read.totalTime / this.stats.read.count : 0,
-      encodeMs: this.stats.encode.count ? this.stats.encode.totalTime / this.stats.encode.count : 0,
-      decodeMs: this.stats.decode.count ? this.stats.decode.totalTime / this.stats.decode.count : 0,
-      writeMs: this.stats.write.count ? this.stats.write.totalTime / this.stats.write.count : 0,
-      readMBps: this.stats.read.totalTime ? (this.stats.read.totalBytes / 1024 / 1024) / (this.stats.read.totalTime / 1000) : 0,
-      encodeMBps: this.stats.encode.totalTime ? (this.stats.encode.totalBytes / 1024 / 1024) / (this.stats.encode.totalTime / 1000) : 0,
-      decodeMBps: this.stats.decode.totalTime ? (this.stats.decode.totalBytes / 1024 / 1024) / (this.stats.decode.totalTime / 1000) : 0,
-      writeMBps: this.stats.write.totalTime ? (this.stats.write.totalBytes / 1024 / 1024) / (this.stats.write.totalTime / 1000) : 0,
+      readMs: this.stats.read.count
+        ? this.stats.read.totalTime / this.stats.read.count
+        : 0,
+      encodeMs: this.stats.encode.count
+        ? this.stats.encode.totalTime / this.stats.encode.count
+        : 0,
+      decodeMs: this.stats.decode.count
+        ? this.stats.decode.totalTime / this.stats.decode.count
+        : 0,
+      writeMs: this.stats.write.count
+        ? this.stats.write.totalTime / this.stats.write.count
+        : 0,
+      readMBps: this.stats.read.totalTime
+        ? this.stats.read.totalBytes /
+          1024 /
+          1024 /
+          (this.stats.read.totalTime / 1000)
+        : 0,
+      encodeMBps: this.stats.encode.totalTime
+        ? this.stats.encode.totalBytes /
+          1024 /
+          1024 /
+          (this.stats.encode.totalTime / 1000)
+        : 0,
+      decodeMBps: this.stats.decode.totalTime
+        ? this.stats.decode.totalBytes /
+          1024 /
+          1024 /
+          (this.stats.decode.totalTime / 1000)
+        : 0,
+      writeMBps: this.stats.write.totalTime
+        ? this.stats.write.totalBytes /
+          1024 /
+          1024 /
+          (this.stats.write.totalTime / 1000)
+        : 0,
     }
 
     this.stats = {

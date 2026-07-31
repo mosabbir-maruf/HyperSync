@@ -44,7 +44,7 @@ class ToastStore {
     for (const fn of this.listeners) fn(this.toasts)
   }
 
-  show(input: Partial<Toast> & { message: string; kind?: ToastKind }): string {
+  show(input: Partial<Toast> & { message: string kind?: ToastKind }): string {
     const kind = input.kind ?? "info"
     const id = input.id ?? randomId()
     const duration = input.duration ?? DEFAULT_DURATION[kind]

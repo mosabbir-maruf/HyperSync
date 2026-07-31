@@ -27,17 +27,17 @@ export class FlowController {
 
       this.channel.addEventListener("bufferedamountlow", onResume)
       signal?.addEventListener("abort", onAbort)
-      
+
       if (signal?.aborted) onAbort()
     })
   }
 
   public async awaitUserResume(signal?: AbortSignal): Promise<void> {
     if (!this.paused) return Promise.resolve()
-    
+
     return new Promise((resolve, reject) => {
       const onAbort = () => {
-        this.resumeWaiters = this.resumeWaiters.filter(w => w !== resolve)
+        this.resumeWaiters = this.resumeWaiters.filter((w) => w !== resolve)
         reject(new Error("Transfer aborted while paused"))
       }
 

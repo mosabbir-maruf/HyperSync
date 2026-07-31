@@ -13,7 +13,7 @@ export class ChunkEngine {
 
   constructor(
     private readonly file: Blob,
-    private readonly transferId: string
+    private readonly transferId: string,
   ) {
     this.chunkSize = ChunkStrategy.getOptimalChunkSize(file.size)
   }
@@ -44,7 +44,7 @@ export class ChunkEngine {
 
     const readQueue: Slot[] = []
     let readOffset = 0
-    let readIndex  = 0
+    let readIndex = 0
 
     const enqueue = () => {
       if (readIndex >= totalChunks) return
@@ -54,7 +54,7 @@ export class ChunkEngine {
         promise: this.file.slice(off, off + len).arrayBuffer(),
         offset: off,
         index: readIndex,
-        length: len
+        length: len,
       })
       readOffset += len
       readIndex++
@@ -93,9 +93,9 @@ export class ChunkEngine {
           chunkIndex: slot.index,
           offset: slot.offset,
           length: slot.length,
-          isLastChunk: isLast
+          isLastChunk: isLast,
         },
-        data
+        data,
       )
       const t3 = performance.now()
       PipelineProfiler.get().record("encode", t3 - t2, slot.length)
