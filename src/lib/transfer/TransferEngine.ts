@@ -133,9 +133,9 @@ export class TransferEngine {
         bytesSent  += header.length
         chunksSent += 1
 
-        // Throttle progress to 100 ms — prevents React re-render storm
+        // Throttle progress to 50 ms (20 fps) — smooth UI without render flood
         const now = performance.now()
-        if (now - lastProgress > 100 || header.isLastChunk) {
+        if (now - lastProgress > 50 || header.isLastChunk) {
           lastProgress = now
           const { speed, eta } = meter.sample(bytesSent)
           const progress: TransferProgress = {

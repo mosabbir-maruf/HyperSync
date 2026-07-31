@@ -92,9 +92,9 @@ export class ChunkReceiver {
     this.bytesReceived  += header.length
     this.chunksReceived += 1
 
-    // Throttle progress to 100 ms (~10 fps) — prevents React re-render flood
+    // Throttle progress to 50 ms (20 fps) — smooth UI without render flood
     const now = performance.now()
-    if (now - this.lastProgressTime > 100 || header.isLastChunk) {
+    if (now - this.lastProgressTime > 50 || header.isLastChunk) {
       this.lastProgressTime = now
       const { speed, eta } = this.meter.sample(this.bytesReceived)
       this.onProgress({
