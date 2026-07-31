@@ -209,14 +209,18 @@ export function About() {
                   </button>
 
                   <div
-                    className={`overflow-hidden transition-all duration-500 ease-in-out ${
-                      isOpen ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
+                    className={`grid transition-[grid-template-rows,opacity] duration-300 ease-out ${
+                      isOpen
+                        ? "grid-rows-[1fr] opacity-100"
+                        : "grid-rows-[0fr] opacity-0"
                     }`}
                   >
-                    <div className="pb-10 pl-[4.5rem] pr-6 sm:pl-[6.5rem] sm:pr-12">
-                      <p className="text-sm leading-relaxed text-muted-foreground sm:text-base">
-                        {faq.a}
-                      </p>
+                    <div className="overflow-hidden">
+                      <div className="pb-10 pl-[4.5rem] pr-6 sm:pl-[6.5rem] sm:pr-12">
+                        <p className="text-sm leading-relaxed text-muted-foreground sm:text-base">
+                          {faq.a}
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
