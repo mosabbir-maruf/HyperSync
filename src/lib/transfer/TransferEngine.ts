@@ -131,11 +131,6 @@ export class TransferEngine {
 
         this.emit({ type: "LocalProgress", progress })
         this.emit({ type: "ChunkSent", transferId: meta.transferId, progress })
-
-        // Yield a paint frame every 4 chunks so sender progress bar updates visibly
-        if (chunksSent % 4 === 0) {
-          await new Promise<void>(r => requestAnimationFrame(() => r()))
-        }
       }
 
       if (ac.signal.aborted) {
