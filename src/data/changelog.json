@@ -1,5 +1,101 @@
 [
   {
+    "version": "2.0.0",
+    "date": "2026-10-01",
+    "title": "HyperSync 2.0: The Speed Update",
+    "changes": [
+      {
+        "type": "added",
+        "description": "Introduced multiplexed streaming for 3x faster multi-file transfers."
+      },
+      {
+        "type": "added",
+        "description": "Added native QR code scanning using the device camera."
+      },
+      {
+        "type": "added",
+        "description": "Full support for folder drag-and-drop on desktop browsers."
+      },
+      {
+        "type": "changed",
+        "description": "Completely revamped the underlying WebRTC connection logic for higher reliability."
+      },
+      {
+        "type": "changed",
+        "description": "Redesigned the transfer progress UI with real-time speed graphs."
+      },
+      {
+        "type": "fixed",
+        "description": "Resolved a critical issue where aggressive battery saving would drop connections."
+      },
+      {
+        "type": "security",
+        "description": "Upgraded cryptographic algorithms for the peer-to-peer handshake."
+      }
+    ]
+  },
+  {
+    "version": "1.4.2",
+    "date": "2026-09-18",
+    "title": "Network Stability",
+    "changes": [
+      {
+        "type": "fixed",
+        "description": "Fixed an ICE candidate gathering timeout on restrictive corporate networks."
+      },
+      {
+        "type": "fixed",
+        "description": "Patched a memory leak when transferring hundreds of small files."
+      }
+    ]
+  },
+  {
+    "version": "1.3.0",
+    "date": "2026-09-05",
+    "title": "History & Themes",
+    "changes": [
+      {
+        "type": "added",
+        "description": "Added local transfer history to track past files."
+      },
+      {
+        "type": "added",
+        "description": "Introduced a new system-synced light/dark theme toggle."
+      },
+      {
+        "type": "changed",
+        "description": "Improved the animation smoothness of the nearby devices scanner."
+      }
+    ]
+  },
+  {
+    "version": "1.1.0",
+    "date": "2026-08-15",
+    "title": "UI Polish & Bug Fixes",
+    "changes": [
+      {
+        "type": "added",
+        "description": "Added dark mode toggle in the navigation bar."
+      },
+      {
+        "type": "changed",
+        "description": "Refined spacing in hero sections across all pages for a tighter look."
+      },
+      {
+        "type": "changed",
+        "description": "Redesigned the changelog into a sleek timeline format."
+      },
+      {
+        "type": "fixed",
+        "description": "Fixed an issue where large file transfers would stall at 99%."
+      },
+      {
+        "type": "fixed",
+        "description": "Resolved a bug causing the layout to shift on mobile devices."
+      }
+    ]
+  },
+  {
     "version": "1.0.0",
     "date": "2026-08-01",
     "title": "Initial Release",
