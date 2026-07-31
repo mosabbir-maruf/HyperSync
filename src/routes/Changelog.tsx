@@ -64,7 +64,7 @@ export function Changelog() {
                 return (
                   <div
                     key={release.version}
-                    className="relative pl-12 md:pl-0 flex flex-col md:flex-row md:gap-12 group cursor-pointer"
+                    className="relative pl-12 md:pl-0 flex flex-col md:flex-row gap-3 md:gap-12 group cursor-pointer"
                     onClick={() => toggleVersion(release.version)}
                   >
                     {/* Left Column: Version & Date */}
