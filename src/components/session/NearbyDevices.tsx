@@ -3,7 +3,7 @@ import { useLobby } from "../../state/LobbyProvider"
 import { useSettings } from "../../state/SettingsProvider"
 import { PeerCard } from "./PeerCard"
 import { Avatar } from "./Avatar"
-import { RadarIcon, CheckIcon, CloseIcon } from "../ui/icons"
+import { HyperSyncLogo, CheckIcon, CloseIcon } from "../ui/icons"
 
 /**
  * Redesigned Nearby Devices surface.
