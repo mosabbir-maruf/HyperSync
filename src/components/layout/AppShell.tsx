@@ -19,9 +19,9 @@ function Brand() {
       className="flex items-center gap-2 transition-opacity hover:opacity-80"
     >
       <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#cf4322]">
-        <HyperSyncLogo className="h-5 w-5 text-black/80" />
+        <HyperSyncLogo className="h-5 w-5 text-black/80 dark:text-white/90" />
       </div>
-      <span className="text-[15px] font-black tracking-tight text-black/80">
+      <span className="text-[15px] font-black tracking-tight text-black/80 dark:text-white/90">
         Hyper<span className="text-[#cf4322]">Sync</span>
       </span>
     </NavLink>
@@ -127,9 +127,9 @@ function Footer() {
               <div>
                 <div className="mb-4 flex items-center gap-2.5">
                   <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#cf4322]">
-                    <HyperSyncLogo className="h-5 w-5 text-black/80" />
+                    <HyperSyncLogo className="h-5 w-5 text-black/80 dark:text-white/90" />
                   </div>
-                  <span className="text-[15px] font-black tracking-tight text-black/80">
+                  <span className="text-[15px] font-black tracking-tight text-black/80 dark:text-white/90">
                     Hyper<span className="text-[#cf4322]">Sync</span>
                   </span>
                 </div>
