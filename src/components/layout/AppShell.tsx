@@ -119,7 +119,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 function Footer() {
   return (
     <footer className="mt-16 mb-4 w-full">
-      <div className="mx-auto w-full max-w-5xl px-4 md:px-8">
+      <div className="mx-auto w-full max-w-[1273px] px-6 md:px-12">
         <div className="w-full overflow-hidden rounded-3xl border border-border-strong bg-background">
           <div className="flex w-full flex-col md:flex-row">
             {/* Brand & Description */}
