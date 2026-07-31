@@ -65,7 +65,7 @@ export function About() {
 
       {/* Philosophy Grid */}
       <section className="bg-background py-24 md:py-32">
-        <div className="mx-auto max-w-[1200px] px-6 md:px-12">
+        <div className="mx-auto max-w-[1273px] px-6 md:px-12">
           <div className="mb-12 flex items-center gap-6 md:mb-20">
             <h2 className="text-3xl font-black tracking-tighter md:text-5xl">
               Philosophy
@@ -109,7 +109,7 @@ export function About() {
 
       {/* Architecture List */}
       <section className="bg-background py-24 md:py-32">
-        <div className="mx-auto max-w-[1200px] px-6 md:px-12">
+        <div className="mx-auto max-w-[1273px] px-6 md:px-12">
           <div className="mb-12 flex items-center gap-6 md:mb-20">
             <span className="h-px flex-1 bg-border-strong" />
             <h2 className="text-3xl font-black tracking-tighter md:text-5xl">
@@ -151,7 +151,7 @@ export function About() {
 
       {/* FAQ */}
       <section className="bg-background py-24 md:py-32">
-        <div className="mx-auto max-w-[1200px] px-6 md:px-12">
+        <div className="mx-auto max-w-[1273px] px-6 md:px-12">
           <div className="mb-12 flex items-center gap-6 md:mb-20">
             <h2 className="text-3xl font-black tracking-tighter md:text-5xl">
               FAQ
@@ -238,7 +238,7 @@ export function About() {
 
       {/* Creator Card */}
       <section className="bg-background py-24 md:py-32">
-        <div className="mx-auto max-w-[1200px] px-6 md:px-12">
+        <div className="mx-auto max-w-[1273px] px-6 md:px-12">
           <div className="mb-12 flex items-center gap-6 md:mb-20">
             <h2 className="text-3xl font-black tracking-tighter md:text-5xl">
               The Maker

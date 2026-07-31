@@ -73,13 +73,19 @@ export function Settings() {
   ]
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-semibold tracking-tight">Settings</h1>
+    <div className="space-y-10">
+      <header className="space-y-5">
+        <div className="flex items-center gap-3">
+          <span className="label-mono">System configuration</span>
+          <span className="h-px flex-1 bg-border" />
+        </div>
+        <h1 className="text-4xl font-black tracking-tighter md:text-5xl">
+          Settings. <span className="text-muted-foreground">Local device.</span>
+        </h1>
+      </header>
 
       <section className="space-y-2">
-        <h2 className="px-1 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-          Identity
-        </h2>
+        <h2 className="label-mono px-1">Identity</h2>
         <Card className="divide-y divide-border">
           <Row
             title="Display name"
@@ -95,9 +101,7 @@ export function Settings() {
       </section>
 
       <section className="space-y-2">
-        <h2 className="px-1 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-          Appearance
-        </h2>
+        <h2 className="label-mono px-1">Appearance</h2>
         <Card className="divide-y divide-border">
           <Row title="Theme">
             <div className="inline-flex overflow-hidden rounded-full border border-border-strong">
@@ -121,9 +125,7 @@ export function Settings() {
       </section>
 
       <section className="space-y-2">
-        <h2 className="px-1 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-          Transfers
-        </h2>
+        <h2 className="label-mono px-1">Transfers</h2>
         <Card className="divide-y divide-border">
           <Row
             title="Auto-accept incoming"
@@ -153,9 +155,7 @@ export function Settings() {
       </section>
 
       <section className="space-y-2">
-        <h2 className="px-1 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-          Environment
-        </h2>
+        <h2 className="label-mono px-1">Environment</h2>
         <Card className="divide-y divide-border">
           <Row
             title="Signaling"
@@ -182,9 +182,7 @@ export function Settings() {
       </section>
 
       <section className="space-y-2">
-        <h2 className="px-1 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-          Advanced
-        </h2>
+        <h2 className="label-mono px-1">Advanced</h2>
         <Card className="divide-y divide-border">
           <Row
             title="Developer mode"
@@ -199,9 +197,7 @@ export function Settings() {
       </section>
 
       <section className="space-y-2">
-        <h2 className="px-1 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-          Data & privacy
-        </h2>
+        <h2 className="label-mono px-1">Data & privacy</h2>
         <Card className="divide-y divide-border">
           <Row
             title="Local history"

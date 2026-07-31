@@ -27,20 +27,26 @@ export function History() {
   const { entries, clear } = useHistory()
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">History</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Stored on this device only — file names and sizes, never contents.
-          </p>
+    <div className="space-y-10">
+      <header className="space-y-5">
+        <div className="flex items-center gap-3">
+          <span className="label-mono">Transfer log</span>
+          <span className="h-px flex-1 bg-border" />
+          {entries.length > 0 && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={clear}
+              className="h-6 text-[10px] uppercase tracking-widest text-muted-foreground hover:text-foreground"
+            >
+              Clear history
+            </Button>
+          )}
         </div>
-        {entries.length > 0 && (
-          <Button variant="ghost" size="sm" onClick={clear}>
-            Clear
-          </Button>
-        )}
-      </div>
+        <h1 className="text-4xl font-black tracking-tighter md:text-5xl">
+          History. <span className="text-muted-foreground">Local device.</span>
+        </h1>
+      </header>
 
       {entries.length === 0 ? (
         <Card className="flex flex-col items-center gap-3 px-6 py-16 text-center">
