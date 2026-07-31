@@ -339,6 +339,50 @@ export function About() {
           </div>
         </div>
       </section>
+
+      {/* Legal & Privacy */}
+      <section className="bg-background pb-24 md:pb-32">
+        <div className="mx-auto max-w-[1273px] px-6 md:px-12">
+          <div className="grid gap-px overflow-hidden rounded-3xl border border-border-strong bg-border-strong sm:grid-cols-2">
+            {/* Privacy Policy */}
+            <div className="bg-background p-8 md:p-12">
+              <div className="mb-6 font-mono text-[10px] font-bold uppercase tracking-widest text-primary">
+                Privacy Policy
+              </div>
+              <h3 className="mb-3 text-xl font-black tracking-tight">
+                Zero-Data Architecture
+              </h3>
+              <p className="text-sm leading-relaxed text-muted-foreground">
+                HyperSync does not collect, store, or transmit any personal
+                data. We do not use cookies, trackers, or analytics. Your files
+                are transferred directly between your devices via WebRTC and
+                never touch our servers. The signaling server temporarily holds
+                connection data (IP addresses and ICE candidates) solely to
+                establish the peer-to-peer connection and discards it
+                immediately.
+              </p>
+            </div>
+
+            {/* Terms & Conditions */}
+            <div className="bg-background p-8 md:p-12">
+              <div className="mb-6 font-mono text-[10px] font-bold uppercase tracking-widest text-primary">
+                Terms & Conditions
+              </div>
+              <h3 className="mb-3 text-xl font-black tracking-tight">
+                Usage Terms
+              </h3>
+              <p className="text-sm leading-relaxed text-muted-foreground">
+                HyperSync is provided "as is", without warranty of any kind. By
+                using HyperSync, you agree to take full responsibility for the
+                files you transfer. We are not liable for any data loss,
+                damages, or legal issues arising from your use of the
+                application. The service operates exclusively via direct
+                peer-to-peer connections.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   )
 }
