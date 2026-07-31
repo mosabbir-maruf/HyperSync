@@ -58,7 +58,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="min-h-[100dvh] bg-background text-foreground">
-      <header className="sticky top-2 z-50 mx-auto w-full max-w-[1200px] px-3 md:top-4 md:px-6 lg:px-8">
+      <header className="sticky top-2 z-50 mx-auto w-full max-w-[1273px] px-3 md:top-4 md:px-6 lg:px-8">
         <div className="flex h-14 w-full items-center justify-between rounded-full border border-border-strong bg-background/70 px-3 shadow-sm backdrop-blur-xl md:h-[60px] md:px-4">
           <Brand />
 
@@ -104,27 +104,22 @@ export function AppShell({ children }: { children: ReactNode }) {
       <main
         className={cn(
           "mx-auto w-full",
-          !isLanding && "max-w-[1600px] px-4 py-8 md:px-8 md:py-12",
+          !isLanding && "max-w-[1273px] px-4 py-8 md:px-8 md:py-12",
         )}
       >
         {children}
       </main>
 
-      <Footer isNarrow={isLanding || location.pathname === "/about"} />
+      <Footer />
       <PerformanceOverlay />
     </div>
   )
 }
 
-function Footer({ isNarrow }: { isNarrow: boolean }) {
+function Footer() {
   return (
     <footer className="mt-16 mb-4 w-full">
-      <div
-        className={cn(
-          "mx-auto w-full px-4 md:px-8",
-          isNarrow ? "max-w-[1240px]" : "max-w-[1600px]",
-        )}
-      >
+      <div className="mx-auto w-full max-w-[1273px] px-4 md:px-8">
         <div className="w-full overflow-hidden rounded-3xl border border-border-strong bg-background">
           <div className="flex w-full flex-col md:flex-row">
             {/* Brand & Description */}

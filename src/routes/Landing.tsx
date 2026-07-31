@@ -49,7 +49,7 @@ export function Landing() {
 
       {/* 2. THE PROTOCOL - Swiss Grid */}
       <section className="bg-background py-24 md:py-32">
-        <div className="mx-auto max-w-[1200px] px-6 md:px-12">
+        <div className="mx-auto max-w-[1273px] px-6 md:px-12">
           <div className="mb-12 flex items-center gap-6 md:mb-20">
             <h2 className="text-3xl font-black tracking-tighter md:text-5xl">
               The Protocol
@@ -98,7 +98,7 @@ export function Landing() {
 
       {/* 3. HOW IT WORKS */}
       <section className="bg-background py-24 md:py-32">
-        <div className="mx-auto max-w-[1200px] px-6 md:px-12">
+        <div className="mx-auto max-w-[1273px] px-6 md:px-12">
           <div className="mb-12 flex items-center gap-6 md:mb-20">
             <span className="h-px flex-1 bg-border-strong" />
             <h2 className="text-3xl font-black tracking-tighter md:text-5xl">
@@ -142,7 +142,7 @@ export function Landing() {
 
       {/* 4. Final Call to Action */}
       <section className="bg-background py-24 md:py-32">
-        <div className="mx-auto max-w-[1200px] px-6 md:px-12">
+        <div className="mx-auto max-w-[1273px] px-6 md:px-12">
           <div className="relative overflow-hidden rounded-3xl border border-border-strong bg-background px-8 py-20 text-center md:py-24">
             {/* ambient glow */}
             <div className="pointer-events-none absolute -right-24 -top-24 h-80 w-80 rounded-full bg-primary/10 blur-[120px]" />
