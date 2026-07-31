@@ -109,16 +109,21 @@ export function AppShell({ children }: { children: ReactNode }) {
         {children}
       </main>
 
-      <Footer />
+      <Footer isLanding={isLanding} />
       <PerformanceOverlay />
     </div>
   )
 }
 
-function Footer() {
+function Footer({ isLanding }: { isLanding: boolean }) {
   return (
     <footer className="mt-16 mb-4 w-full">
-      <div className="mx-auto w-full max-w-[1600px] px-4 md:px-8">
+      <div
+        className={cn(
+          "mx-auto w-full px-4 md:px-8",
+          isLanding ? "max-w-[1240px]" : "max-w-[1600px]",
+        )}
+      >
         <div className="w-full overflow-hidden rounded-3xl border border-border-strong bg-background">
           <div className="flex w-full flex-col md:flex-row">
             {/* Brand & Description */}
