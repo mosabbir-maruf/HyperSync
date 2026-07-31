@@ -7,12 +7,14 @@ import { ConnectionStatus } from "../components/layout/ConnectionStatus"
 import { Button } from "../components/ui/Button"
 import { Card } from "../components/ui/Card"
 import { QrIcon } from "../components/ui/icons"
+import { QrScannerModal } from "../components/session/QrScannerModal"
 
 export function JoinSession() {
   const { controller, state } = useSession()
   const navigate = useNavigate()
   const [params] = useSearchParams()
   const [attempted, setAttempted] = useState(false)
+  const [isScannerOpen, setIsScannerOpen] = useState(false)
   const autoTried = useRef(false)
 
   // Auto-join when arriving via a QR link (?code=...).
@@ -74,6 +76,25 @@ export function JoinSession() {
 
       <Card className="space-y-4 p-6">
         <CodeInput onComplete={join} autoFocus />
+
+        <div className="relative flex items-center justify-center my-2">
+          <div className="absolute inset-0 flex items-center">
+            <span className="w-full border-t border-border" />
+          </div>
+          <span className="relative bg-card px-3 text-xs uppercase text-muted-foreground font-mono">
+            Or
+          </span>
+        </div>
+
+        <Button
+          variant="secondary"
+          className="w-full gap-2 border border-border-strong py-2.5"
+          onClick={() => setIsScannerOpen(true)}
+        >
+          <QrIcon width={18} height={18} />
+          Scan QR Code with Camera
+        </Button>
+
         {busy && (
           <div className="flex justify-center">
             <ConnectionStatus phase={state.phase} />
@@ -87,9 +108,14 @@ export function JoinSession() {
       </Card>
 
       <p className="text-center text-[12px] leading-relaxed text-muted-foreground">
-        Scanning the QR on the other device opens this page and joins
-        automatically.
+        Point your camera at the QR code on the sending device to connect automatically.
       </p>
+
+      <QrScannerModal
+        isOpen={isScannerOpen}
+        onClose={() => setIsScannerOpen(false)}
+        onScan={(code) => join(code)}
+      />
     </div>
   )
 }
