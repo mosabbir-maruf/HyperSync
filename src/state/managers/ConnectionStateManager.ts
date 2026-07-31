@@ -31,8 +31,8 @@ export class ConnectionStateManager {
 
   // Internal inputs
   private peerState: PeerState = "new"
-  private transferState: ChannelState = "closed"
-  private messagingState: ChannelState = "closed"
+  private transferState: ChannelState = "connecting"
+  private messagingState: ChannelState = "connecting"
   private heartbeatHealthy = false
   private signalingPhase: SignalingPhase = "idle"
   private isAutoReconnecting = false

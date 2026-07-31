@@ -55,7 +55,17 @@ export class SessionManager {
         const markClosed = () => this.connection.setTransferChannelState("closed")
         
         if (channel.readyState === "open") markOpen()
-        else channel.addEventListener("open", markOpen, { once: true })
+        else {
+          channel.addEventListener("open", markOpen, { once: true })
+          const poll = setInterval(() => {
+            if (channel.readyState === "open") {
+              clearInterval(poll)
+              markOpen()
+            } else if (channel.readyState === "closed" || channel.readyState === "closing") {
+              clearInterval(poll)
+            }
+          }, 100)
+        }
         channel.addEventListener("close", markClosed, { once: true })
       },
       onMessageChannel: (channel) => {
@@ -69,7 +79,17 @@ export class SessionManager {
         const markClosed = () => this.connection.setMessagingChannelState("closed")
         
         if (channel.readyState === "open") markOpen()
-        else channel.addEventListener("open", markOpen, { once: true })
+        else {
+          channel.addEventListener("open", markOpen, { once: true })
+          const poll = setInterval(() => {
+            if (channel.readyState === "open") {
+              clearInterval(poll)
+              markOpen()
+            } else if (channel.readyState === "closed" || channel.readyState === "closing") {
+              clearInterval(poll)
+            }
+          }, 100)
+        }
         channel.addEventListener("close", markClosed, { once: true })
       },
       onError: (msg) => {
