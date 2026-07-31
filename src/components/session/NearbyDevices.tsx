@@ -146,10 +146,10 @@ export function NearbyDevices() {
         </span>
 
         {/* Content Container */}
-        <div className="relative z-10 flex min-h-[480px] flex-1 flex-col justify-between p-6 md:min-h-[540px] md:p-8 lg:min-h-[600px]">
+        <div className="relative z-10 min-h-[480px] p-6 md:min-h-[540px] md:p-8 lg:min-h-[600px]">
           {empty ? (
             /* Scanning / Empty State view: Perfectly Centered in Radar Field */
-            <div className="my-auto flex flex-col items-center justify-center py-6 text-center">
+            <div className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center">
               <div className="relative mb-5 flex h-20 w-20 items-center justify-center">
                 {/* Outward signal ping pulse */}
                 <span
@@ -160,11 +160,9 @@ export function NearbyDevices() {
                   aria-hidden
                   className="animate-signal-pulse absolute inset-2 rounded-full border border-border-strong bg-background"
                 />
-                <HyperSyncLogo
-                  width={28}
-                  height={28}
-                  className="relative text-primary"
-                />
+                <div className="relative z-10 flex h-11 w-11 items-center justify-center rounded-full bg-[#cf4322] shadow-sm">
+                  <HyperSyncLogo className="h-6 w-6 text-black/80 dark:text-white/90" />
+                </div>
               </div>
 
               <div className="max-w-md space-y-2">
@@ -189,29 +187,31 @@ export function NearbyDevices() {
             </div>
           ) : (
             /* Discovered Peer Device Cards Grid: Perfectly Centered in Radar Field */
-            <div className="mx-auto my-auto w-full max-w-3xl space-y-8">
-              <div className="flex flex-col items-center justify-center gap-1.5 font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
-                <span>SELECT DEVICE NODE TO CONNECT</span>
-                <span className="opacity-60">· DIRECT WEBRTC SESSION ·</span>
-              </div>
+            <div className="absolute inset-0 flex flex-col items-center justify-center px-6">
+              <div className="w-full max-w-3xl space-y-8">
+                <div className="flex flex-col items-center justify-center gap-1.5 font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
+                  <span>SELECT DEVICE NODE TO CONNECT</span>
+                  <span className="opacity-60">· DIRECT WEBRTC SESSION ·</span>
+                </div>
 
-              <ul className="flex flex-wrap items-center justify-center gap-6 md:gap-8">
-                {devices.map((d) => (
-                  <li key={d.peerId} className="flex">
-                    <PeerCard
-                      device={d}
-                      connecting={connecting === d.peerId}
-                      disabled={connecting !== null && connecting !== d.peerId}
-                      onConnect={() => void connectTo(d)}
-                    />
-                  </li>
-                ))}
-              </ul>
+                <ul className="flex flex-wrap items-center justify-center gap-6 md:gap-8">
+                  {devices.map((d) => (
+                    <li key={d.peerId} className="flex">
+                      <PeerCard
+                        device={d}
+                        connecting={connecting === d.peerId}
+                        disabled={connecting !== null && connecting !== d.peerId}
+                        onConnect={() => void connectTo(d)}
+                      />
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
           )}
 
           {/* Ultra-minimal Local Device Chip ("YOU") with Inline Rename */}
-          <div className="mt-6 flex justify-center">
+          <div className="absolute bottom-6 left-0 right-0 flex justify-center md:bottom-8 lg:bottom-10">
             <div className="inline-flex items-center gap-2 rounded-full border border-border bg-background/90 px-3 py-1.5 font-mono text-[11px] shadow-xs backdrop-blur">
               <Avatar
                 name={thisDevice.name}
@@ -251,21 +251,18 @@ export function NearbyDevices() {
                   </button>
                 </div>
               ) : (
-                <div className="flex items-center gap-2">
-                  <span className="font-semibold text-foreground">
+                <button
+                  onClick={() => setIsEditingName(true)}
+                  className="group flex items-center gap-1.5 font-semibold text-foreground transition-colors hover:text-primary"
+                  title="Rename device"
+                >
+                  <span className="max-w-[120px] truncate md:max-w-[160px]">
                     {thisDevice.name}
                   </span>
-                  <span className="text-muted-foreground">
-                    you · {thisDevice.platform}
+                  <span className="font-sans text-[10px] tracking-normal text-muted-foreground group-hover:text-primary">
+                    (YOU)
                   </span>
-                  <button
-                    type="button"
-                    onClick={() => setIsEditingName(true)}
-                    className="ml-1 text-[10px] text-muted-foreground transition-colors hover:text-primary hover:underline"
-                  >
-                    (rename)
-                  </button>
-                </div>
+                </button>
               )}
             </div>
           </div>
