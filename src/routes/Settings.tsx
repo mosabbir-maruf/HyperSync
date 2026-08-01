@@ -216,7 +216,7 @@ export function Settings() {
           </Row>
           <Row title="Version">
             <span className="font-mono text-[12px] text-muted-foreground">
-              HyperSync 1.0.0
+              HyperSync 2.0.0
             </span>
           </Row>
         </Card>

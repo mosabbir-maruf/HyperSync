@@ -16,6 +16,12 @@ export function addHistoryEntry(entry: HistoryEntry): void {
 
 export function clearHistory(): void {
   void dbClear()
+  if (typeof caches !== "undefined") {
+    caches
+      .keys()
+      .then((names) => Promise.all(names.map((name) => caches.delete(name))))
+      .catch((e) => console.warn("Could not clear caches", e))
+  }
 }
 
 /** React hook exposing the local history list, reactive to writes. */

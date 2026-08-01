@@ -6,7 +6,7 @@ import { PerformanceOverlay } from "../ui/PerformanceOverlay"
 import { cn } from "../../lib/utils"
 
 const nav = [
-  { to: "/app", label: "Devices" },
+  { to: "/app", label: "Connect" },
   { to: "/history", label: "History" },
   { to: "/settings", label: "Settings" },
   { to: "/about", label: "About" },
@@ -166,7 +166,7 @@ function Footer() {
                     to="/app"
                     className="text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground"
                   >
-                    Devices
+                    Connect
                   </NavLink>
                   <NavLink
                     to="/history"
