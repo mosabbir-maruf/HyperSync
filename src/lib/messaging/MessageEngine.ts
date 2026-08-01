@@ -108,12 +108,7 @@ export class MessageEngine {
       if (frame) this.handleFrame(frame)
     }
 
-    // If channel is already open (shouldn't happen on creation, but be safe)
-    if (ch.readyState === "open") {
-      this.isOpen = true
-      this.startPing()
-      this.startTokenRefill()
-    }
+    // (Duplicate block removed. The setTimeout(handleOpen, 0) above handles the already-open case)
   }
 
   // ── Sending ────────────────────────────────────────────────────────────────
@@ -274,6 +269,7 @@ export class MessageEngine {
   // ── Ping / Pong ────────────────────────────────────────────────────────────
 
   private startPing(): void {
+    this.stopPing()
     this.pingInterval = setInterval(() => {
       if (!this.isOpen) return
       this.rawSend({ t: "PING" })
@@ -305,6 +301,7 @@ export class MessageEngine {
   // ── Token bucket ───────────────────────────────────────────────────────────
 
   private startTokenRefill(): void {
+    if (this.tokenRefillTimer !== null) clearInterval(this.tokenRefillTimer)
     this.tokenRefillTimer = setInterval(() => {
       this.tokens = RATE_LIMIT_PER_SEC
       // Try to drain queue on each refill tick
