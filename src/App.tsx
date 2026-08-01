@@ -9,6 +9,7 @@ import {
 import { ThemeProvider } from "./state/ThemeProvider"
 import { SettingsProvider } from "./state/SettingsProvider"
 import { SessionProvider } from "./state/SessionProvider"
+import { GroupSessionProvider } from "./state/GroupSessionProvider"
 import { LobbyProvider } from "./state/LobbyProvider"
 import { DialogProvider } from "./state/DialogProvider"
 import { AppShell } from "./components/layout/AppShell"
@@ -40,7 +41,19 @@ const About = lazy(() =>
   import("./routes/About").then((module) => ({ default: module.About })),
 )
 const Changelog = lazy(() =>
-  import("./routes/Changelog").then((module) => ({ default: module.Changelog })),
+  import("./routes/Changelog").then((module) => ({
+    default: module.Changelog,
+  })),
+)
+const GroupLanding = lazy(() =>
+  import("./routes/GroupLanding").then((module) => ({
+    default: module.GroupLanding,
+  })),
+)
+const GroupRoom = lazy(() =>
+  import("./routes/GroupRoom").then((module) => ({
+    default: module.GroupRoom,
+  })),
 )
 
 function ScrollToTop() {
@@ -110,34 +123,38 @@ export default function App() {
     <ThemeProvider>
       <SettingsProvider>
         <SessionProvider>
-          <BrowserRouter>
-            <ScrollToTop />
-            <RouteTitle />
-            <DialogProvider>
-              <LobbyProvider>
-                <AppShell>
-                  <Suspense fallback={null}>
-                    <Routes>
-                      <Route path="/" element={<Landing />} />
-                      <Route path="/app" element={<Home />} />
-                      <Route path="/send" element={<CreateSession />} />
-                      <Route
-                        path="/create"
-                        element={<Navigate to="/send" replace />}
-                      />
-                      <Route path="/join" element={<JoinSession />} />
-                      <Route path="/history" element={<History />} />
-                      <Route path="/settings" element={<Settings />} />
-                      <Route path="/about" element={<About />} />
-                      <Route path="/changelog" element={<Changelog />} />
-                      <Route path="*" element={<Navigate to="/" replace />} />
-                    </Routes>
-                  </Suspense>
-                </AppShell>
-                <ToastViewport />
-              </LobbyProvider>
-            </DialogProvider>
-          </BrowserRouter>
+          <GroupSessionProvider>
+            <BrowserRouter>
+              <ScrollToTop />
+              <RouteTitle />
+              <DialogProvider>
+                <LobbyProvider>
+                  <AppShell>
+                    <Suspense fallback={null}>
+                      <Routes>
+                        <Route path="/" element={<Landing />} />
+                        <Route path="/app" element={<Home />} />
+                        <Route path="/send" element={<CreateSession />} />
+                        <Route
+                          path="/create"
+                          element={<Navigate to="/send" replace />}
+                        />
+                        <Route path="/join" element={<JoinSession />} />
+                        <Route path="/history" element={<History />} />
+                        <Route path="/settings" element={<Settings />} />
+                        <Route path="/about" element={<About />} />
+                        <Route path="/changelog" element={<Changelog />} />
+                        <Route path="/group" element={<GroupLanding />} />
+                        <Route path="/group/:code" element={<GroupRoom />} />
+                        <Route path="*" element={<Navigate to="/" replace />} />
+                      </Routes>
+                    </Suspense>
+                  </AppShell>
+                  <ToastViewport />
+                </LobbyProvider>
+              </DialogProvider>
+            </BrowserRouter>
+          </GroupSessionProvider>
         </SessionProvider>
       </SettingsProvider>
     </ThemeProvider>

@@ -13,43 +13,160 @@ import { cn } from "../../lib/utils"
 
 const PINNED_EMOJI = ["😀", "😂", "❤️", "👍", "🎉", "🔥", "😎", "👋"]
 
-const EMOJI_CATEGORIES: { label: string; items: string[] }[] = [
+const EMOJI_CATEGORIES: { label: string items: string[] }[] = [
   {
     label: "Faces",
     items: [
-      "😀", "😁", "😂", "🤣", "😃", "😄", "😅", "😆", "😉", "😊",
-      "😋", "😎", "😍", "🥰", "😘", "🤩", "😏", "😐", "😑", "😶",
-      "🙂", "🙃", "😌", "😔", "😪", "🤤", "😴", "😷", "🤒", "🤕",
-      "🥺", "😢", "😭", "😤", "😠", "😡", "🤬", "😈", "👿", "💀",
+      "😀",
+      "😁",
+      "😂",
+      "🤣",
+      "😃",
+      "😄",
+      "😅",
+      "😆",
+      "😉",
+      "😊",
+      "😋",
+      "😎",
+      "😍",
+      "🥰",
+      "😘",
+      "🤩",
+      "😏",
+      "😐",
+      "😑",
+      "😶",
+      "🙂",
+      "🙃",
+      "😌",
+      "😔",
+      "😪",
+      "🤤",
+      "😴",
+      "😷",
+      "🤒",
+      "🤕",
+      "🥺",
+      "😢",
+      "😭",
+      "😤",
+      "😠",
+      "😡",
+      "🤬",
+      "😈",
+      "👿",
+      "💀",
     ],
   },
   {
     label: "Hands",
     items: [
-      "👋", "🤚", "🖐", "✋", "🖖", "👌", "🤌", "🤏", "✌️", "🤞",
-      "🤟", "🤘", "🤙", "👈", "👉", "👆", "🖕", "👇", "☝️", "👍",
-      "👎", "✊", "👊", "🤛", "🤜", "👏", "🙌", "🫶", "🤝", "🙏",
+      "👋",
+      "🤚",
+      "🖐",
+      "✋",
+      "🖖",
+      "👌",
+      "🤌",
+      "🤏",
+      "✌️",
+      "🤞",
+      "🤟",
+      "🤘",
+      "🤙",
+      "👈",
+      "👉",
+      "👆",
+      "🖕",
+      "👇",
+      "☝️",
+      "👍",
+      "👎",
+      "✊",
+      "👊",
+      "🤛",
+      "🤜",
+      "👏",
+      "🙌",
+      "🫶",
+      "🤝",
+      "🙏",
     ],
   },
   {
     label: "Hearts",
     items: [
-      "❤️", "🧡", "💛", "💚", "💙", "💜", "🖤", "🤍", "🤎", "💔",
-      "❤️‍🔥", "❤️‍🩹", "💕", "💞", "💓", "💗", "💖", "💘", "💝", "💟",
+      "❤️",
+      "🧡",
+      "💛",
+      "💚",
+      "💙",
+      "💜",
+      "🖤",
+      "🤍",
+      "🤎",
+      "💔",
+      "❤️‍🔥",
+      "❤️‍🩹",
+      "💕",
+      "💞",
+      "💓",
+      "💗",
+      "💖",
+      "💘",
+      "💝",
+      "💟",
     ],
   },
   {
     label: "Objects",
     items: [
-      "🎉", "🎊", "🎁", "🏆", "🥇", "🎯", "🔥", "⚡", "✨", "💫",
-      "🌟", "⭐", "🌈", "☀️", "🌙", "💎", "🔑", "🗝", "🔐", "🔒",
+      "🎉",
+      "🎊",
+      "🎁",
+      "🏆",
+      "🥇",
+      "🎯",
+      "🔥",
+      "⚡",
+      "✨",
+      "💫",
+      "🌟",
+      "⭐",
+      "🌈",
+      "☀️",
+      "🌙",
+      "💎",
+      "🔑",
+      "🗝",
+      "🔐",
+      "🔒",
     ],
   },
   {
     label: "Symbols",
     items: [
-      "✅", "❌", "⚠️", "ℹ️", "💯", "🔆", "🔇", "🔔", "🔕", "📢",
-      "📣", "💬", "💭", "🗯", "♻️", "✔️", "➕", "➖", "➗", "✖️",
+      "✅",
+      "❌",
+      "⚠️",
+      "ℹ️",
+      "💯",
+      "🔆",
+      "🔇",
+      "🔔",
+      "🔕",
+      "📢",
+      "📣",
+      "💬",
+      "💭",
+      "🗯",
+      "♻️",
+      "✔️",
+      "➕",
+      "➖",
+      "➗",
+      "✖️",
     ],
   },
 ]
@@ -99,28 +216,29 @@ export function EmojiPicker({
     }
     document.addEventListener("keydown", handler as unknown as EventListener)
     return () =>
-      document.removeEventListener("keydown", handler as unknown as EventListener)
+      document.removeEventListener(
+        "keydown",
+        handler as unknown as EventListener,
+      )
   }, [onClose])
 
   // Keyboard navigation within grid
-  const handleGridKeyDown = useCallback(
-    (e: KeyboardEvent<HTMLDivElement>) => {
-      const items = gridRef.current?.querySelectorAll<HTMLButtonElement>("button")
-      if (!items) return
-      const focused = document.activeElement as HTMLElement
-      const idx = Array.from(items).indexOf(focused as HTMLButtonElement)
-      const cols = 8
-      let next = idx
-      if (e.key === "ArrowRight") next = Math.min(idx + 1, items.length - 1)
-      else if (e.key === "ArrowLeft") next = Math.max(idx - 1, 0)
-      else if (e.key === "ArrowDown") next = Math.min(idx + cols, items.length - 1)
-      else if (e.key === "ArrowUp") next = Math.max(idx - cols, 0)
-      else return
-      e.preventDefault()
-      items[next]?.focus()
-    },
-    [],
-  )
+  const handleGridKeyDown = useCallback((e: KeyboardEvent<HTMLDivElement>) => {
+    const items = gridRef.current?.querySelectorAll<HTMLButtonElement>("button")
+    if (!items) return
+    const focused = document.activeElement as HTMLElement
+    const idx = Array.from(items).indexOf(focused as HTMLButtonElement)
+    const cols = 8
+    let next = idx
+    if (e.key === "ArrowRight") next = Math.min(idx + 1, items.length - 1)
+    else if (e.key === "ArrowLeft") next = Math.max(idx - 1, 0)
+    else if (e.key === "ArrowDown")
+      next = Math.min(idx + cols, items.length - 1)
+    else if (e.key === "ArrowUp") next = Math.max(idx - cols, 0)
+    else return
+    e.preventDefault()
+    items[next]?.focus()
+  }, [])
 
   return (
     <div

@@ -2,61 +2,57 @@ import type { SessionInfo } from "../../lib/signaling"
 import { TransferEngine } from "../../lib/transfer/TransferEngine"
 import type { TransferItem, FileMetadata } from "../../lib/transfer/types"
 
-import {
-  ConnectionStateManager,
-  ConnectionState,
-} from "./ConnectionStateManager"
-import { TransferManager, type TransferState } from "./TransferManager"
-import { MessagingManager } from "./MessagingManager"
-import { PeerManager } from "./PeerManager"
-import { PresenceManager } from "./PresenceManager"
+import { GroupConnectionManager } from "./GroupConnectionManager"
+import { GroupTransferManager } from "./GroupTransferManager"
+import { GroupMessagingManager } from "./GroupMessagingManager"
+import { GroupPeerManager } from "./GroupPeerManager"
 
-export interface SessionState {
-  connectionState: ConnectionState
-  role: "host" | "guest" | null
+export interface GroupSessionState {
+  connectionState: string // from ConnectionState
+  role: "host" | "member" | null
   info: SessionInfo | null
-  items: TransferItem[]
-  incoming: FileMetadata[] | null
+  items: TransferItem & { peerId?: string }[]
+  incoming: FileMetadata & { peerId?: string }[] | null
   error: string | null
+  typingPeers: string[]
 }
 
-const INITIAL: SessionState = {
-  connectionState: ConnectionState.DISCONNECTED,
+const INITIAL: GroupSessionState = {
+  connectionState: "DISCONNECTED",
   role: null,
   info: null,
   items: [],
   incoming: null,
   error: null,
+  typingPeers: [],
 }
 
-export class SessionManager {
-  public connection = new ConnectionStateManager()
-  public transfer = new TransferManager()
-  public messaging: MessagingManager | null = null
+export class GroupSessionManager {
+  public connection = new GroupConnectionManager()
+  public transfer = new GroupTransferManager()
+  public messaging = new GroupMessagingManager()
 
-  private peer = new PeerManager()
-  private presence = new PresenceManager(this.connection)
+  private peer = new GroupPeerManager()
 
-  private state: SessionState = { ...INITIAL }
-  private listeners = new Set<(s: SessionState) => void>()
+  private state: GroupSessionState = { ...INITIAL }
+  private listeners = new Set<(s: GroupSessionState) => void>()
 
   constructor() {
-    // 1. PeerManager -> ConnectionStateManager
     this.peer.setCallbacks({
       onPhaseChange: (phase) => {
-        this.connection.setSignalingPhase(phase)
-        this.set({ connectionState: this.connection.getState() })
+        this.connection.setSignalingPhase(phase as any)
       },
-      onPeerStateChange: (state) => {
-        this.connection.setPeerState(state)
+      onPeerStateChange: (peerId, state) => {
+        this.connection.setPeerState(peerId, state)
       },
-      onDataChannel: (channel) => {
+      onDataChannel: (peerId, channel) => {
         const engine = new TransferEngine(channel)
-        this.transfer.attachEngine(engine)
+        this.transfer.attachEngine(peerId, engine)
 
-        const markOpen = () => this.connection.setTransferChannelState("open")
+        const markOpen = () =>
+          this.connection.setTransferChannelState(peerId, "open")
         const markClosed = () =>
-          this.connection.setTransferChannelState("closed")
+          this.connection.setTransferChannelState(peerId, "closed")
 
         if (channel.readyState === "open") markOpen()
         else {
@@ -75,16 +71,13 @@ export class SessionManager {
         }
         channel.addEventListener("close", markClosed, { once: true })
       },
-      onMessageChannel: (channel) => {
-        this.messaging?.destroy()
-        this.messaging = new MessagingManager(channel)
+      onMessageChannel: (peerId, channel) => {
+        this.messaging.attachEngine(peerId, channel)
 
-        // Presence listens to messaging engine
-        this.presence.observe((fn) => this.messaging!.onEngineEvent(fn))
-
-        const markOpen = () => this.connection.setMessagingChannelState("open")
+        const markOpen = () =>
+          this.connection.setMessagingChannelState(peerId, "open")
         const markClosed = () =>
-          this.connection.setMessagingChannelState("closed")
+          this.connection.setMessagingChannelState(peerId, "closed")
 
         if (channel.readyState === "open") markOpen()
         else {
@@ -105,45 +98,49 @@ export class SessionManager {
       },
       onError: (msg) => {
         this.set({ error: msg })
-        if (msg.includes("disconnected temporarily")) {
-          this.connection.setHeartbeatHealthy(false)
-        }
+      },
+      onMemberLeft: (peerId) => {
+        this.connection.removePeer(peerId)
+        this.transfer.removeEngine(peerId)
+        this.messaging.removeEngine(peerId)
       },
     })
 
-    // 2. ConnectionStateManager -> SessionManager state
     this.connection.subscribe((event) => {
       if (event.type === "ConnectionChanged") {
         this.set({ connectionState: event.state })
       }
     })
 
-    // 3. TransferManager -> SessionManager state
     this.transfer.subscribe((transferState) => {
       this.set({
         items: transferState.items,
         incoming: transferState.incoming,
       })
     })
+
+    this.messaging.subscribe((msgState) => {
+      this.set({ typingPeers: msgState.typingPeers })
+    })
   }
 
   // --- React Subscription ---
 
-  public subscribe(fn: (s: SessionState) => void): () => void {
+  public subscribe(fn: (s: GroupSessionState) => void): () => void {
     this.listeners.add(fn)
     fn(this.state)
     return () => this.listeners.delete(fn)
   }
 
-  public getState(): SessionState {
+  public getState(): GroupSessionState {
     return this.state
   }
 
-  public getMessagingManager(): MessagingManager | null {
+  public getMessagingManager(): GroupMessagingManager {
     return this.messaging
   }
 
-  private set(patch: Partial<SessionState>): void {
+  private set(patch: Partial<GroupSessionState>): void {
     this.state = { ...this.state, ...patch }
     for (const fn of this.listeners) fn(this.state)
   }
@@ -158,41 +155,41 @@ export class SessionManager {
   }
 
   public async join(code: string): Promise<void> {
-    this.set({ role: "guest", error: null })
+    this.set({ role: "member", error: null })
     const info = await this.peer.join(code)
     if (info) this.set({ info })
   }
 
-  public sendFiles(files: File[]): void {
-    this.transfer.sendFiles(files)
+  public sendFiles(files: File[], targetPeerId?: string): void {
+    this.transfer.sendFiles(files, targetPeerId)
   }
 
-  public async accept(ids: string[]): Promise<void> {
-    return this.transfer.accept(ids)
+  public async accept(ids: string[], peerId?: string): Promise<void> {
+    return this.transfer.accept(ids, peerId)
   }
 
-  public reject(ids: string[]): void {
-    this.transfer.reject(ids)
+  public reject(ids: string[], peerId?: string): void {
+    this.transfer.reject(ids, peerId)
   }
 
-  public pause(id: string): void {
-    this.transfer.pause(id)
+  public pause(id: string, peerId?: string): void {
+    this.transfer.pause(id, peerId)
   }
 
-  public resume(id: string): void {
-    this.transfer.resume(id)
+  public resume(id: string, peerId?: string): void {
+    this.transfer.resume(id, peerId)
   }
 
-  public cancel(id: string): void {
-    this.transfer.cancel(id)
+  public cancel(id: string, peerId?: string): void {
+    this.transfer.cancel(id, peerId)
   }
 
-  public retry(id: string): void {
-    this.transfer.retry(id)
+  public retry(id: string, peerId?: string): void {
+    this.transfer.retry(id, peerId)
   }
 
-  public remove(id: string): void {
-    this.transfer.remove(id)
+  public remove(id: string, peerId?: string): void {
+    this.transfer.remove(id, peerId)
   }
 
   public clearQueue(): void {
@@ -202,9 +199,7 @@ export class SessionManager {
   public leave(): void {
     this.peer.destroy()
     this.transfer.destroy()
-    this.messaging?.destroy()
-    this.presence.destroy()
-    this.messaging = null
+    this.messaging.destroy()
     this.set({ ...INITIAL })
   }
 }

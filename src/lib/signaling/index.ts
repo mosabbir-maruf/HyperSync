@@ -21,8 +21,11 @@ export function createSignalingClient(): SignalingClient {
   // VITE_WS_URL explicitly when testing a local worker.
   const wsUrl = import.meta.env.VITE_WS_URL || DEFAULT_SIGNALING_URL
 
-  // If explicitly requested, use in-memory mock for dev testing without backend
-  if (import.meta.env.VITE_USE_MOCK_SIGNALING === "true") {
+  // If explicitly requested, or if we are in dev (for Figma preview since worker can't be deployed), use in-memory mock for dev testing without backend
+  if (
+    import.meta.env.VITE_USE_MOCK_SIGNALING === "true" ||
+    import.meta.env.DEV
+  ) {
     return new InMemorySignalingClient()
   }
   return new WebSocketSignalingClient(wsUrl)

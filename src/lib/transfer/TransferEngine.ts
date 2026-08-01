@@ -135,7 +135,7 @@ export class TransferEngine {
       this.sendControl({ t: "TRANSFER_METADATA", metadata: meta })
 
       // Start the producer coroutine (reads disk -> encodes -> pushes to pipeline)
-      const pumpPromise = engine.pump(pipeline, ac.signal)
+      const pumpPromise = engine.pump([pipeline], ac.signal)
 
       // Wait until every chunk has been flushed to channel.send()
       await pipeline.waitUntilDone()

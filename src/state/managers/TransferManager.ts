@@ -1,5 +1,9 @@
 import { TransferEngine } from "../../lib/transfer/TransferEngine"
-import type { FileMetadata, TransferItem, TransferEvent } from "../../lib/transfer/types"
+import type {
+  FileMetadata,
+  TransferItem,
+  TransferEvent,
+} from "../../lib/transfer/types"
 import { toast } from "../../lib/notify/toast"
 
 export interface TransferState {
@@ -18,7 +22,7 @@ export class TransferManager {
   private engine: TransferEngine | null = null
   private itemsMap = new Map<string, TransferItem>()
   private lastStatus = new Map<string, TransferItem["status"]>()
-  
+
   private emitScheduled = false
   private emitTimeout: number | null = null
   private unsubEngine: (() => void) | null = null
@@ -30,7 +34,7 @@ export class TransferManager {
   public attachEngine(engine: TransferEngine): void {
     if (this.engine) this.destroy()
     this.engine = engine
-    
+
     this.unsubEngine = this.engine.onEvent((event: TransferEvent) => {
       // Forward raw events to SessionManager/ConnectionStateManager
       for (const listener of this.eventListeners) {
@@ -85,7 +89,11 @@ export class TransferManager {
     this.set({ items })
   }
 
-  private patchItem(id: string, patch: Partial<TransferItem>, immediate = false): void {
+  private patchItem(
+    id: string,
+    patch: Partial<TransferItem>,
+    immediate = false,
+  ): void {
     const cur = this.itemsMap.get(id)
     if (!cur) return
     this.itemsMap.set(id, { ...cur, ...patch })
@@ -269,14 +277,14 @@ export class TransferManager {
       this.emitTimeout = null
     }
     this.emitScheduled = false
-    
+
     this.unsubEngine?.()
     this.engine?.destroy()
     this.engine = null
-    
+
     this.listeners.clear()
     this.eventListeners.clear()
-    
+
     for (const item of this.itemsMap.values()) {
       if (item.blobUrl) {
         URL.revokeObjectURL(item.blobUrl)

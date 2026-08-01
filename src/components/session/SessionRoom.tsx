@@ -51,10 +51,10 @@ export function SessionRoom({ onLeave }: { onLeave: () => void }) {
       <div className="hidden md:flex flex-col items-center">
         <div className="w-full h-[800px]">
           {messagingCtrl ? (
-            <ChatPanel 
-              controller={messagingCtrl} 
+            <ChatPanel
+              controller={messagingCtrl}
               sessionController={controller}
-              visible={true} 
+              visible={true}
               onFiles={(files) => controller.sendFiles(files)}
               onLeave={onLeave}
             />
@@ -70,7 +70,9 @@ export function SessionRoom({ onLeave }: { onLeave: () => void }) {
 function ChatPlaceholder() {
   return (
     <div className="flex h-full items-center justify-center rounded-2xl border border-border bg-card">
-      <p className="label-mono px-6 text-center">Establishing message channel…</p>
+      <p className="label-mono px-6 text-center">
+        Establishing message channel…
+      </p>
     </div>
   )
 }

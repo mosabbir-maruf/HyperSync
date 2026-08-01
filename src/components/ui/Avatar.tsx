@@ -16,7 +16,7 @@ export function Avatar({ name, size = "md", className }: AvatarProps) {
   const sizeClasses = {
     sm: "h-6 w-6 text-[10px]",
     md: "h-8 w-8 text-xs",
-    lg: "h-10 w-10 text-sm"
+    lg: "h-10 w-10 text-sm",
   }
 
   return (
@@ -24,7 +24,7 @@ export function Avatar({ name, size = "md", className }: AvatarProps) {
       className={cn(
         "relative flex shrink-0 items-center justify-center overflow-hidden rounded-full",
         sizeClasses[size],
-        className
+        className,
       )}
       style={!url ? { backgroundColor: bg } : undefined}
       aria-label={`Avatar for ${display}`}
@@ -37,9 +37,7 @@ export function Avatar({ name, size = "md", className }: AvatarProps) {
           loading="lazy"
         />
       ) : (
-        <span className="font-semibold text-white/90 uppercase">
-          {letters}
-        </span>
+        <span className="font-semibold text-white/90 uppercase">{letters}</span>
       )}
     </div>
   )

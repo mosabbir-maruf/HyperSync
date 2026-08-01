@@ -24,6 +24,7 @@ export class InMemorySignalingClient
 
   private readonly peerId = randomId()
   private code: string | null = null
+  private role: Role | null = null
 
   private setState(state: SignalingConnectionState): void {
     this.state = state
@@ -41,9 +42,10 @@ export class InMemorySignalingClient
     this.setState("connecting")
     const sessionId = randomId()
     const code = generatePairingCode()
-    signalingHub.createSession(sessionId, code)
+    this.role = "host"
+    signalingHub.createSession(sessionId, code, 2)
     this.code = code
-    this.attach(code)
+    this.attach(code, "host", false)
     this.setState("connected")
     return this.buildInfo(sessionId, code, "host")
   }
@@ -58,32 +60,88 @@ export class InMemorySignalingClient
       this.setState("error")
       throw new Error("No active session for that code")
     }
-    this.code = code
-    const existing = this.attach(code)
+    this.code = normalizedCode
+    this.role = "guest"
+    const existing = this.attach(normalizedCode, "guest", false)
     this.setState("connected")
     // Surface already-present peers so negotiation can begin immediately.
-    for (const peerId of existing) this.emit({ type: "peer-joined", peerId })
-    return this.buildInfo(code, code, "guest")
+    for (const p of existing)
+      this.emit({ type: "peer-joined", peerId: p.peerId })
+    return this.buildInfo(normalizedCode, normalizedCode, "guest")
   }
 
-  private attach(code: string): string[] {
+  async createGroup(maxMembers?: number): Promise<SessionInfo> {
+    this.setState("connecting")
+    const sessionId = randomId()
+    const code = generatePairingCode()
+    this.role = "host"
+    signalingHub.createSession(sessionId, code, maxMembers ?? 8)
+    this.code = code
+    this.attach(code, "host", true)
+    this.setState("connected")
+    return this.buildInfo(sessionId, code, "host")
+  }
+
+  async joinGroup(code: string): Promise<SessionInfo> {
+    this.setState("connecting")
+    const normalizedCode = normalizeCode(code)
+    if (!signalingHub.hasSession(normalizedCode)) {
+      this.setState("error")
+      throw new Error("No active group session for that code")
+    }
+    this.code = normalizedCode
+    this.role = "member"
+    const existing = this.attach(normalizedCode, "member", true)
+    this.setState("connected")
+    // For groups, emit group-peer-joined
+    for (const p of existing)
+      this.emit({ type: "group-peer-joined", peerId: p.peerId, role: p.role })
+    return this.buildInfo(normalizedCode, normalizedCode, "member")
+  }
+
+  private attach(code: string, role: Role, isGroup: boolean): {
+    peerId: string
+    role: Role
+  }[] {
     return signalingHub.join(code, {
       peerId: this.peerId,
+      role: role,
       onSignal: (from, signal) => {
         if (!isPeerSignal(signal)) {
           this.emit({ type: "error", message: "Rejected malformed signal" })
           return
         }
-        this.emit({ type: "signal", from, signal })
+        if (isGroup) {
+          this.emit({ type: "group-signal", from, signal })
+        } else {
+          this.emit({ type: "signal", from, signal })
+        }
       },
-      onPeerJoined: (peerId) => this.emit({ type: "peer-joined", peerId }),
-      onPeerLeft: (peerId) => this.emit({ type: "peer-left", peerId }),
+      onPeerJoined: (peerId, role) => {
+        if (isGroup) {
+          this.emit({ type: "group-peer-joined", peerId, role })
+        } else {
+          this.emit({ type: "peer-joined", peerId })
+        }
+      },
+      onPeerLeft: (peerId) => {
+        if (isGroup) {
+          this.emit({ type: "group-peer-left", peerId })
+        } else {
+          this.emit({ type: "peer-left", peerId })
+        }
+      },
     })
   }
 
   send(signal: PeerSignal): void {
     if (!this.code) return
     signalingHub.relay(this.code, this.peerId, signal)
+  }
+
+  sendGroupSignal(targetPeerId: string, signal: PeerSignal): void {
+    if (!this.code) return
+    signalingHub.relay(this.code, this.peerId, signal, targetPeerId)
   }
 
   private inLobby = false

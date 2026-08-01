@@ -200,7 +200,9 @@ export function NearbyDevices() {
                       <PeerCard
                         device={d}
                         connecting={connecting === d.peerId}
-                        disabled={connecting !== null && connecting !== d.peerId}
+                        disabled={
+                          connecting !== null && connecting !== d.peerId
+                        }
                         onConnect={() => void connectTo(d)}
                       />
                     </li>

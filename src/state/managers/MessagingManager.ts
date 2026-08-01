@@ -1,5 +1,8 @@
 import { MessageEngine } from "../../lib/messaging/MessageEngine"
-import type { ChatMessage, MessageEngineEvent } from "../../lib/messaging/MessageEngine"
+import type {
+  ChatMessage,
+  MessageEngineEvent,
+} from "../../lib/messaging/MessageEngine"
 import { randomId } from "../../lib/utils"
 
 export interface MessagingState {
@@ -81,7 +84,9 @@ export class MessagingManager {
         }
 
         case "MessageReceived": {
-          const msgs = [...this.state.messages, event.message].slice(-MAX_HISTORY)
+          const msgs = [...this.state.messages, event.message].slice(
+            -MAX_HISTORY,
+          )
           const unread = this.panelVisible ? 0 : this.state.unreadCount + 1
           this.set({ messages: msgs, unreadCount: unread })
           break
@@ -99,12 +104,12 @@ export class MessagingManager {
           this.clearRemoteTypingTimer()
           this.set({ isRemoteTyping: false })
           break
-          
+
         case "PeerNameReceived":
           this.set({ peerName: event.name })
           break
-          
-        // Connection events (ChannelOpen, ChannelClose, PeerOnline, PeerOffline) 
+
+        // Connection events (ChannelOpen, ChannelClose, PeerOnline, PeerOffline)
         // are ignored by MessagingState because ConnectionStateManager owns that truth now.
       }
     })

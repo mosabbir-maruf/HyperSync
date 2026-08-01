@@ -3,15 +3,7 @@
 // Completely separate from the file-transfer protocol in ../transfer/protocol.ts
 // ─────────────────────────────────────────────────────────────────────────────
 
-export type MsgType =
-  | "MESSAGE"
-  | "MESSAGE_ACK"
-  | "TYPING_START"
-  | "TYPING_STOP"
-  | "REACTION"
-  | "STATUS"
-  | "PING"
-  | "PONG"
+export type MsgType = "MESSAGE" | "MESSAGE_ACK" | "TYPING_START" | "TYPING_STOP" | "REACTION" | "STATUS" | "PING" | "PONG"
 
 /** Wire-format frame sent over the message DataChannel. */
 export interface MsgFrame {
@@ -45,18 +37,17 @@ export interface ChatMessage {
 }
 
 /** Events emitted by MessageEngine. */
-export type MessageEngineEvent =
-  | { type: "MessageReceived"; message: ChatMessage }
-  | { type: "MessageSent"; id: string }
-  | { type: "MessageDelivered"; id: string }
-  | { type: "MessageFailed"; id: string }
-  | { type: "TypingStarted" }
-  | { type: "TypingStopped" }
-  | { type: "PeerNameReceived"; name: string }
-  | { type: "PeerOnline" }
-  | { type: "PeerOffline" }
-  | { type: "ChannelOpen" }
-  | { type: "ChannelClose" }
+export type MessageEngineEvent = {
+  type: "MessageReceived"
+  message: ChatMessage
+} | { type: "MessageSent" id: string } | {
+  type: "MessageDelivered"
+  id: string
+} | { type: "MessageFailed" id: string } | { type: "TypingStarted" } | {
+  type: "TypingStopped"
+} | { type: "PeerNameReceived" name: string } | { type: "PeerOnline" } | {
+  type: "PeerOffline"
+} | { type: "ChannelOpen" } | { type: "ChannelClose" }
 
 export type MessageEngineEventHandler = (event: MessageEngineEvent) => void
 

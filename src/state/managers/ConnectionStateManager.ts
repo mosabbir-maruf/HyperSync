@@ -10,16 +10,14 @@ export enum ConnectionState {
   FAILED = "FAILED",
 }
 
-export type ConnectionStateEvent =
-  | { type: "ConnectionChanged"; state: ConnectionState }
-  | { type: "PeerConnected" }
-  | { type: "PeerDisconnected" }
-  | { type: "Reconnecting" }
-  | { type: "Connected" }
-  | { type: "Disconnected" }
-  | { type: "Degraded" }
-  | { type: "HeartbeatLost" }
-  | { type: "HeartbeatRecovered" }
+export type ConnectionStateEvent = {
+  type: "ConnectionChanged"
+  state: ConnectionState
+} | { type: "PeerConnected" } | { type: "PeerDisconnected" } | {
+  type: "Reconnecting"
+} | { type: "Connected" } | { type: "Disconnected" } | { type: "Degraded" } | {
+  type: "HeartbeatLost"
+} | { type: "HeartbeatRecovered" }
 
 type PeerState = "new" | "negotiating" | "connected" | "disconnected" | "failed" | "closed"
 type ChannelState = "connecting" | "open" | "closing" | "closed"
@@ -92,21 +90,30 @@ export class ConnectionStateManager {
 
   private recalculate(): void {
     const nextState = this.computeState()
-    
+
     if (nextState !== this.currentState) {
       const prev = this.currentState
       this.currentState = nextState
-      
+
       this.emit({ type: "ConnectionChanged", state: nextState })
 
       // Emit semantic events
-      if (nextState === ConnectionState.CONNECTED && prev !== ConnectionState.CONNECTED) {
+      if (
+        nextState === ConnectionState.CONNECTED &&
+        prev !== ConnectionState.CONNECTED
+      ) {
         this.emit({ type: "Connected" })
         this.emit({ type: "PeerConnected" })
-      } else if (nextState === ConnectionState.DISCONNECTED && prev === ConnectionState.CONNECTED) {
+      } else if (
+        nextState === ConnectionState.DISCONNECTED &&
+        prev === ConnectionState.CONNECTED
+      ) {
         this.emit({ type: "Disconnected" })
         this.emit({ type: "PeerDisconnected" })
-      } else if (nextState === ConnectionState.DEGRADED && prev === ConnectionState.CONNECTED) {
+      } else if (
+        nextState === ConnectionState.DEGRADED &&
+        prev === ConnectionState.CONNECTED
+      ) {
         this.emit({ type: "Degraded" })
       }
     }
@@ -122,8 +129,8 @@ export class ConnectionStateManager {
       this.signalingPhase === "disconnected"
     ) {
       if (this.isAutoReconnecting) return ConnectionState.RECONNECTING
-      return this.peerState === "failed" || this.signalingPhase === "error" 
-        ? ConnectionState.FAILED 
+      return this.peerState === "failed" || this.signalingPhase === "error"
+        ? ConnectionState.FAILED
         : ConnectionState.DISCONNECTED
     }
 
@@ -134,23 +141,30 @@ export class ConnectionStateManager {
 
     // 3. WebRTC connected state evaluation
     if (this.peerState === "connected") {
-      const bothChannelsOpen = this.transferState === "open" && this.messagingState === "open"
-      
+      const bothChannelsOpen =
+        this.transferState === "open" && this.messagingState === "open"
+
       if (bothChannelsOpen && this.heartbeatHealthy) {
         return ConnectionState.CONNECTED
       }
 
       // Give channels a chance to open before marking as degraded
-      if (this.transferState === "connecting" || this.messagingState === "connecting") {
+      if (
+        this.transferState === "connecting" ||
+        this.messagingState === "connecting"
+      ) {
         return ConnectionState.CONNECTING
       }
-      
+
       // If WebRTC says connected, but channels aren't ready (or failed) or heartbeat is dead, it's degraded.
       return ConnectionState.DEGRADED
     }
 
     // 4. In-progress states
-    if (this.peerState === "negotiating" || this.signalingPhase === "connecting") {
+    if (
+      this.peerState === "negotiating" ||
+      this.signalingPhase === "connecting"
+    ) {
       return ConnectionState.NEGOTIATING
     }
 

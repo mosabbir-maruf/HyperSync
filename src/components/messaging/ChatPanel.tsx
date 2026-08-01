@@ -38,7 +38,13 @@ interface ChatPanelProps {
  * - Forwarding send / typing events to controller
  * - Emoji recent-use tracking
  */
-export function ChatPanel({ controller, sessionController, visible, onFiles, onLeave }: ChatPanelProps) {
+export function ChatPanel({
+  controller,
+  sessionController,
+  visible,
+  onFiles,
+  onLeave,
+}: ChatPanelProps) {
   const [dragging, setDragging] = useState(false)
 
   // Subscribe to messaging state
@@ -92,8 +98,18 @@ export function ChatPanel({ controller, sessionController, visible, onFiles, onL
 
   // Construct unified timeline
   const timeline: TimelineItem[] = [
-    ...state.messages.map((m) => ({ type: "message" as const, id: m.id, data: m, timestamp: m.timestamp })),
-    ...sessionState.items.map((t) => ({ type: "transfer" as const, id: t.id, data: t, timestamp: t.startedAt })),
+    ...state.messages.map((m) => ({
+      type: "message" as const,
+      id: m.id,
+      data: m,
+      timestamp: m.timestamp,
+    })),
+    ...sessionState.items.map((t) => ({
+      type: "transfer" as const,
+      id: t.id,
+      data: t,
+      timestamp: t.startedAt,
+    })),
   ]
 
   // Sort chronologically (oldest to newest)
@@ -150,7 +166,9 @@ export function ChatPanel({ controller, sessionController, visible, onFiles, onL
         <div className="absolute inset-0 z-50 flex items-center justify-center bg-card/90 backdrop-blur-sm">
           <div className="flex flex-col items-center gap-3 rounded-2xl border-2 border-dashed border-primary bg-accent/50 px-10 py-8 text-primary shadow-lg pointer-events-none">
             <SendIcon width={32} height={32} />
-            <p className="font-bold tracking-tight text-foreground">Drop files to send</p>
+            <p className="font-bold tracking-tight text-foreground">
+              Drop files to send
+            </p>
           </div>
         </div>
       )}
@@ -160,7 +178,10 @@ export function ChatPanel({ controller, sessionController, visible, onFiles, onL
         <div className="flex items-center gap-3 min-w-0">
           <div className="relative">
             <Avatar name={state.peerName || "Guest"} size="sm" />
-            <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-card bg-success" title="Online"></span>
+            <span
+              className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-card bg-success"
+              title="Online"
+            ></span>
           </div>
           <div className="flex flex-col">
             <span
@@ -170,10 +191,13 @@ export function ChatPanel({ controller, sessionController, visible, onFiles, onL
               {state.peerName || "Conversation"}
             </span>
             <span className="text-[11px] font-medium text-muted-foreground leading-none mt-1">
-              {state.isRemoteTyping && sessionState.connectionState === ConnectionState.CONNECTED ? (
+              {state.isRemoteTyping &&
+              sessionState.connectionState === ConnectionState.CONNECTED ? (
                 <span className="text-primary animate-pulse">Typing...</span>
               ) : sessionState.connectionState === ConnectionState.DEGRADED ? (
-                <span className="text-warning animate-pulse">Reconnecting...</span>
+                <span className="text-warning animate-pulse">
+                  Reconnecting...
+                </span>
               ) : (
                 "Connected"
               )}
@@ -181,12 +205,33 @@ export function ChatPanel({ controller, sessionController, visible, onFiles, onL
           </div>
         </div>
         <div className="flex items-center gap-4">
-          <Button variant="secondary" size="sm" onClick={onLeave} className="h-7 text-xs px-2.5 hidden sm:inline-flex">
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={onLeave}
+            className="h-7 text-xs px-2.5 hidden sm:inline-flex"
+          >
             End session
           </Button>
-          <Button variant="secondary" size="sm" onClick={onLeave} className="h-7 w-7 p-0 sm:hidden" aria-label="End session">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={onLeave}
+            className="h-7 w-7 p-0 sm:hidden"
+            aria-label="End session"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              className="w-4 h-4"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M6 18L18 6M6 6l12 12"
+              />
             </svg>
           </Button>
         </div>

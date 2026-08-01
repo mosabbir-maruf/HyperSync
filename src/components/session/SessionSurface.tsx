@@ -18,7 +18,9 @@ export function SessionSurface() {
   const confirm = useConfirm()
 
   // Allow both CONNECTED and DEGRADED states to keep the session room mounted
-  const connected = state.connectionState === ConnectionState.CONNECTED || state.connectionState === ConnectionState.DEGRADED
+  const connected =
+    state.connectionState === ConnectionState.CONNECTED ||
+    state.connectionState === ConnectionState.DEGRADED
   const hasActiveTransfer = state.items.some(
     (i) => i.status === "progress" || i.status === "paused",
   )
@@ -44,9 +46,7 @@ export function SessionSurface() {
         <div className="flex items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl font-extrabold tracking-tight">
-              {state.role === "guest"
-                ? "Joining…"
-                : "Waiting for device"}
+              {state.role === "guest" ? "Joining…" : "Waiting for device"}
             </h1>
             <div className="mt-2">
               <ConnectionStatus phase={state.connectionState} />

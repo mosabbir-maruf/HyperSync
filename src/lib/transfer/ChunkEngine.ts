@@ -24,12 +24,12 @@ export class ChunkEngine {
 
   /**
    * Run the producer loop.
-   * Reads from disk (with LOOKAHEAD concurrency) and pushes to SendPipeline.
+   * Reads from disk (with LOOKAHEAD concurrency) and pushes to SendPipelines.
    */
-  async pump(pipeline: SendPipeline, signal: AbortSignal): Promise<void> {
+  async pump(pipelines: SendPipeline[], signal: AbortSignal): Promise<void> {
     const totalChunks = this.chunkCount
     if (totalChunks === 0) {
-      pipeline.markEof()
+      for (const p of pipelines) p.markEof()
       return
     }
 
@@ -76,34 +76,43 @@ export class ChunkEngine {
       PipelineProfiler.get().record("read", t1 - t0, slot.length)
       if (signal.aborted) throw new Error("Transfer aborted")
 
-      // 2. Wait for a free buffer from the network pipeline
-      // (This applies natural backpressure if disk is faster than network)
-      const pb = await pipeline.acquireBuffer()
-      if (signal.aborted) throw new Error("Transfer aborted")
-
       const isLast = slot.index === totalChunks - 1
 
-      // 3. Encode zero-copy into the acquired buffer
-      const t2 = performance.now()
-      const wire = encodeChunkInto(
-        pb.view,
-        new DataView(pb.view.buffer, pb.view.byteOffset, pb.view.byteLength),
-        {
-          transferId: this.transferId,
-          chunkIndex: slot.index,
-          offset: slot.offset,
-          length: slot.length,
-          isLastChunk: isLast,
-        },
-        data,
-      )
-      const t3 = performance.now()
-      PipelineProfiler.get().record("encode", t3 - t2, slot.length)
+      // 2 & 3. For each pipeline, wait for a free buffer, then encode and push
+      // We do this in parallel across pipelines to minimize latency, but backpressure
+      // will naturally slow us down to the slowest pipeline.
+      await Promise.all(
+        pipelines.map(async (pipeline) => {
+          if (signal.aborted) return
 
-      // 4. Push to consumer (which will immediately flush if channel has space)
-      pipeline.push(pb, wire.length, slot.length, isLast)
+          const pb = await pipeline.acquireBuffer()
+          if (signal.aborted) return
+
+          const t2 = performance.now()
+          const wire = encodeChunkInto(
+            pb.view,
+            new DataView(
+              pb.view.buffer,
+              pb.view.byteOffset,
+              pb.view.byteLength,
+            ),
+            {
+              transferId: this.transferId,
+              chunkIndex: slot.index,
+              offset: slot.offset,
+              length: slot.length,
+              isLastChunk: isLast,
+            },
+            data,
+          )
+          const t3 = performance.now()
+          PipelineProfiler.get().record("encode", t3 - t2, slot.length)
+
+          pipeline.push(pb, wire.length, slot.length, isLast)
+        }),
+      )
     }
 
-    pipeline.markEof()
+    for (const p of pipelines) p.markEof()
   }
 }

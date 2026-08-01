@@ -187,7 +187,7 @@ export class SendPipeline {
    * Never blocks. Never awaits. Never calls setTimeout.
    */
   private _flush = (): void => {
-    if (this.paused) return;
+    if (this.paused) return
 
     // Sample fill level for metrics (cheap: just a number read)
     this.fillSamples.push(this.channel.bufferedAmount)

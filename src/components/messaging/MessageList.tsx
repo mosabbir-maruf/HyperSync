@@ -6,10 +6,17 @@ import { TypingIndicator } from "./TypingIndicator"
 import type { ChatMessage } from "../../lib/messaging/MessageEngine"
 import type { TransferItem, FileMetadata } from "../../lib/transfer/types"
 
-export type TimelineItem =
-  | { type: "message"; id: string; data: ChatMessage; timestamp: number }
-  | { type: "transfer"; id: string; data: TransferItem; timestamp: number }
-  | { type: "incoming"; id: string; data: FileMetadata[]; timestamp: number }
+export type TimelineItem = {
+  type: "message"
+  id: string
+  data: ChatMessage
+  timestamp: number
+} | { type: "transfer" id: string data: TransferItem timestamp: number } | {
+  type: "incoming"
+  id: string
+  data: FileMetadata[]
+  timestamp: number
+}
 
 import { Avatar } from "../ui/Avatar"
 
@@ -90,7 +97,13 @@ export const MessageList = memo(function MessageList({
     >
       {items.map((item) => {
         if (item.type === "message") {
-          return <MessageBubble key={item.id} message={item.data} peerName={peerName} />
+          return (
+            <MessageBubble
+              key={item.id}
+              message={item.data}
+              peerName={peerName}
+            />
+          )
         }
         if (item.type === "transfer") {
           return (
@@ -119,7 +132,11 @@ export const MessageList = memo(function MessageList({
         return null
       })}
       {isRemoteTyping && (
-        <div className="flex w-full justify-start" role="status" aria-label={`${peerName || "Peer"} is typing`}>
+        <div
+          className="flex w-full justify-start"
+          role="status"
+          aria-label={`${peerName || "Peer"} is typing`}
+        >
           <div className="flex gap-2 w-full sm:max-w-[82%] flex-row items-end">
             <div className="flex flex-col justify-end shrink-0">
               <Avatar name={peerName || "Guest"} size="sm" />

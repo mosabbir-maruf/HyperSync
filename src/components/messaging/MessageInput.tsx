@@ -255,7 +255,7 @@ export function MessageInput({
               "flex-shrink-0 p-0.5 rounded-lg text-muted-foreground",
               "transition-colors hover:text-foreground hover:bg-secondary",
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-              "disabled:opacity-40 disabled:pointer-events-none"
+              "disabled:opacity-40 disabled:pointer-events-none",
             )}
           >
             <PaperclipIcon />
@@ -275,7 +275,11 @@ export function MessageInput({
           onKeyDown={handleKeyDown}
           disabled={disabled}
           rows={1}
-          placeholder={disabled ? "Connecting…" : "Message or drag & drop files  ·  Enter to send"}
+          placeholder={
+            disabled
+              ? "Connecting…"
+              : "Message or drag & drop files  ·  Enter to send"
+          }
           className={cn(
             "flex-1 resize-none bg-transparent text-sm text-foreground",
             "placeholder:text-muted-foreground/60",
@@ -320,7 +324,19 @@ export function MessageInput({
       {/* Footer hint & Security */}
       <div className="mt-2 flex items-center justify-between px-1">
         <div className="flex items-center gap-1.5 text-success">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <svg
+            width="12"
+            height="12"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden
+          >
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+          </svg>
           <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest">
             E2E Encrypted
           </span>

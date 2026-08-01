@@ -7,7 +7,7 @@
  * (in-memory dev today; Cloudflare Worker + Durable Objects later).
  */
 
-export type Role = "host" | "guest"
+export type Role = "host" | "guest" | "member"
 
 export interface SessionInfo {
   sessionId: string
@@ -48,6 +48,17 @@ export type SignalingEvent = {
   type: "peer-left"
   peerId: string
 } | { type: "signal" from: string signal: PeerSignal } | {
+  type: "group-peer-joined"
+  peerId: string
+  role: Role
+} | {
+  type: "group-peer-left"
+  peerId: string
+} | {
+  type: "group-signal"
+  from: string
+  signal: PeerSignal
+} | {
   type: "roster"
   devices: DevicePresence[]
 } | { type: "invite" from: string fromName: string code: string } | {

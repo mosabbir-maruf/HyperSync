@@ -6,22 +6,25 @@ import {
   useSyncExternalStore,
   type ReactNode,
 } from "react"
-import { SessionManager, type SessionState } from "./managers/SessionManager"
+import {
+  GroupSessionManager,
+  type GroupSessionState,
+} from "./managers/GroupSessionManager"
 import { addHistoryEntry } from "./history"
 import { useSettings } from "./SettingsProvider"
 import { pageLifecycleService } from "../services/PageLifecycleService"
 
-interface SessionContextValue {
-  controller: SessionManager
-  state: SessionState
-  getMessagingController: () => import("./managers/MessagingManager").MessagingManager | null
+interface GroupSessionContextValue {
+  controller: GroupSessionManager
+  state: GroupSessionState
+  getMessagingController: () => import("./managers/GroupMessagingManager").GroupMessagingManager
 }
 
-const SessionContext = createContext<SessionContextValue | null>(null)
+const GroupSessionContext = createContext<GroupSessionContextValue | null>(null)
 
-export function SessionProvider({ children }: { children: ReactNode }) {
-  const controllerRef = useRef<SessionManager | null>(null)
-  if (!controllerRef.current) controllerRef.current = new SessionManager()
+export function GroupSessionProvider({ children }: { children: ReactNode }) {
+  const controllerRef = useRef<GroupSessionManager | null>(null)
+  if (!controllerRef.current) controllerRef.current = new GroupSessionManager()
   const controller = controllerRef.current
   const { settings } = useSettings()
 
@@ -30,7 +33,6 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     () => controller.getState(),
   )
 
-  // Record terminal transfers to local history (metadata only).
   const recorded = useRef<Set<string>>(new Set())
   useEffect(() => {
     if (!settings.keepHistory) return
@@ -46,17 +48,14 @@ export function SessionProvider({ children }: { children: ReactNode }) {
           name: item.name,
           size: item.size,
           direction: item.direction,
-          peerName:
-            state.role === "host" ? "Received device" : "Sending device",
+          peerName: "Group Member",
           status: item.status as "completed" | "failed" | "cancelled",
           timestamp: Date.now(),
         })
       }
     }
-  }, [state.items, state.role, settings.keepHistory])
+  }, [state.items, settings.keepHistory])
 
-  // Keep active transfers visible through mobile suspend/wake and warn before
-  // a browser refresh or tab close can discard an in-memory connection.
   useEffect(() => {
     const hasActiveTransfer = () =>
       controller
@@ -72,7 +71,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   }, [controller])
 
   return (
-    <SessionContext.Provider
+    <GroupSessionContext.Provider
       value={{
         controller,
         state,
@@ -80,12 +79,13 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       }}
     >
       {children}
-    </SessionContext.Provider>
+    </GroupSessionContext.Provider>
   )
 }
 
-export function useSession(): SessionContextValue {
-  const ctx = useContext(SessionContext)
-  if (!ctx) throw new Error("useSession must be used within SessionProvider")
+export function useGroupSession(): GroupSessionContextValue {
+  const ctx = useContext(GroupSessionContext)
+  if (!ctx)
+    throw new Error("useGroupSession must be used within GroupSessionProvider")
   return ctx
 }

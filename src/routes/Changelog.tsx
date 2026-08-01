@@ -4,27 +4,31 @@ import changelogData from "../data/changelog.json"
 
 export function Changelog() {
   // Initialize with the latest two versions expanded
-  const [expandedVersions, setExpandedVersions] = useState<string[]>([
-    changelogData[0]?.version,
-    changelogData[1]?.version
-  ].filter(Boolean) as string[])
+  const [expandedVersions, setExpandedVersions] = useState<string[]>(
+    [changelogData[0]?.version, changelogData[1]?.version].filter(
+      Boolean,
+    ) as string[],
+  )
 
   const toggleVersion = (version: string) => {
-    setExpandedVersions(prev => 
-      prev.includes(version) 
-        ? prev.filter(v => v !== version) 
-        : [...prev, version]
+    setExpandedVersions((prev) =>
+      prev.includes(version)
+        ? prev.filter((v) => v !== version)
+        : [...prev, version],
     )
   }
 
   // Group changes by type
-  const groupByType = (changes: { type: string; description: string }[]) => {
-    return changes.reduce((acc, change) => {
-      const type = change.type.toLowerCase()
-      if (!acc[type]) acc[type] = []
-      acc[type].push(change)
-      return acc
-    }, {} as Record<string, typeof changes>)
+  const groupByType = (changes: { type: string description: string }[]) => {
+    return changes.reduce(
+      (acc, change) => {
+        const type = change.type.toLowerCase()
+        if (!acc[type]) acc[type] = []
+        acc[type].push(change)
+        return acc
+      },
+      {} as Record<string, typeof changes>,
+    )
   }
 
   return (
@@ -44,7 +48,8 @@ export function Changelog() {
             <span className="text-[#cf4322]">Changelog.</span>
           </h1>
           <p className="mx-auto max-w-xl text-lg font-medium leading-relaxed text-muted-foreground sm:text-xl">
-            Stay up to date with the latest features, improvements, and bug fixes in HyperSync.
+            Stay up to date with the latest features, improvements, and bug
+            fixes in HyperSync.
           </p>
         </div>
       </section>
@@ -60,7 +65,7 @@ export function Changelog() {
               {changelogData.map((release, index) => {
                 const groupedChanges = groupByType(release.changes)
                 const isOpen = expandedVersions.includes(release.version)
-                
+
                 return (
                   <div
                     key={release.version}
@@ -73,12 +78,22 @@ export function Changelog() {
                       {index === 0 ? (
                         <div className="absolute -left-[37px] top-[23px] md:left-auto md:-right-[6px] md:top-[27px] h-3 w-3 rounded-full bg-primary ring-4 ring-background shadow-[0_0_10px_rgba(207,67,34,0.5)]" />
                       ) : (
-                        <div className={`absolute -left-[35px] top-[25px] md:left-auto md:-right-[4px] md:top-[29px] h-2 w-2 rounded-full border-2 bg-background ring-4 ring-background transition-colors duration-300 ${isOpen ? 'border-primary' : 'border-border-strong'}`} />
+                        <div
+                          className={`absolute -left-[35px] top-[25px] md:left-auto md:-right-[4px] md:top-[29px] h-2 w-2 rounded-full border-2 bg-background ring-4 ring-background transition-colors duration-300 ${
+                            isOpen ? "border-primary" : "border-border-strong"
+                          }`}
+                        />
                       )}
-                      
+
                       <div className="flex w-full flex-row md:flex-col items-center md:items-end justify-between md:justify-start gap-3 md:gap-1">
                         <div className="flex items-center md:items-end gap-3 md:gap-1 flex-row md:flex-col">
-                          <h2 className={`text-2xl font-black tracking-tight transition-colors duration-300 ${isOpen || index === 0 ? 'text-foreground' : 'text-muted-foreground group-hover:text-foreground'}`}>
+                          <h2
+                            className={`text-2xl font-black tracking-tight transition-colors duration-300 ${
+                              isOpen || index === 0
+                                ? "text-foreground"
+                                : "text-muted-foreground group-hover:text-foreground"
+                            }`}
+                          >
                             v{release.version}
                           </h2>
                           {index === 0 && (
@@ -88,9 +103,25 @@ export function Changelog() {
                           )}
                         </div>
                         {/* Mobile Arrow */}
-                        <div className={`md:hidden flex h-8 w-8 shrink-0 items-center justify-center rounded-full border transition-all duration-300 ${isOpen ? 'rotate-180 border-primary bg-primary text-primary-foreground' : 'border-transparent text-muted-foreground group-hover:border-primary/30 group-hover:text-primary'}`}>
-                          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                        <div
+                          className={`md:hidden flex h-8 w-8 shrink-0 items-center justify-center rounded-full border transition-all duration-300 ${
+                            isOpen
+                              ? "rotate-180 border-primary bg-primary text-primary-foreground"
+                              : "border-transparent text-muted-foreground group-hover:border-primary/30 group-hover:text-primary"
+                          }`}
+                        >
+                          <svg
+                            className="h-4 w-4"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            strokeWidth={2.5}
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M19 9l-7 7-7-7"
+                            />
                           </svg>
                         </div>
                       </div>
@@ -103,49 +134,90 @@ export function Changelog() {
                     <div className="relative flex-1 md:py-4 md:pl-4 pb-8 md:pb-12">
                       <div className="flex w-full items-center justify-between text-left transition-colors">
                         {release.title ? (
-                          <h3 className={`text-xl font-bold tracking-tight transition-colors duration-300 ${isOpen || index === 0 ? 'text-foreground/90' : 'text-foreground/50 group-hover:text-foreground/90'}`}>
+                          <h3
+                            className={`text-xl font-bold tracking-tight transition-colors duration-300 ${
+                              isOpen || index === 0
+                                ? "text-foreground/90"
+                                : "text-foreground/50 group-hover:text-foreground/90"
+                            }`}
+                          >
                             {release.title}
                           </h3>
                         ) : (
-                          <span className="text-xl font-bold tracking-tight text-transparent">No title</span>
+                          <span className="text-xl font-bold tracking-tight text-transparent">
+                            No title
+                          </span>
                         )}
                         {/* Desktop Arrow */}
-                        <div className={`hidden md:flex h-8 w-8 shrink-0 items-center justify-center rounded-full border transition-all duration-300 ${isOpen ? 'rotate-180 border-primary bg-primary text-primary-foreground' : 'border-transparent text-muted-foreground group-hover:border-primary/30 group-hover:text-primary'}`}>
-                          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                        <div
+                          className={`hidden md:flex h-8 w-8 shrink-0 items-center justify-center rounded-full border transition-all duration-300 ${
+                            isOpen
+                              ? "rotate-180 border-primary bg-primary text-primary-foreground"
+                              : "border-transparent text-muted-foreground group-hover:border-primary/30 group-hover:text-primary"
+                          }`}
+                        >
+                          <svg
+                            className="h-4 w-4"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            strokeWidth={2.5}
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M19 9l-7 7-7-7"
+                            />
                           </svg>
                         </div>
                       </div>
 
-                      <div className={`grid transition-[grid-template-rows,opacity] duration-300 ease-out ${isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}>
+                      <div
+                        className={`grid transition-[grid-template-rows,opacity] duration-300 ease-out ${
+                          isOpen
+                            ? "grid-rows-[1fr] opacity-100"
+                            : "grid-rows-[0fr] opacity-0"
+                        }`}
+                      >
                         <div className="overflow-hidden">
                           <div className="flex flex-col gap-8 pt-6 pb-4">
-                            {Object.entries(groupedChanges).map(([type, changes]) => {
-                              // Define colors based on change type
-                              const typeColors: Record<string, string> = {
-                                added: 'text-success',
-                                fixed: 'text-primary',
-                                changed: 'text-warning',
-                                security: 'text-[#cf4322]',
-                              }
-                              const colorClass = typeColors[type] || 'text-muted-foreground'
+                            {Object.entries(groupedChanges).map(
+                              ([type, changes]) => {
+                                // Define colors based on change type
+                                const typeColors: Record<string, string> = {
+                                  added: "text-success",
+                                  fixed: "text-primary",
+                                  changed: "text-warning",
+                                  security: "text-[#cf4322]",
+                                }
+                                const colorClass =
+                                  typeColors[type] || "text-muted-foreground"
 
-                              return (
-                                <div key={type} className="flex flex-col gap-3">
-                                  <h4 className={`font-mono text-[10px] font-bold uppercase tracking-widest ${colorClass}`}>
-                                    {type}
-                                  </h4>
-                                  <ul className="flex flex-col gap-3">
-                                    {changes.map((change, i) => (
-                                      <li key={i} className="text-sm leading-relaxed text-muted-foreground flex items-start gap-3">
-                                        <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-border-strong" />
-                                        <span>{change.description}</span>
-                                      </li>
-                                    ))}
-                                  </ul>
-                                </div>
-                              )
-                            })}
+                                return (
+                                  <div
+                                    key={type}
+                                    className="flex flex-col gap-3"
+                                  >
+                                    <h4
+                                      className={`font-mono text-[10px] font-bold uppercase tracking-widest ${colorClass}`}
+                                    >
+                                      {type}
+                                    </h4>
+                                    <ul className="flex flex-col gap-3">
+                                      {changes.map((change, i) => (
+                                        <li
+                                          key={i}
+                                          className="text-sm leading-relaxed text-muted-foreground flex items-start gap-3"
+                                        >
+                                          <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-border-strong" />
+                                          <span>{change.description}</span>
+                                        </li>
+                                      ))}
+                                    </ul>
+                                  </div>
+                                )
+                              },
+                            )}
                           </div>
                         </div>
                       </div>

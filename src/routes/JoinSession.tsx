@@ -21,7 +21,11 @@ export function JoinSession() {
   // Auto-join when arriving via a QR link (?code=...).
   useEffect(() => {
     const code = params.get("code")
-    if (code && !autoTried.current && state.connectionState === ConnectionState.DISCONNECTED) {
+    if (
+      code &&
+      !autoTried.current &&
+      state.connectionState === ConnectionState.DISCONNECTED
+    ) {
       autoTried.current = true
       setAttempted(true)
       void controller.join(code)
@@ -39,8 +43,13 @@ export function JoinSession() {
     navigate("/join", { replace: true })
   }
 
-  const connected = state.connectionState === ConnectionState.CONNECTED || state.connectionState === ConnectionState.DEGRADED
-  const busy = state.connectionState === ConnectionState.SIGNALING || state.connectionState === ConnectionState.NEGOTIATING || state.connectionState === ConnectionState.CONNECTING
+  const connected =
+    state.connectionState === ConnectionState.CONNECTED ||
+    state.connectionState === ConnectionState.DEGRADED
+  const busy =
+    state.connectionState === ConnectionState.SIGNALING ||
+    state.connectionState === ConnectionState.NEGOTIATING ||
+    state.connectionState === ConnectionState.CONNECTING
 
   if (connected) {
     return (
@@ -103,7 +112,8 @@ export function JoinSession() {
         )}
         {attempted && state.connectionState === ConnectionState.FAILED && (
           <div className="text-center text-sm text-destructive">
-            {state.error || "Connection failed. The code may be invalid or the host left."}
+            {state.error ||
+              "Connection failed. The code may be invalid or the host left."}
           </div>
         )}
       </Card>

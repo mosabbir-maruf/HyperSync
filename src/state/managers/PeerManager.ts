@@ -1,16 +1,19 @@
 import { createSignalingClient } from "../../lib/signaling"
 import type { SessionInfo } from "../../lib/signaling"
-import { PeerConnection, type PeerConnectionState } from "../../lib/webrtc/PeerConnection"
+import {
+  PeerConnection,
+  type PeerConnectionState,
+} from "../../lib/webrtc/PeerConnection"
 import { toast } from "../../lib/notify/toast"
 import { appError, toAppError } from "../../lib/errors"
 
 export class PeerManager {
   private signaling = createSignalingClient()
   private peer: PeerConnection | null = null
-  
+
   private _hostingInProgress = false
   private _joiningInProgress = false
-  
+
   private onPhaseChange: (phase: any) => void = () => {}
   private onPeerStateChange: (state: PeerConnectionState) => void = () => {}
   private onDataChannel: (channel: RTCDataChannel) => void = () => {}
@@ -39,7 +42,7 @@ export class PeerManager {
     if (this._hostingInProgress) return null
     this._hostingInProgress = true
     this.onPhaseChange("starting")
-    
+
     try {
       const info = await this.signaling.createSession()
       this.attachPeer("host")
@@ -57,7 +60,7 @@ export class PeerManager {
     if (this._joiningInProgress) return null
     this._joiningInProgress = true
     this.onPhaseChange("starting")
-    
+
     try {
       const info = await this.signaling.joinSession(code)
       this.attachPeer("guest")
@@ -75,12 +78,12 @@ export class PeerManager {
     this.signaling.on("peer-joined", () => {
       this.onPhaseChange("connecting")
     })
-    
+
     this.signaling.on("peer-left", () => {
       this.onPhaseChange("disconnected")
       toast.warning("The other device left.")
     })
-    
+
     this.signaling.on("error", (e) => {
       this.fail(appError("network", e.message))
     })
@@ -88,7 +91,7 @@ export class PeerManager {
     this.peer = new PeerConnection(this.signaling, role, {
       onState: (peerState) => {
         this.onPeerStateChange(peerState)
-        
+
         if (peerState === "connected") {
           toast.success("Connected", "Devices are now linked directly.")
         } else if (peerState === "failed") {

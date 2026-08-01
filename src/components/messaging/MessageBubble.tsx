@@ -10,16 +10,36 @@ import { Avatar } from "../ui/Avatar"
 function SendingDots() {
   return (
     <span className="flex items-center gap-[2px]" aria-label="Sending">
-      <span className="h-0.5 w-0.5 rounded-full bg-muted-foreground animate-typing-dot" style={{ animationDelay: "0ms" }} />
-      <span className="h-0.5 w-0.5 rounded-full bg-muted-foreground animate-typing-dot" style={{ animationDelay: "120ms" }} />
-      <span className="h-0.5 w-0.5 rounded-full bg-muted-foreground animate-typing-dot" style={{ animationDelay: "240ms" }} />
+      <span
+        className="h-0.5 w-0.5 rounded-full bg-muted-foreground animate-typing-dot"
+        style={{ animationDelay: "0ms" }}
+      />
+      <span
+        className="h-0.5 w-0.5 rounded-full bg-muted-foreground animate-typing-dot"
+        style={{ animationDelay: "120ms" }}
+      />
+      <span
+        className="h-0.5 w-0.5 rounded-full bg-muted-foreground animate-typing-dot"
+        style={{ animationDelay: "240ms" }}
+      />
     </span>
   )
 }
 
 function SentCheck() {
   return (
-    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-label="Sent" className="text-muted-foreground">
+    <svg
+      width="12"
+      height="12"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-label="Sent"
+      className="text-muted-foreground"
+    >
       <path d="M20 6L9 17l-5-5" />
     </svg>
   )
@@ -27,7 +47,18 @@ function SentCheck() {
 
 function DeliveredCheck() {
   return (
-    <svg width="14" height="12" viewBox="0 0 28 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-label="Delivered" className="text-success">
+    <svg
+      width="14"
+      height="12"
+      viewBox="0 0 28 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-label="Delivered"
+      className="text-success"
+    >
       <path d="M27 6L12 21l-5-5" />
       <path d="M20 6L9 17" />
     </svg>
@@ -36,7 +67,18 @@ function DeliveredCheck() {
 
 function FailedX() {
   return (
-    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-label="Failed" className="text-destructive">
+    <svg
+      width="12"
+      height="12"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-label="Failed"
+      className="text-destructive"
+    >
       <path d="M6 6l12 12M18 6L6 18" />
     </svg>
   )
@@ -64,16 +106,13 @@ interface MessageBubbleProps {
 
 export const MessageBubble = memo(function MessageBubble({
   message,
-  peerName
+  peerName,
 }: MessageBubbleProps) {
   const isLocal = message.senderId === "local"
 
   return (
     <div
-      className={cn(
-        "flex w-full",
-        isLocal ? "justify-end" : "justify-start"
-      )}
+      className={cn("flex w-full", isLocal ? "justify-end" : "justify-start")}
       role="article"
       aria-label={`${isLocal ? "You" : "Peer"}: ${message.text}`}
     >
@@ -91,7 +130,12 @@ export const MessageBubble = memo(function MessageBubble({
         )}
 
         {/* Message body + timestamp column */}
-        <div className={cn("flex flex-col gap-1 min-w-0", isLocal ? "items-end" : "items-start")}>
+        <div
+          className={cn(
+            "flex flex-col gap-1 min-w-0",
+            isLocal ? "items-end" : "items-start",
+          )}
+        >
           {/* Bubble */}
           <div
             className={cn(
@@ -137,4 +181,3 @@ export const MessageBubble = memo(function MessageBubble({
     </div>
   )
 })
-

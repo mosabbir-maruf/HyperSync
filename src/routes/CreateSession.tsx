@@ -14,7 +14,8 @@ export function CreateSession() {
   const navigate = useNavigate()
 
   useEffect(() => {
-    if (state.connectionState === ConnectionState.DISCONNECTED) void controller.host()
+    if (state.connectionState === ConnectionState.DISCONNECTED)
+      void controller.host()
   }, [controller, state.connectionState])
 
   const leave = () => {
@@ -22,7 +23,9 @@ export function CreateSession() {
     navigate("/")
   }
 
-  const connected = state.connectionState === ConnectionState.CONNECTED || state.connectionState === ConnectionState.DEGRADED
+  const connected =
+    state.connectionState === ConnectionState.CONNECTED ||
+    state.connectionState === ConnectionState.DEGRADED
 
   return (
     <div className="space-y-6">

@@ -28,15 +28,13 @@ export const IncomingBubble = memo(function IncomingBubble({
 }: Props) {
   const ids = files.map((f) => f.transferId)
   const total = files.reduce((sum, f) => sum + f.fileSize, 0)
-  
+
   // Incoming prompts are always from the remote peer, so they align left
   const isLocal = false
 
   return (
     <div
-      className={cn(
-        "flex w-full justify-start",
-      )}
+      className={cn("flex w-full justify-start")}
       role="region"
       aria-label="Incoming file request"
     >
@@ -58,14 +56,16 @@ export const IncomingBubble = memo(function IncomingBubble({
                 <DownloadIcon width={18} height={18} />
               </span>
               <div>
-                <p className="text-sm font-bold tracking-tight">Incoming files</p>
+                <p className="text-sm font-bold tracking-tight">
+                  Incoming files
+                </p>
                 <p className="label-mono mt-0.5 opacity-80">
                   {files.length} file{files.length > 1 ? "s" : ""} ·{" "}
                   {formatBytes(total)}
                 </p>
               </div>
             </div>
-            
+
             <ul className="max-h-40 divide-y divide-border/50 overflow-auto px-4">
               {files.map((f) => (
                 <li
@@ -81,7 +81,7 @@ export const IncomingBubble = memo(function IncomingBubble({
                 </li>
               ))}
             </ul>
-            
+
             <div className="flex gap-px border-t border-border bg-border">
               <Button
                 variant="ghost"
@@ -90,8 +90,8 @@ export const IncomingBubble = memo(function IncomingBubble({
               >
                 Decline
               </Button>
-              <Button 
-                className="flex-1 rounded-none h-10" 
+              <Button
+                className="flex-1 rounded-none h-10"
                 onClick={() => onAccept(ids)}
               >
                 Accept & Save
@@ -100,10 +100,7 @@ export const IncomingBubble = memo(function IncomingBubble({
           </div>
 
           <div className="flex items-center gap-1.5 px-1">
-            <time
-              dateTime={new Date().toISOString()}
-              className="label-mono"
-            >
+            <time dateTime={new Date().toISOString()} className="label-mono">
               {formatMsgTime(Date.now())}
             </time>
           </div>
@@ -112,4 +109,3 @@ export const IncomingBubble = memo(function IncomingBubble({
     </div>
   )
 })
-

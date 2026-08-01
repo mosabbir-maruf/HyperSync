@@ -61,10 +61,7 @@ export const TransferBubble = memo(function TransferBubble({
 
   return (
     <div
-      className={cn(
-        "flex w-full",
-        isLocal ? "justify-end" : "justify-start"
-      )}
+      className={cn("flex w-full", isLocal ? "justify-end" : "justify-start")}
       role="article"
     >
       <div
@@ -80,7 +77,12 @@ export const TransferBubble = memo(function TransferBubble({
           </div>
         )}
 
-        <div className={cn("flex flex-col gap-1 min-w-0 w-full", isLocal ? "items-end" : "items-start")}>
+        <div
+          className={cn(
+            "flex flex-col gap-1 min-w-0 w-full",
+            isLocal ? "items-end" : "items-start",
+          )}
+        >
           <div
             className={cn(
               "relative w-full sm:w-[380px] rounded-2xl py-3 pr-4 overflow-hidden shadow-sm",
@@ -100,7 +102,7 @@ export const TransferBubble = memo(function TransferBubble({
                     ? "bg-success text-primary-foreground"
                     : item.status === "failed"
                       ? "bg-destructive text-destructive-foreground"
-                      : isLocal 
+                      : isLocal
                         ? "bg-muted text-muted-foreground"
                         : "bg-card border border-border text-muted-foreground",
                 )}
@@ -130,7 +132,8 @@ export const TransferBubble = memo(function TransferBubble({
                     />
                     <div className="flex items-center justify-between font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
                       <span>
-                        {formatBytes(item.bytesTransferred)} / {formatBytes(item.size)}
+                        {formatBytes(item.bytesTransferred)} /{" "}
+                        {formatBytes(item.size)}
                       </span>
                       <span>
                         {item.status === "paused"
@@ -145,8 +148,10 @@ export const TransferBubble = memo(function TransferBubble({
                     <span aria-hidden>·</span>
                     <span
                       className={cn(
-                        item.status === "failed" && "text-destructive font-semibold",
-                        item.status === "completed" && "text-success font-semibold",
+                        item.status === "failed" &&
+                          "text-destructive font-semibold",
+                        item.status === "completed" &&
+                          "text-success font-semibold",
                       )}
                     >
                       {item.error ?? STATUS_LABEL[item.status]}

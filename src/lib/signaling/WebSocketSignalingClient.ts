@@ -18,7 +18,7 @@ export class WebSocketSignalingClient
   private readonly peerId = randomId()
   private sessionId: string | null = null
   private code: string | null = null
-  private role: "host" | "guest" | null = null
+  private role: "host" | "guest" | "member" | null = null
   private pingInterval: number | null = null
   private hasPeerJoined = false
   private joinedPeerId = "remote"
@@ -64,22 +64,27 @@ export class WebSocketSignalingClient
   private buildInfo(
     sessionId: string,
     code: string,
-    role: "host" | "guest",
+    role: "host" | "guest" | "member",
+    isGroup: boolean = false,
   ): SessionInfo {
     const url = new URL(window.location.href)
     url.hash = ""
+    if (isGroup) {
+      url.pathname = "/group"
+    }
     url.search = `?code=${encodeURIComponent(code)}`
     return { sessionId, code, role, joinUrl: url.toString() }
   }
 
   private async connectWebSocket(
     code: string,
-    role: "host" | "guest",
+    role: "host" | "guest" | "member",
+    roomType: "direct" | "group" = "direct",
   ): Promise<void> {
     return new Promise((resolve, reject) => {
       // Connect to the room by its URL
       const wsUrl = new URL(this.url)
-      wsUrl.pathname = "/ws"
+      wsUrl.pathname = roomType === "group" ? "/group/ws" : "/ws"
       wsUrl.searchParams.set("code", code)
       wsUrl.protocol = wsUrl.protocol === "http:" ? "ws:" : "wss:"
 
@@ -87,9 +92,13 @@ export class WebSocketSignalingClient
       this.ws = ws
 
       ws.onopen = () => {
-        console.log(`[Signaling] WebSocket open, role=${role}, sending JOIN`)
+        console.log(
+          `[Signaling] WebSocket open, role=${role}, sending ${
+            roomType === "group" ? "GROUP_JOIN" : "JOIN"
+          }`,
+        )
         // Send JOIN message
-        this.sendMessage("JOIN", { role })
+        this.sendMessage(roomType === "group" ? "GROUP_JOIN" : "JOIN", { role })
 
         // Start heartbeat
         this.pingInterval = window.setInterval(() => {
@@ -208,6 +217,26 @@ export class WebSocketSignalingClient
           signal: { kind: "ice", candidate: msg.payload.candidate },
         })
         break
+      case "GROUP_MEMBER_JOINED":
+        this.emit({
+          type: "group-peer-joined",
+          peerId: msg.payload.peerId,
+          role: msg.payload.role,
+        })
+        break
+      case "GROUP_MEMBER_LEFT":
+        this.emit({
+          type: "group-peer-left",
+          peerId: msg.payload.peerId,
+        })
+        break
+      case "GROUP_SIGNAL":
+        this.emit({
+          type: "group-signal",
+          from: msg.peerId,
+          signal: msg.payload.signal,
+        })
+        break
       case "ERROR":
       case "SESSION_FULL":
       case "SESSION_EXPIRED":
@@ -300,6 +329,64 @@ export class WebSocketSignalingClient
     }
   }
 
+  async createGroup(maxMembers?: number): Promise<SessionInfo> {
+    this.setState("connecting")
+    try {
+      const res = await fetch(`${this.url}/group/session`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ hostPeerId: this.peerId, maxMembers }),
+      })
+      if (!res.ok) throw new Error("Failed to create group session")
+
+      const data = await res.json()
+      if (!data.success) throw new Error(data.error?.message || "Unknown error")
+
+      const code = data.data.sessionCode
+      const roomId = data.data.sessionId || data.data.id
+
+      this.code = code
+      this.sessionId = roomId
+      this.role = "host"
+
+      await this.connectWebSocket(code, "host", "group")
+
+      return this.buildInfo(roomId, code, "host", true)
+    } catch (err) {
+      this.setState("error")
+      throw err
+    }
+  }
+
+  async joinGroup(code: string): Promise<SessionInfo> {
+    this.setState("connecting")
+    const normalizedCode = normalizeCode(code)
+    try {
+      const res = await fetch(`${this.url}/group/join`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sessionCode: normalizedCode }),
+      })
+      if (!res.ok) throw new Error("Failed to join group session")
+
+      const data = await res.json()
+      if (!data.success) throw new Error(data.error?.message || "Unknown error")
+
+      const roomId = data.data.sessionId || data.data.id
+
+      this.code = normalizedCode
+      this.sessionId = roomId
+      this.role = "member"
+
+      await this.connectWebSocket(normalizedCode, "member", "group")
+
+      return this.buildInfo(roomId, normalizedCode, "member", true)
+    } catch (err) {
+      this.setState("error")
+      throw err
+    }
+  }
+
   send(signal: PeerSignal): void {
     if (signal.kind === "offer") {
       this.sendMessage("OFFER", { offer: signal.sdp })
@@ -308,6 +395,10 @@ export class WebSocketSignalingClient
     } else if (signal.kind === "ice") {
       this.sendMessage("ICE", { candidate: signal.candidate })
     }
+  }
+
+  sendGroupSignal(targetPeerId: string, signal: PeerSignal): void {
+    this.sendMessage("GROUP_SIGNAL", { targetPeerId, signal })
   }
 
   announce(profile: Omit<DevicePresence, "peerId">): void {

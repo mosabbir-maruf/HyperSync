@@ -15,12 +15,9 @@ export function PerformanceOverlay() {
 
   useEffect(() => {
     // Poll profiler averages every 1s
-    const timer = setInterval(
-      () => {
-        setPipelineStats(PipelineProfiler.get().getAveragesAndReset())
-      },
-      1000,
-    )
+    const timer = setInterval(() => {
+      setPipelineStats(PipelineProfiler.get().getAveragesAndReset())
+    }, 1000)
 
     return () => clearInterval(timer)
   }, [])

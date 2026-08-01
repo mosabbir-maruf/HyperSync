@@ -47,7 +47,10 @@ export class MessageEngine {
   private tokens = RATE_LIMIT_PER_SEC
   private tokenRefillTimer: ReturnType<typeof setInterval> | null = null
 
-  constructor(private readonly channel: RTCDataChannel, private readonly localName: string = "") {
+  constructor(
+    private readonly channel: RTCDataChannel,
+    private readonly localName: string = "",
+  ) {
     this.wireChannel()
   }
 
@@ -195,7 +198,6 @@ export class MessageEngine {
   // ── Incoming frame handling ────────────────────────────────────────────────
 
   private handleFrame(frame: MsgFrame): void {
-      
     // Any frame received means the peer is alive
     if (!this.isPeerOnline) {
       this.isPeerOnline = true
@@ -241,7 +243,8 @@ export class MessageEngine {
 
       case "STATUS":
         // STATUS carries the peer's display name on channel-open handshake
-        if (frame.name) this.emit({ type: "PeerNameReceived", name: frame.name })
+        if (frame.name)
+          this.emit({ type: "PeerNameReceived", name: frame.name })
         break
 
       case "REACTION":
@@ -359,4 +362,9 @@ export class MessageEngine {
 // ─────────────────────────────────────────────────────────────────────────────
 // Re-export types for convenience
 // ─────────────────────────────────────────────────────────────────────────────
-export type { ChatMessage, MessageStatus, MessageEngineEvent, MessageEngineEventHandler }
+export type {
+  ChatMessage,
+  MessageStatus,
+  MessageEngineEvent,
+  MessageEngineEventHandler,
+}

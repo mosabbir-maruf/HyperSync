@@ -26,8 +26,17 @@ export interface SignalingClient {
   /** Guest: join an existing session by its short code. */
   joinSession(code: string): Promise<SessionInfo>
 
-  /** Relay a WebRTC negotiation signal to the other peer. */
+  /** Host: create a fresh group session and return its pairing info. */
+  createGroup(maxMembers?: number): Promise<SessionInfo>
+
+  /** Member: join an existing group session by its short code. */
+  joinGroup(code: string): Promise<SessionInfo>
+
+  /** Relay a WebRTC negotiation signal to the other peer (1-to-1). */
   send(signal: PeerSignal): void
+
+  /** Relay a WebRTC negotiation signal to a specific peer in a group. */
+  sendGroupSignal(targetPeerId: string, signal: PeerSignal): void
 
   // ---- discovery / presence (the "nearby devices" lobby) -----------------
 

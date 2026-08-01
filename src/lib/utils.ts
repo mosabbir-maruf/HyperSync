@@ -118,17 +118,42 @@ export function initials(name: string): string {
 }
 
 export const MARVEL_CHARACTERS = [
-  "Iron Man", "Spider-Man", "Thor", "Hulk", "Black Widow",
-  "Captain America", "Doctor Strange", "Black Panther", "Captain Marvel",
-  "Wolverine", "Deadpool", "Ant-Man", "Scarlet Witch", "Vision",
-  "Hawkeye", "Daredevil", "Star-Lord", "Groot", "Rocket Raccoon",
-  "Gamora", "Drax"
+  "Iron Man",
+  "Spider-Man",
+  "Thor",
+  "Hulk",
+  "Black Widow",
+  "Captain America",
+  "Doctor Strange",
+  "Black Panther",
+  "Captain Marvel",
+  "Wolverine",
+  "Deadpool",
+  "Ant-Man",
+  "Scarlet Witch",
+  "Vision",
+  "Hawkeye",
+  "Daredevil",
+  "Star-Lord",
+  "Groot",
+  "Rocket Raccoon",
+  "Gamora",
+  "Drax",
 ]
 
 const HAS_AVATAR_IMAGE = new Set([
-  "Iron Man", "Spider-Man", "Thor", "Hulk", "Black Widow",
-  "Captain America", "Doctor Strange", "Black Panther", "Captain Marvel",
-  "Wolverine", "Vision", "Drax"
+  "Iron Man",
+  "Spider-Man",
+  "Thor",
+  "Hulk",
+  "Black Widow",
+  "Captain America",
+  "Doctor Strange",
+  "Black Panther",
+  "Captain Marvel",
+  "Wolverine",
+  "Vision",
+  "Drax",
 ])
 
 /** Returns the local URL for a Marvel avatar if the name matches and we generated one, otherwise null. */

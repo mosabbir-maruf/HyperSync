@@ -8,15 +8,33 @@ interface ChatStatusBarProps {
   className?: string
 }
 
-const STATUS_CONFIG: Record<ConnectionState, { dot: string; label: string }> = {
-  [ConnectionState.DISCONNECTED]: { dot: "bg-destructive", label: "Disconnected" },
-  [ConnectionState.SIGNALING]: { dot: "bg-warning animate-pulse", label: "Connecting" },
-  [ConnectionState.PAIRING]: { dot: "bg-warning animate-pulse", label: "Connecting" },
-  [ConnectionState.CONNECTING]: { dot: "bg-warning animate-pulse", label: "Connecting" },
-  [ConnectionState.NEGOTIATING]: { dot: "bg-warning animate-pulse", label: "Negotiating" },
+const STATUS_CONFIG: Record<ConnectionState, { dot: string label: string }> = {
+  [ConnectionState.DISCONNECTED]: {
+    dot: "bg-destructive",
+    label: "Disconnected",
+  },
+  [ConnectionState.SIGNALING]: {
+    dot: "bg-warning animate-pulse",
+    label: "Connecting",
+  },
+  [ConnectionState.PAIRING]: {
+    dot: "bg-warning animate-pulse",
+    label: "Connecting",
+  },
+  [ConnectionState.CONNECTING]: {
+    dot: "bg-warning animate-pulse",
+    label: "Connecting",
+  },
+  [ConnectionState.NEGOTIATING]: {
+    dot: "bg-warning animate-pulse",
+    label: "Negotiating",
+  },
   [ConnectionState.CONNECTED]: { dot: "bg-success", label: "Connected" },
   [ConnectionState.DEGRADED]: { dot: "bg-warning", label: "Degraded" },
-  [ConnectionState.RECONNECTING]: { dot: "bg-warning animate-pulse", label: "Reconnecting" },
+  [ConnectionState.RECONNECTING]: {
+    dot: "bg-warning animate-pulse",
+    label: "Reconnecting",
+  },
   [ConnectionState.FAILED]: { dot: "bg-destructive", label: "Disconnected" },
 }
 
@@ -43,7 +61,9 @@ export function ChatStatusBar({
       {unreadCount > 0 && (
         <span
           className="min-w-[18px] rounded-full bg-primary px-1 text-center font-mono text-[10px] font-semibold text-primary-foreground"
-          aria-label={`${unreadCount} unread message${unreadCount !== 1 ? "s" : ""}`}
+          aria-label={`${unreadCount} unread message${
+            unreadCount !== 1 ? "s" : ""
+          }`}
         >
           {unreadCount > 99 ? "99+" : unreadCount}
         </span>

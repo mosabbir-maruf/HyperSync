@@ -124,7 +124,9 @@ export class PeerConnection {
       this.events.onDataChannel?.(channel)
 
       // Host also creates the dedicated messaging channel (text-only).
-      const msgChannel = pc.createDataChannel(MSG_CHANNEL_LABEL, { ordered: true })
+      const msgChannel = pc.createDataChannel(MSG_CHANNEL_LABEL, {
+        ordered: true,
+      })
       this.events.onMessageChannel?.(msgChannel)
     } else {
       pc.ondatachannel = (ev) => {
@@ -153,14 +155,11 @@ export class PeerConnection {
           void this.makeOffer()
         }
       }),
-      this.signaling.on(
-        "signal",
-        ({ signal }) => {
-          this.signalQueue = this.signalQueue
-            .then(() => this.handleSignal(signal))
-            .catch(err => console.error("Signal processing error:", err))
-        }
-      ),
+      this.signaling.on("signal", ({ signal }) => {
+        this.signalQueue = this.signalQueue
+          .then(() => this.handleSignal(signal))
+          .catch((err) => console.error("Signal processing error:", err))
+      }),
       this.signaling.on("peer-left", () => {
         this.setState("disconnected")
       }),
@@ -191,7 +190,9 @@ export class PeerConnection {
     try {
       if (signal.kind === "offer") {
         if (this.pc.signalingState !== "stable") {
-          console.warn(`[WebRTC] Ignoring offer in state: ${this.pc.signalingState}`)
+          console.warn(
+            `[WebRTC] Ignoring offer in state: ${this.pc.signalingState}`,
+          )
           return
         }
         this.setState("negotiating")
@@ -205,7 +206,9 @@ export class PeerConnection {
         await this.flushPendingIce()
       } else if (signal.kind === "answer") {
         if (this.pc.signalingState !== "have-local-offer") {
-          console.warn(`[WebRTC] Ignoring answer in state: ${this.pc.signalingState}`)
+          console.warn(
+            `[WebRTC] Ignoring answer in state: ${this.pc.signalingState}`,
+          )
           return
         }
         await this.pc.setRemoteDescription(signal.sdp)
