@@ -69,14 +69,16 @@ export function LobbyProvider({ children }: { children: ReactNode }) {
       groupState.connectionState,
     )
     if (isBusy) {
-      // Hide entirely from the radar if busy
-      if (clientRef.current) {
-        console.log("[LobbyProvider] Busy. Closing client.")
-        clientRef.current.close()
-        clientRef.current = null
-      }
-      setRoster([])
-      return
+      // Hide entirely from the radar if busy, but give pending invites time to flush
+      const timer = setTimeout(() => {
+        if (clientRef.current) {
+          console.log("[LobbyProvider] Busy. Closing client.")
+          clientRef.current.close()
+          clientRef.current = null
+        }
+        setRoster([])
+      }, 3000)
+      return () => clearTimeout(timer)
     }
 
     if (!clientRef.current) {
