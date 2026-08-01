@@ -23,7 +23,7 @@ export function GroupInfoModal({
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 animate-in fade-in duration-200">
       <Card className="relative w-full max-w-md overflow-hidden p-0 shadow-2xl">
         <div className="flex items-center justify-between border-b border-border px-6 py-4">
           <h3 className="text-lg font-semibold">Group Info</h3>

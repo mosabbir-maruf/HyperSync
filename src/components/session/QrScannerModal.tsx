@@ -91,7 +91,7 @@ export function QrScannerModal({
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
       <Card className="relative w-full max-w-sm overflow-hidden p-0 border-border shadow-2xl">
         <div className="flex items-center justify-between border-b border-border px-4 py-3">
           <h3 className="text-base font-semibold">Scan QR Code</h3>
