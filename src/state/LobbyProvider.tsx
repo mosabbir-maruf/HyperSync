@@ -12,6 +12,7 @@ import { createSignalingClient } from "../lib/signaling"
 import type { SignalingClient } from "../lib/signaling"
 import type { DevicePresence } from "../lib/signaling"
 import { useSession } from "./SessionProvider"
+import { useGroupSession } from "./GroupSessionProvider"
 import { useSettings } from "./SettingsProvider"
 import { avatarColor, detectPlatform } from "../lib/utils"
 import { ConnectionState } from "./managers/ConnectionStateManager"
@@ -34,11 +35,9 @@ interface LobbyContextValue {
 const LobbyContext = createContext<LobbyContextValue | null>(null)
 
 export function LobbyProvider({ children }: { children: ReactNode }) {
-  const { controller } = useSession()
+  const { controller, state: p2pState } = useSession()
+  const { state: groupState } = useGroupSession()
   const { settings } = useSettings()
-
-  const clientRef = useRef<SignalingClient | null>(null)
-  if (!clientRef.current) clientRef.current = createSignalingClient()
 
   const [roster, setRoster] = useState<DevicePresence[]>([])
   const [connecting, setConnecting] = useState<string | null>(null)
@@ -53,9 +52,29 @@ export function LobbyProvider({ children }: { children: ReactNode }) {
     [settings.displayName],
   )
 
-  // Announce presence + subscribe to roster and inbound invites.
+  const isBusy =
+    p2pState.connectionState !== ConnectionState.DISCONNECTED ||
+    groupState.connectionState !== ConnectionState.DISCONNECTED
+
+  // Announce presence + subscribe to roster and inbound invites, only if not busy.
+  const clientRef = useRef<SignalingClient | null>(null)
+
   useEffect(() => {
-    const client = clientRef.current!
+    if (isBusy) {
+      // Hide entirely from the radar if busy
+      if (clientRef.current) {
+        clientRef.current.close()
+        clientRef.current = null
+      }
+      setRoster([])
+      return
+    }
+
+    if (!clientRef.current) {
+      clientRef.current = createSignalingClient()
+    }
+    const client = clientRef.current
+
     const offRoster = client.on("roster", (e) => setRoster(e.devices))
     const offInvite = client.on("invite", (e) => {
       // The other device asked us to join — auto-join the channel.
@@ -64,26 +83,32 @@ export function LobbyProvider({ children }: { children: ReactNode }) {
       )
         void controller.join(e.code)
     })
+
     client.announce({
       name: thisDevice.name,
       color: thisDevice.color,
       platform: thisDevice.platform,
     })
+
     return () => {
       offRoster()
       offInvite()
     }
-  }, [controller, thisDevice])
+  }, [controller, thisDevice, isBusy])
 
   // Tear down presence on unmount.
   useEffect(() => {
-    const client = clientRef.current
-    return () => client?.close()
+    return () => {
+      if (clientRef.current) {
+        clientRef.current.close()
+        clientRef.current = null
+      }
+    }
   }, [])
 
   const connectTo = useCallback(
     async (device: DevicePresence) => {
-      if (connecting) return
+      if (connecting || isBusy) return
       setConnecting(device.peerId)
       try {
         const info = await controller.host()
@@ -93,7 +118,7 @@ export function LobbyProvider({ children }: { children: ReactNode }) {
         setConnecting(null)
       }
     },
-    [connecting, controller],
+    [connecting, controller, isBusy],
   )
 
   const value = useMemo<LobbyContextValue>(
