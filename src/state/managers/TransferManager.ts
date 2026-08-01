@@ -182,7 +182,14 @@ export class TransferManager {
         this.patchItem(event.transferId, { status: "progress" }, true)
         break
       case "TransferCancelled":
-        this.patchItem(event.transferId, { status: "cancelled" }, true)
+        this.patchItem(
+          event.transferId,
+          {
+            status: "cancelled",
+            error: event.remote ? "remote_cancel" : undefined,
+          },
+          true,
+        )
         break
       case "VerificationStarted":
         this.patchItem(event.transferId, { verification: "verifying" })

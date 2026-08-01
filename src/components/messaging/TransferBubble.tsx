@@ -154,7 +154,14 @@ export const TransferBubble = memo(function TransferBubble({
                           "text-success font-semibold",
                       )}
                     >
-                      {item.error ?? STATUS_LABEL[item.status]}
+                      {item.status === "cancelled" &&
+                      item.error === "remote_cancel"
+                        ? peerName
+                          ? `${peerName} aborted`
+                          : "Aborted by peer"
+                        : item.error && item.error !== "remote_cancel"
+                          ? item.error
+                          : STATUS_LABEL[item.status]}
                     </span>
                   </div>
                 )}

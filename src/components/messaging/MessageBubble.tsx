@@ -110,6 +110,16 @@ export const MessageBubble = memo(function MessageBubble({
 }: MessageBubbleProps) {
   const isLocal = message.senderId === "local"
 
+  if (message.senderId === "system") {
+    return (
+      <div className="flex w-full justify-center my-1" role="status">
+        <span className="text-[11px] font-medium text-muted-foreground bg-secondary/60 px-3 py-1 rounded-full text-center max-w-[80%] break-words">
+          {message.text}
+        </span>
+      </div>
+    )
+  }
+
   // In a group, senderId is the actual sender's name. In 1:1, it's "remote".
   const senderName =
     !isLocal && message.senderId !== "remote"

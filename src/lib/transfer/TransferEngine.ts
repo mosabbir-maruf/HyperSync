@@ -235,12 +235,14 @@ export class TransferEngine {
     this.sendControl({ t: "TRANSFER_RESUME", id })
   }
 
-  cancel(id: string) {
+  cancel(id: string, remote: boolean = false) {
     this.abortControllers.get(id)?.abort()
     this.pipelines.get(id)?.destroy()
     this.queue.remove(id)
-    this.sendControl({ t: "TRANSFER_CANCEL", id })
-    this.emit({ type: "TransferCancelled", transferId: id })
+    if (!remote) {
+      this.sendControl({ t: "TRANSFER_CANCEL", id })
+    }
+    this.emit({ type: "TransferCancelled", transferId: id, remote })
     this.cleanupReceiver(id)
   }
 
@@ -327,16 +329,12 @@ export class TransferEngine {
         break
 
       case "TRANSFER_REJECT":
-        for (const id of msg.ids) this.cancel(id)
+        for (const id of msg.ids) this.cancel(id, true)
         break
 
       case "TRANSFER_CANCEL":
       case "TRANSFER_ABORT": {
-        const ac = this.abortControllers.get(msg.id)
-        if (ac) ac.abort()
-        this.pipelines.get(msg.id)?.destroy()
-        this.emit({ type: "TransferCancelled", transferId: msg.id })
-        this.cleanupReceiver(msg.id)
+        this.cancel(msg.id, true)
         break
       }
 

@@ -25,12 +25,11 @@ export interface MsgFrame {
 /** Delivery status of a local outbound message. */
 export type MessageStatus = "sending" | "sent" | "delivered" | "failed"
 
-/** Application-level message object stored in MessagingController state. */
 export interface ChatMessage {
   /** Stable local ID (random). */
   id: string
-  /** "local" = sent by this device; "remote" = received from peer. */
-  senderId: "local" | "remote"
+  /** "local" = sent by this device; "remote" = received from peer; "system" = system message */
+  senderId: "local" | "remote" | "system" | string
   text: string
   timestamp: number
   status: MessageStatus

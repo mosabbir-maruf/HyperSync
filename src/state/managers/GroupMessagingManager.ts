@@ -119,6 +119,7 @@ export class GroupMessagingManager {
         case "PeerNameReceived":
           this.peerNames.set(peerId, event.name)
           this.set({ memberNames: Array.from(this.peerNames.values()) })
+          this.addSystemMessage(`${event.name} joined`)
           break
       }
     })
@@ -138,8 +139,25 @@ export class GroupMessagingManager {
     }
 
     this.stopTyping(peerId)
+    const name = this.peerNames.get(peerId)
+    if (name) {
+      this.addSystemMessage(`${name} left`)
+    }
     this.peerNames.delete(peerId)
     this.set({ memberNames: Array.from(this.peerNames.values()) })
+  }
+
+  private addSystemMessage(text: string) {
+    const msg: ChatMessage = {
+      id: `sys_${randomId().slice(0, 8)}`,
+      senderId: "system",
+      text,
+      timestamp: Date.now(),
+      status: "delivered",
+    }
+    const msgs = [...this.state.messages, msg].slice(-MAX_HISTORY)
+    const unread = this.panelVisible ? 0 : this.state.unreadCount + 1
+    this.set({ messages: msgs, unreadCount: unread })
   }
 
   private stopTyping(peerId: string) {

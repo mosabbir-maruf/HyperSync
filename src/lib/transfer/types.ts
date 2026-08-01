@@ -49,11 +49,10 @@ export type TransferEvent = {
   transferId: string
   isValid: boolean
   checksum?: string
-} | { type: "DownloadStarted" transferId: string } | {
-  type: "DownloadCompleted"
+} | { type: "DownloadCompleted"
   transferId: string
   downloadUrl?: string
-} | { type: "TransferCancelled" transferId: string } | {
+} | { type: "TransferCancelled"; transferId: string; remote?: boolean } | {
   type: "TransferFailed"
   transferId: string
   error: string
