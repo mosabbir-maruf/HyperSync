@@ -111,9 +111,18 @@ export function ChatPanel({ controller, sessionController, visible, onFiles, onL
 
   return (
     <div
+      onDragEnter={(e) => {
+        if (!onFiles) return
+        if (!e.dataTransfer?.types.includes("Files")) return
+        e.preventDefault()
+        e.stopPropagation()
+        setDragging(true)
+      }}
       onDragOver={(e) => {
         if (!onFiles) return
+        if (!e.dataTransfer?.types.includes("Files")) return
         e.preventDefault()
+        e.stopPropagation()
         setDragging(true)
       }}
       onDragLeave={(e) => {
@@ -124,6 +133,7 @@ export function ChatPanel({ controller, sessionController, visible, onFiles, onL
       onDrop={(e) => {
         if (!onFiles) return
         e.preventDefault()
+        e.stopPropagation()
         setDragging(false)
         const selection = storageProvider.fromDrop(e.dataTransfer)
         if (selection.files.length > 0) onFiles([...selection.files])
