@@ -31,6 +31,9 @@ export class WebSocketSignalingClient
   private lobbyProfile: Omit<DevicePresence, "peerId"> | null = null
   private shouldKeepLobbyConnected = false
 
+  private abortController: AbortController | null = null
+  private connectionAttempt = 0
+
   private readonly httpUrl: string
 
   constructor(private readonly url: string) {
@@ -85,6 +88,7 @@ export class WebSocketSignalingClient
     code: string,
     role: "host" | "guest" | "member",
     roomType: "direct" | "group" = "direct",
+    attempt: number
   ): Promise<void> {
     return new Promise((resolve, reject) => {
       // Connect to the room by its URL
@@ -97,6 +101,10 @@ export class WebSocketSignalingClient
       this.ws = ws
 
       ws.onopen = () => {
+        if (this.connectionAttempt !== attempt) {
+          ws.close(1000, "Stale connection")
+          return
+        }
         console.log(
           `[Signaling] WebSocket open, role=${role}, sending ${
             roomType === "group" ? "GROUP_JOIN" : "JOIN"
@@ -276,10 +284,16 @@ export class WebSocketSignalingClient
 
   async createSession(): Promise<SessionInfo> {
     this.setState("connecting")
+    const attempt = ++this.connectionAttempt
+    
+    this.abortController?.abort()
+    this.abortController = new AbortController()
+    
     try {
       // Step 1: Create session via HTTP API
       const res = await fetch(`${this.httpUrl}/session`, {
         method: "POST",
+        signal: this.abortController.signal
       })
       if (!res.ok) throw new Error("Failed to create session")
 
@@ -294,24 +308,32 @@ export class WebSocketSignalingClient
       this.role = "host"
 
       // Step 2: Connect WebSocket
-      await this.connectWebSocket(code, "host")
+      await this.connectWebSocket(code, "host", "direct", attempt)
 
       return this.buildInfo(roomId, code, "host")
-    } catch (err) {
-      this.setState("error")
+    } catch (err: any) {
+      if (err.name !== "AbortError") {
+        this.setState("error")
+      }
       throw err
     }
   }
 
   async joinSession(code: string): Promise<SessionInfo> {
     this.setState("connecting")
+    const attempt = ++this.connectionAttempt
     const normalizedCode = normalizeCode(code)
+    
+    this.abortController?.abort()
+    this.abortController = new AbortController()
+
     try {
       // Step 1: Join session via HTTP API
       const res = await fetch(`${this.httpUrl}/join`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ sessionCode: normalizedCode }),
+        signal: this.abortController.signal
       })
       if (!res.ok) throw new Error("Failed to join session")
 
@@ -325,22 +347,30 @@ export class WebSocketSignalingClient
       this.role = "guest"
 
       // Step 2: Connect WebSocket
-      await this.connectWebSocket(normalizedCode, "guest")
+      await this.connectWebSocket(normalizedCode, "guest", "direct", attempt)
 
       return this.buildInfo(roomId, normalizedCode, "guest")
-    } catch (err) {
-      this.setState("error")
+    } catch (err: any) {
+      if (err.name !== "AbortError") {
+        this.setState("error")
+      }
       throw err
     }
   }
 
   async createGroup(maxMembers?: number): Promise<SessionInfo> {
     this.setState("connecting")
+    const attempt = ++this.connectionAttempt
+    
+    this.abortController?.abort()
+    this.abortController = new AbortController()
+
     try {
       const res = await fetch(`${this.httpUrl}/group/session`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ hostPeerId: this.peerId, maxMembers }),
+        signal: this.abortController.signal
       })
       if (!res.ok) throw new Error("Failed to create group session")
 
@@ -354,23 +384,31 @@ export class WebSocketSignalingClient
       this.sessionId = roomId
       this.role = "host"
 
-      await this.connectWebSocket(code, "host", "group")
+      await this.connectWebSocket(code, "host", "group", attempt)
 
       return this.buildInfo(roomId, code, "host", true)
-    } catch (err) {
-      this.setState("error")
+    } catch (err: any) {
+      if (err.name !== "AbortError") {
+        this.setState("error")
+      }
       throw err
     }
   }
 
   async joinGroup(code: string): Promise<SessionInfo> {
     this.setState("connecting")
+    const attempt = ++this.connectionAttempt
     const normalizedCode = normalizeCode(code)
+    
+    this.abortController?.abort()
+    this.abortController = new AbortController()
+
     try {
       const res = await fetch(`${this.httpUrl}/group/join`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ sessionCode: normalizedCode }),
+        signal: this.abortController.signal
       })
       if (!res.ok) throw new Error("Failed to join group session")
 
@@ -383,11 +421,13 @@ export class WebSocketSignalingClient
       this.sessionId = roomId
       this.role = "member"
 
-      await this.connectWebSocket(normalizedCode, "member", "group")
+      await this.connectWebSocket(normalizedCode, "member", "group", attempt)
 
       return this.buildInfo(roomId, normalizedCode, "member", true)
-    } catch (err) {
-      this.setState("error")
+    } catch (err: any) {
+      if (err.name !== "AbortError") {
+        this.setState("error")
+      }
       throw err
     }
   }
@@ -564,6 +604,10 @@ export class WebSocketSignalingClient
   }
 
   private cleanup() {
+    this.connectionAttempt++
+    this.abortController?.abort()
+    this.abortController = null
+
     if (this.pingInterval) {
       clearInterval(this.pingInterval)
       this.pingInterval = null
