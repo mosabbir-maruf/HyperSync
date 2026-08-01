@@ -116,11 +116,18 @@ export class GroupMessagingManager {
           this.stopTyping(peerId)
           break
 
-        case "PeerNameReceived":
-          this.peerNames.set(peerId, event.name)
-          this.set({ memberNames: Array.from(this.peerNames.values()) })
-          this.addSystemMessage(`${event.name} joined`)
+        case "PeerNameReceived": {
+          const currentName = this.peerNames.get(peerId)
+          if (currentName !== event.name) {
+            const isAlreadyInGroup = Array.from(this.peerNames.values()).includes(event.name)
+            this.peerNames.set(peerId, event.name)
+            this.set({ memberNames: Array.from(this.peerNames.values()) })
+            if (!isAlreadyInGroup) {
+              this.addSystemMessage(`${event.name} joined`, event.name)
+            }
+          }
           break
+        }
       }
     })
 
@@ -140,20 +147,25 @@ export class GroupMessagingManager {
 
     this.stopTyping(peerId)
     const name = this.peerNames.get(peerId)
-    if (name) {
-      this.addSystemMessage(`${name} left`)
-    }
     this.peerNames.delete(peerId)
     this.set({ memberNames: Array.from(this.peerNames.values()) })
+
+    if (name) {
+      const isStillInGroup = Array.from(this.peerNames.values()).includes(name)
+      if (!isStillInGroup) {
+        this.addSystemMessage(`${name} left`, name)
+      }
+    }
   }
 
-  private addSystemMessage(text: string) {
+  private addSystemMessage(text: string, subjectName?: string) {
     const msg: ChatMessage = {
       id: `sys_${randomId().slice(0, 8)}`,
       senderId: "system",
       text,
       timestamp: Date.now(),
       status: "delivered",
+      subjectName,
     }
     const msgs = [...this.state.messages, msg].slice(-MAX_HISTORY)
     const unread = this.panelVisible ? 0 : this.state.unreadCount + 1

@@ -33,6 +33,7 @@ export interface ChatMessage {
   text: string
   timestamp: number
   status: MessageStatus
+  subjectName?: string
 }
 
 /** Events emitted by MessageEngine. */

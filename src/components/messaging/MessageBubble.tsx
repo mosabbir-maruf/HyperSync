@@ -112,10 +112,15 @@ export const MessageBubble = memo(function MessageBubble({
 
   if (message.senderId === "system") {
     return (
-      <div className="flex w-full justify-center my-1" role="status">
-        <span className="text-[11px] font-medium text-muted-foreground bg-secondary/60 px-3 py-1 rounded-full text-center max-w-[80%] break-words">
-          {message.text}
-        </span>
+      <div className="flex w-full justify-center my-1.5" role="status">
+        <div className="flex items-center gap-1.5 bg-secondary/60 px-2 py-1 pr-3 rounded-full max-w-[80%]">
+          {message.subjectName && (
+            <Avatar name={message.subjectName} size="sm" className="w-5 h-5 text-[9px]" />
+          )}
+          <span className="text-[11px] font-medium text-muted-foreground truncate">
+            {message.text}
+          </span>
+        </div>
       </div>
     )
   }
