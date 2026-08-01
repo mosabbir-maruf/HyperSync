@@ -169,6 +169,7 @@ export class TransferEngine {
   // ── Receiving ─────────────────────────────────────────────────────────────
 
   async acceptIncoming(ids: string[]) {
+    const accepted: string[] = []
     for (const id of ids) {
       const queued = this.queue.items.find((t) => t.metadata.transferId === id)
       if (!queued) continue
@@ -209,8 +210,11 @@ export class TransferEngine {
       )
       await receiver.initialize()
       this.receivers.set(id, receiver)
+      accepted.push(id)
     }
-    this.sendControl({ t: "TRANSFER_ACCEPT", ids })
+    if (accepted.length > 0) {
+      this.sendControl({ t: "TRANSFER_ACCEPT", ids: accepted })
+    }
   }
 
   rejectIncoming(ids: string[]) {

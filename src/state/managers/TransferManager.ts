@@ -96,6 +96,17 @@ export class TransferManager {
   ): void {
     const cur = this.itemsMap.get(id)
     if (!cur) return
+
+    // Prevent trailing progress events from reverting a terminal state back to 'progress'
+    const isTerminal =
+      cur.status === "completed" ||
+      cur.status === "cancelled" ||
+      cur.status === "failed"
+
+    if (isTerminal && patch.status && patch.status !== cur.status) {
+      delete patch.status
+    }
+
     this.itemsMap.set(id, { ...cur, ...patch })
     if (immediate) {
       this.flushNow()
@@ -134,6 +145,7 @@ export class TransferManager {
             const currentIncoming = this.state.incoming || []
             this.set({ incoming: [...currentIncoming, meta] })
           }
+          this.scheduleEmit()
         }
         break
       }
