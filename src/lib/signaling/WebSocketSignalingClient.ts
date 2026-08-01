@@ -39,7 +39,12 @@ export class WebSocketSignalingClient
   constructor(private readonly url: string) {
     super()
     const parsed = new URL(url)
-    parsed.protocol = parsed.protocol === "wss:" ? "https:" : "http:"
+    // If it's a websocket URL, convert it to HTTP for REST calls. If it's already HTTP/HTTPS, leave it (or force it correctly).
+    if (parsed.protocol === "wss:" || parsed.protocol === "https:") {
+      parsed.protocol = "https:"
+    } else {
+      parsed.protocol = "http:"
+    }
     this.httpUrl = parsed.toString().replace(/\/$/, "")
   }
 
