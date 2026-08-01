@@ -19,11 +19,13 @@ export type TimelineItem = {
 }
 
 import { Avatar } from "../ui/Avatar"
+import { FileIcon } from "../ui/icons"
 
 interface MessageListProps {
   items: TimelineItem[]
   peerName?: string | null
   isRemoteTyping: boolean
+  viewMode?: "chat" | "files"
   onPause: (id: string) => void
   onResume: (id: string) => void
   onCancel: (id: string) => void
@@ -44,6 +46,7 @@ export const MessageList = memo(function MessageList({
   items,
   peerName,
   isRemoteTyping,
+  viewMode = "chat",
   onPause,
   onResume,
   onCancel,
@@ -69,6 +72,25 @@ export const MessageList = memo(function MessageList({
   }, [items.length, isRemoteTyping])
 
   if (items.length === 0 && !isRemoteTyping) {
+    if (viewMode === "files") {
+      return (
+        <div
+          ref={listRef}
+          className="flex flex-1 flex-col items-center justify-center overflow-y-auto"
+        >
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-secondary text-primary mb-4">
+            <FileIcon width={24} height={24} />
+          </div>
+          <h3 className="text-[15px] font-semibold tracking-tight text-foreground">
+            No files transferred yet
+          </h3>
+          <p className="text-[13px] text-muted-foreground mt-1 text-center max-w-[240px]">
+            Files you send or receive in this session will appear here.
+          </p>
+        </div>
+      )
+    }
+
     return (
       <div
         ref={listRef}

@@ -352,6 +352,7 @@ export function ChatPanel({
         items={filteredTimeline}
         peerName={displayPeerName}
         isRemoteTyping={viewMode === "chat" ? !!isTyping : false}
+        viewMode={viewMode}
         onPause={(id) => sessionController.pause(id)}
         onResume={(id) => sessionController.resume(id)}
         onCancel={(id) => sessionController.cancel(id)}
