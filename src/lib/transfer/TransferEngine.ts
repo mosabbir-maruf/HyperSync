@@ -44,6 +44,7 @@ export class TransferEngine {
   private receivers = new Map<string, ChunkReceiver>()
   private currentReceivingId: string | null = null
   private acceptedIds = new Set<string>()
+  private pipelines = new Map<string, SendPipeline>()
 
   // Binary message processing: run synchronously without yielding between chunks
   private messageQueue: ArrayBuffer[] = [] // binary only
@@ -127,6 +128,7 @@ export class TransferEngine {
       engine.chunkSize,
       (progress) => this.emit({ type: "LocalProgress", progress }),
     )
+    this.pipelines.set(meta.transferId, pipeline)
 
     try {
       this.emit({ type: "TransferStarted", metadata: meta })
@@ -157,6 +159,7 @@ export class TransferEngine {
         })
       }
     } finally {
+      this.pipelines.delete(meta.transferId)
       this.abortControllers.delete(meta.transferId)
       transfer.file = (undefined as any)
     }
@@ -217,10 +220,14 @@ export class TransferEngine {
   // ── Controls ──────────────────────────────────────────────────────────────
 
   pause(id: string) {
+    this.pipelines.get(id)?.pause()
     this.emit({ type: "BufferPause", transferId: id })
+    this.sendControl({ t: "TRANSFER_PAUSE", id })
   }
   resume(id: string) {
+    this.pipelines.get(id)?.resume()
     this.emit({ type: "BufferResume", transferId: id })
+    this.sendControl({ t: "TRANSFER_RESUME", id })
   }
 
   cancel(id: string) {
@@ -325,6 +332,16 @@ export class TransferEngine {
         this.cleanupReceiver(msg.id)
         break
       }
+
+      case "TRANSFER_PAUSE":
+        this.pipelines.get(msg.id)?.pause()
+        this.emit({ type: "BufferPause", transferId: msg.id })
+        break
+
+      case "TRANSFER_RESUME":
+        this.pipelines.get(msg.id)?.resume()
+        this.emit({ type: "BufferResume", transferId: msg.id })
+        break
 
       // Silently ack — no action needed
       case "TRANSFER_VERIFY":

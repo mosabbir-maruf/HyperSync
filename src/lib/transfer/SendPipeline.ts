@@ -70,6 +70,9 @@ export class SendPipeline {
   private isAllSent = false
   private readonly allSentResolvers: Array<() => void> = []
 
+  // ── Flow Control ─────────────────────────────────────────────────────────
+  private paused = false
+
   // ── Progress ────────────────────────────────────────────────────────────
   private readonly meter: RateMeter
   private bytesSent = 0
@@ -184,6 +187,8 @@ export class SendPipeline {
    * Never blocks. Never awaits. Never calls setTimeout.
    */
   private _flush = (): void => {
+    if (this.paused) return;
+
     // Sample fill level for metrics (cheap: just a number read)
     this.fillSamples.push(this.channel.bufferedAmount)
 
@@ -243,6 +248,15 @@ export class SendPipeline {
       for (const r of this.allSentResolvers) r()
       this.allSentResolvers.length = 0
     }
+  }
+
+  public pause(): void {
+    this.paused = true
+  }
+
+  public resume(): void {
+    this.paused = false
+    this._flush()
   }
 
   // ── Diagnostics ──────────────────────────────────────────────────────────

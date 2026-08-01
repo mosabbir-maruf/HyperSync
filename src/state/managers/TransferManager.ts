@@ -156,7 +156,10 @@ export class TransferManager {
         break
       }
       case "BufferPause":
+        this.patchItem(event.transferId, { status: "paused" }, true)
+        break
       case "BufferResume":
+        this.patchItem(event.transferId, { status: "progress" }, true)
         break
       case "TransferCancelled":
         this.patchItem(event.transferId, { status: "cancelled" }, true)
