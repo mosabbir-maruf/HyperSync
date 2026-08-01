@@ -27,12 +27,20 @@ export function CreateSession() {
     state.connectionState === ConnectionState.CONNECTED ||
     state.connectionState === ConnectionState.DEGRADED
 
+  if (connected) {
+    return (
+      <div className="h-[700px] md:h-auto">
+        <SessionRoom onLeave={leave} />
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">
-            {connected ? "Connected" : "Waiting for a device"}
+            Waiting for a device
           </h1>
           <div className="mt-1.5">
             <ConnectionStatus phase={state.connectionState} />
@@ -49,25 +57,21 @@ export function CreateSession() {
         </Card>
       )}
 
-      {connected ? (
-        <SessionRoom />
-      ) : (
-        <Card className="flex flex-col items-center gap-6 p-6 md:flex-row md:items-center md:gap-8 md:p-8">
-          {state.info && <QRDisplay value={state.info.joinUrl} />}
-          <div className="flex-1 space-y-4 text-center md:text-left">
-            <div className="space-y-1.5">
-              <p className="text-sm text-muted-foreground">
-                On the other device, scan this QR or enter the code:
-              </p>
-            </div>
-            {state.info && <SessionCode code={state.info.code} />}
-            <p className="text-[13px] leading-relaxed text-muted-foreground">
-              Keep this tab open. The connection opens automatically once the
-              other device joins.
+      <Card className="flex flex-col items-center gap-6 p-6 md:flex-row md:items-center md:gap-8 md:p-8">
+        {state.info && <QRDisplay value={state.info.joinUrl} />}
+        <div className="flex-1 space-y-4 text-center md:text-left">
+          <div className="space-y-1.5">
+            <p className="text-sm text-muted-foreground">
+              On the other device, scan this QR or enter the code:
             </p>
           </div>
-        </Card>
-      )}
+          {state.info && <SessionCode code={state.info.code} />}
+          <p className="text-[13px] leading-relaxed text-muted-foreground">
+            Keep this tab open. The connection opens automatically once the
+            other device joins.
+          </p>
+        </div>
+      </Card>
     </div>
   )
 }

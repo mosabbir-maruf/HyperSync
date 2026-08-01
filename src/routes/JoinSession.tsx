@@ -53,19 +53,8 @@ export function JoinSession() {
 
   if (connected) {
     return (
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-semibold tracking-tight">Connected</h1>
-            <div className="mt-1.5">
-              <ConnectionStatus phase={state.connectionState} />
-            </div>
-          </div>
-          <Button variant="ghost" size="sm" onClick={leave}>
-            End session
-          </Button>
-        </div>
-        <SessionRoom />
+      <div className="h-[700px] md:h-auto">
+        <SessionRoom onLeave={leave} />
       </div>
     )
   }

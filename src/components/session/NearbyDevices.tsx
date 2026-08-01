@@ -225,6 +225,7 @@ export function NearbyDevices() {
                 <div className="flex items-center gap-1.5">
                   <input
                     type="text"
+                    id="nearby-rename-input"
                     value={nameInput}
                     onChange={(e) => setNameInput(e.target.value)}
                     onKeyDown={handleKeyDown}
@@ -234,6 +235,7 @@ export function NearbyDevices() {
                   />
                   <button
                     type="button"
+                    id="nearby-save-btn"
                     onClick={handleSaveName}
                     className="p-0.5 text-success transition-colors hover:text-foreground"
                     title="Save name"
@@ -242,6 +244,7 @@ export function NearbyDevices() {
                   </button>
                   <button
                     type="button"
+                    id="nearby-cancel-btn"
                     onClick={() => {
                       setNameInput(thisDevice.name)
                       setIsEditingName(false)
@@ -254,6 +257,7 @@ export function NearbyDevices() {
                 </div>
               ) : (
                 <button
+                  id="nearby-edit-btn"
                   onClick={() => setIsEditingName(true)}
                   className="group flex items-center gap-1.5 font-semibold text-foreground transition-colors hover:text-primary"
                   title="Rename device"

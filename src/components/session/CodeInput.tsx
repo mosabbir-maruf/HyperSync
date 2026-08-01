@@ -41,6 +41,7 @@ export function CodeInput({
     <div className="relative">
       <input
         ref={ref}
+        id="pairing-code-input"
         value={raw}
         inputMode="text"
         autoCapitalize="characters"
