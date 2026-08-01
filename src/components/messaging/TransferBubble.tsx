@@ -83,7 +83,7 @@ export const TransferBubble = memo(function TransferBubble({
         <div className={cn("flex flex-col gap-1 min-w-0 w-full", isLocal ? "items-end" : "items-start")}>
           <div
             className={cn(
-              "relative w-full sm:w-[320px] rounded-2xl py-3 pr-4 overflow-hidden shadow-sm",
+              "relative w-full sm:w-[380px] rounded-2xl py-3 pr-4 overflow-hidden shadow-sm",
               isLocal
                 ? "bg-card border border-border-strong text-foreground pl-5 rounded-br-sm"
                 : "bg-secondary text-secondary-foreground border border-border pl-4 rounded-bl-sm",

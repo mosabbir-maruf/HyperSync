@@ -49,7 +49,7 @@ export const IncomingBubble = memo(function IncomingBubble({
         <div className="flex flex-col gap-1 min-w-0 items-start">
           <div
             className={cn(
-              "relative w-full sm:w-[320px] rounded-2xl overflow-hidden shadow-sm",
+              "relative w-full sm:w-[380px] rounded-2xl overflow-hidden shadow-sm",
               "bg-secondary text-secondary-foreground border border-border rounded-bl-sm",
             )}
           >
