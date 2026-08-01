@@ -22,7 +22,7 @@ export function CreateSession() {
     navigate("/")
   }
 
-  const connected = state.connectionState === ConnectionState.CONNECTED
+  const connected = state.connectionState === ConnectionState.CONNECTED || state.connectionState === ConnectionState.DEGRADED
 
   return (
     <div className="space-y-6">

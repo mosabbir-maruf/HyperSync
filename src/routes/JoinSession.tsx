@@ -39,7 +39,7 @@ export function JoinSession() {
     navigate("/join", { replace: true })
   }
 
-  const connected = state.connectionState === ConnectionState.CONNECTED
+  const connected = state.connectionState === ConnectionState.CONNECTED || state.connectionState === ConnectionState.DEGRADED
   const busy = state.connectionState === ConnectionState.SIGNALING || state.connectionState === ConnectionState.NEGOTIATING || state.connectionState === ConnectionState.CONNECTING
 
   if (connected) {

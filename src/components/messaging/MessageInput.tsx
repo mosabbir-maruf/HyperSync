@@ -275,7 +275,7 @@ export function MessageInput({
           onKeyDown={handleKeyDown}
           disabled={disabled}
           rows={1}
-          placeholder={disabled ? "Connecting…" : "Message  ·  Enter to send"}
+          placeholder={disabled ? "Connecting…" : "Message or drag & drop files  ·  Enter to send"}
           className={cn(
             "flex-1 resize-none bg-transparent text-sm text-foreground",
             "placeholder:text-muted-foreground/60",

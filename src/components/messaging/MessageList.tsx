@@ -65,12 +65,15 @@ export const MessageList = memo(function MessageList({
     return (
       <div
         ref={listRef}
-        className="flex flex-1 items-center justify-center overflow-y-auto"
+        className="flex flex-1 flex-col items-center justify-center overflow-y-auto"
         role="log"
         aria-label="Message history"
         aria-live="polite"
       >
-        <p className="label-mono text-center px-6 py-4">
+        <p className="text-[13px] font-medium text-foreground tracking-tight text-center px-6 pt-4">
+          Send messages or drag and drop files here
+        </p>
+        <p className="label-mono text-center px-6 pb-4 mt-2 opacity-70">
           Messages only exist while this session is active
         </p>
       </div>
