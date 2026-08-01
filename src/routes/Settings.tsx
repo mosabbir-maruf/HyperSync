@@ -4,6 +4,7 @@ import { useHistory } from "../state/history"
 import { capabilityService } from "../services/CapabilityService"
 import { Card } from "../components/ui/Card"
 import { Button } from "../components/ui/Button"
+import { ShieldIcon } from "../components/ui/icons"
 import { cn } from "../lib/utils"
 import type { ReactNode } from "react"
 
@@ -222,10 +223,17 @@ export function Settings() {
         </Card>
       </section>
 
-      <p className="rounded-2xl border-l-2 border-border-strong px-4 py-1 text-[12px] leading-relaxed text-muted-foreground">
-        HyperSync never uploads file contents. Our backend only relays the
-        messages that let two devices open a direct connection.
-      </p>
+      <div className="flex items-start gap-3 px-1 text-muted-foreground">
+        <ShieldIcon
+          className="mt-0.5 shrink-0 text-primary"
+          width={14}
+          height={14}
+        />
+        <p className="text-[12px] leading-relaxed">
+          HyperSync never uploads file contents. Our backend only relays the
+          messages that let two devices open a direct connection.
+        </p>
+      </div>
     </div>
   )
 }
