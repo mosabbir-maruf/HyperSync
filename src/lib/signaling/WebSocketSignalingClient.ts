@@ -31,8 +31,13 @@ export class WebSocketSignalingClient
   private lobbyProfile: Omit<DevicePresence, "peerId"> | null = null
   private shouldKeepLobbyConnected = false
 
+  private readonly httpUrl: string
+
   constructor(private readonly url: string) {
     super()
+    const parsed = new URL(url)
+    parsed.protocol = parsed.protocol === "wss:" ? "https:" : "http:"
+    this.httpUrl = parsed.toString().replace(/\/$/, "")
   }
 
   on<T extends import("./types").SignalingEventType,>(
@@ -273,7 +278,7 @@ export class WebSocketSignalingClient
     this.setState("connecting")
     try {
       // Step 1: Create session via HTTP API
-      const res = await fetch(`${this.url}/session`, {
+      const res = await fetch(`${this.httpUrl}/session`, {
         method: "POST",
       })
       if (!res.ok) throw new Error("Failed to create session")
@@ -303,7 +308,7 @@ export class WebSocketSignalingClient
     const normalizedCode = normalizeCode(code)
     try {
       // Step 1: Join session via HTTP API
-      const res = await fetch(`${this.url}/join`, {
+      const res = await fetch(`${this.httpUrl}/join`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ sessionCode: normalizedCode }),
@@ -332,7 +337,7 @@ export class WebSocketSignalingClient
   async createGroup(maxMembers?: number): Promise<SessionInfo> {
     this.setState("connecting")
     try {
-      const res = await fetch(`${this.url}/group/session`, {
+      const res = await fetch(`${this.httpUrl}/group/session`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ hostPeerId: this.peerId, maxMembers }),
@@ -362,7 +367,7 @@ export class WebSocketSignalingClient
     this.setState("connecting")
     const normalizedCode = normalizeCode(code)
     try {
-      const res = await fetch(`${this.url}/group/join`, {
+      const res = await fetch(`${this.httpUrl}/group/join`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ sessionCode: normalizedCode }),
