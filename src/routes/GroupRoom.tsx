@@ -1,4 +1,4 @@
-import { useEffect, useState, useSyncExternalStore } from "react"
+import { useEffect, useState, useSyncExternalStore, useRef } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import { useGroupSession } from "../state/GroupSessionProvider"
 import { useSettings } from "../state/SettingsProvider"
@@ -17,6 +17,7 @@ export function GroupRoom() {
   const navigate = useNavigate()
   const { state, controller } = useGroupSession()
   const { settings } = useSettings()
+  const leavingRef = useRef(false)
 
   const messagingState = useSyncExternalStore(
     (cb) => controller.getMessagingManager().subscribe(cb),
@@ -25,6 +26,7 @@ export function GroupRoom() {
 
   useEffect(() => {
     if (
+      !leavingRef.current &&
       state.connectionState === ConnectionState.DISCONNECTED &&
       code &&
       !state.info
@@ -43,6 +45,7 @@ export function GroupRoom() {
   }, [settings.autoAccept, state.incoming, controller])
 
   const handleLeave = () => {
+    leavingRef.current = true
     controller.leave()
     navigate("/group")
   }

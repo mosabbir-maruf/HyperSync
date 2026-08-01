@@ -193,3 +193,34 @@ export const HyperSyncLogo = (p: IconProps) => (
     />
   </svg>
 )
+
+export const AlertTriangleIcon = (p: IconProps) => (
+  <svg {...base(p)}>
+    <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+    <path d="M12 9v4" />
+    <path d="M12 17h.01" />
+  </svg>
+)
+
+export const SearchIcon = (p: IconProps) => (
+  <svg {...base(p)}>
+    <circle cx="11" cy="11" r="8" />
+    <path d="M21 21l-4.35-4.35" />
+  </svg>
+)
+
+export const SignalSlashIcon = (p: IconProps) => (
+  <svg {...base(p)}>
+    <path d="M2 2l20 20" />
+    <path d="M5 12.5a10 10 0 0113.6-4" />
+    <path d="M8.5 16a6 6 0 017-1" />
+    <path d="M12 20h.01" />
+  </svg>
+)
+
+export const ArrowRightIcon = (p: IconProps) => (
+  <svg {...base(p)}>
+    <path d="M5 12h14M12 5l7 7-7 7" />
+  </svg>
+)
+

@@ -55,6 +55,11 @@ const GroupRoom = lazy(() =>
     default: module.GroupRoom,
   })),
 )
+const NotFound = lazy(() =>
+  import("./routes/NotFound").then((module) => ({
+    default: module.NotFound,
+  })),
+)
 
 function ScrollToTop() {
   const { pathname, hash } = useLocation()
@@ -112,7 +117,7 @@ function RouteTitle() {
         document.title = `Changelog | ${base}`
         break
       default:
-        document.title = base
+        document.title = `404 Signal Lost | ${base}`
     }
   }, [pathname])
   return null
@@ -146,7 +151,7 @@ export default function App() {
                         <Route path="/changelog" element={<Changelog />} />
                         <Route path="/group" element={<GroupLanding />} />
                         <Route path="/group/:code" element={<GroupRoom />} />
-                        <Route path="*" element={<Navigate to="/" replace />} />
+                        <Route path="*" element={<NotFound />} />
                       </Routes>
                     </Suspense>
                   </AppShell>
