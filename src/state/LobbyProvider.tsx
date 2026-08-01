@@ -60,9 +60,18 @@ export function LobbyProvider({ children }: { children: ReactNode }) {
   const clientRef = useRef<SignalingClient | null>(null)
 
   useEffect(() => {
+    console.log(
+      "[LobbyProvider] Re-evaluating. isBusy:",
+      isBusy,
+      "p2p:",
+      p2pState.connectionState,
+      "group:",
+      groupState.connectionState,
+    )
     if (isBusy) {
       // Hide entirely from the radar if busy
       if (clientRef.current) {
+        console.log("[LobbyProvider] Busy. Closing client.")
         clientRef.current.close()
         clientRef.current = null
       }
@@ -71,11 +80,16 @@ export function LobbyProvider({ children }: { children: ReactNode }) {
     }
 
     if (!clientRef.current) {
+      console.log("[LobbyProvider] Not busy. Creating client.")
       clientRef.current = createSignalingClient()
     }
     const client = clientRef.current
 
-    const offRoster = client.on("roster", (e) => setRoster(e.devices))
+    console.log("[LobbyProvider] Setting up roster listener")
+    const offRoster = client.on("roster", (e) => {
+      console.log("[LobbyProvider] Received roster:", e.devices)
+      setRoster(e.devices)
+    })
     const offInvite = client.on("invite", (e) => {
       // The other device asked us to join — auto-join the channel.
       if (

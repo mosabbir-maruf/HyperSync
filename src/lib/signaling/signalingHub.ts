@@ -33,16 +33,23 @@ interface LobbyMember {
 class SignalingHub {
   private sessions = new Map<string, HubSession>()
   private lobby = new Map<string, LobbyMember>()
+  private externalLobby = new Map<string, DevicePresence>()
   private channel = new BroadcastChannel("dropsync_signaling")
 
   constructor() {
+    console.log("[SignalingHub] Initializing BroadcastChannel 'dropsync_signaling'")
     this.channel.onmessage = (event) => {
       const msg = event.data
+      console.log("[SignalingHub] Received message:", msg.type, msg)
+
       if (msg.type === "LOBBY_SYNC") {
         for (const device of msg.devices) {
-          // Temporarily store external devices for this broadcast tick
+          this.externalLobby.set(device.peerId, device)
         }
-        this.broadcastRoster(msg.devices)
+        this.broadcastRoster()
+      } else if (msg.type === "LOBBY_LEAVE") {
+        this.externalLobby.delete(msg.peerId)
+        this.broadcastRoster()
       } else if (msg.type === "LOBBY_INVITE") {
         const target = this.lobby.get(msg.targetId)
         if (target) target.onInvite(msg.fromId, msg.fromName, msg.code)
@@ -102,22 +109,20 @@ class SignalingHub {
   }
 
   announceLobby(member: LobbyMember): void {
+    console.log("[SignalingHub] announceLobby called for", member.presence.peerId)
     this.lobby.set(member.presence.peerId, member)
     this.channel.postMessage({
       type: "LOBBY_SYNC",
       devices: [...this.lobby.values()].map((m) => m.presence),
     })
+    this.channel.postMessage({ type: "ROSTER_REQUEST" })
     this.broadcastRoster()
   }
 
   leaveLobby(peerId: string): void {
-    if (this.lobby.delete(peerId)) {
-      this.channel.postMessage({
-        type: "LOBBY_SYNC",
-        devices: [...this.lobby.values()].map((m) => m.presence),
-      })
-      this.broadcastRoster()
-    }
+    this.lobby.delete(peerId)
+    this.channel.postMessage({ type: "LOBBY_LEAVE", peerId })
+    this.broadcastRoster()
   }
 
   inviteLobby(fromId: string, targetId: string, code: string): void {
@@ -136,18 +141,17 @@ class SignalingHub {
     }
   }
 
-  private broadcastRoster(externalDevices: DevicePresence[] = []): void {
+  private broadcastRoster(): void {
     for (const member of this.lobby.values()) {
       const localOthers = [...this.lobby.values()]
         .filter((m) => m.presence.peerId !== member.presence.peerId)
         .map((m) => m.presence)
-      const allOthers = [
-        ...localOthers,
-        ...externalDevices.filter(
-          (d) =>
-            d.peerId !== member.presence.peerId && !this.lobby.has(d.peerId),
-        ),
-      ]
+      
+      const externalOthers = Array.from(this.externalLobby.values()).filter(
+        (d) => d.peerId !== member.presence.peerId && !this.lobby.has(d.peerId)
+      )
+
+      const allOthers = [...localOthers, ...externalOthers]
       member.onRoster(allOthers)
     }
   }
@@ -238,11 +242,21 @@ class SignalingHub {
         if (peer.peerId !== from) peer.onSignal(from, signal)
       }
     }
+
+    // BroadcastChannel cannot clone native WebRTC objects like RTCSessionDescription
+    // or RTCIceCandidate. We serialize them to plain objects first.
+    let safeSignal = signal
+    try {
+      safeSignal = JSON.parse(JSON.stringify(signal))
+    } catch (e) {
+      // ignore
+    }
+
     this.channel.postMessage({
       type: "SIGNAL",
       code,
       from,
-      signal,
+      signal: safeSignal,
       targetPeerId,
     })
   }

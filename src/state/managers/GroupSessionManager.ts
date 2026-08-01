@@ -6,6 +6,7 @@ import { GroupConnectionManager } from "./GroupConnectionManager"
 import { GroupTransferManager } from "./GroupTransferManager"
 import { GroupMessagingManager } from "./GroupMessagingManager"
 import { GroupPeerManager } from "./GroupPeerManager"
+import { ConnectionState } from "./ConnectionStateManager"
 
 export interface GroupSessionState {
   connectionState: string // from ConnectionState
@@ -18,7 +19,7 @@ export interface GroupSessionState {
 }
 
 const INITIAL: GroupSessionState = {
-  connectionState: "DISCONNECTED",
+  connectionState: ConnectionState.DISCONNECTED,
   role: null,
   info: null,
   items: [],
