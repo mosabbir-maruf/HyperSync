@@ -24,7 +24,7 @@ export function clearHistory(): void {
       .then((names) => Promise.all(names.map((name) => caches.delete(name))))
       .catch((e) => console.warn("Could not clear caches", e))
   }
-  toast("Local history and cache cleared")
+  toast.success("Local history and cache cleared")
 }
 
 /** React hook exposing the local history list, reactive to writes. */

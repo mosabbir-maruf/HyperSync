@@ -223,17 +223,15 @@ export function Settings() {
         </Card>
       </section>
 
-      <div className="flex items-start gap-3 px-1 text-muted-foreground">
+      <p className="px-4 text-center text-[12px] leading-relaxed text-muted-foreground">
         <ShieldIcon
-          className="mt-0.5 shrink-0 text-primary"
+          className="mr-1.5 -mt-0.5 inline-block shrink-0 align-middle text-primary"
           width={14}
           height={14}
         />
-        <p className="text-[12px] leading-relaxed">
-          HyperSync never uploads file contents. Our backend only relays the
-          messages that let two devices open a direct connection.
-        </p>
-      </div>
+        HyperSync never uploads file contents. Our backend only relays the
+        messages that let two devices open a direct connection.
+      </p>
     </div>
   )
 }
