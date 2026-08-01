@@ -160,8 +160,10 @@ export function ChatPanel({ controller, sessionController, visible, onFiles, onL
               {state.peerName || "Conversation"}
             </span>
             <span className="text-[11px] font-medium text-muted-foreground leading-none mt-1">
-              {state.isRemoteTyping ? (
+              {state.isRemoteTyping && sessionState.connectionState === ConnectionState.CONNECTED ? (
                 <span className="text-primary animate-pulse">Typing...</span>
+              ) : sessionState.connectionState === ConnectionState.DEGRADED ? (
+                <span className="text-warning animate-pulse">Reconnecting...</span>
               ) : (
                 "Connected"
               )}

@@ -17,7 +17,8 @@ export function SessionSurface() {
   const { controller, state } = useSession()
   const confirm = useConfirm()
 
-  const connected = state.connectionState === ConnectionState.CONNECTED
+  // Allow both CONNECTED and DEGRADED states to keep the session room mounted
+  const connected = state.connectionState === ConnectionState.CONNECTED || state.connectionState === ConnectionState.DEGRADED
   const hasActiveTransfer = state.items.some(
     (i) => i.status === "progress" || i.status === "paused",
   )

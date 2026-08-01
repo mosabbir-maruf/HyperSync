@@ -125,11 +125,15 @@ export const MARVEL_CHARACTERS = [
   "Gamora", "Drax"
 ]
 
-const MARVEL_ROSTER = new Set(MARVEL_CHARACTERS)
+const HAS_AVATAR_IMAGE = new Set([
+  "Iron Man", "Spider-Man", "Thor", "Hulk", "Black Widow",
+  "Captain America", "Doctor Strange", "Black Panther", "Captain Marvel",
+  "Wolverine", "Vision", "Drax"
+])
 
-/** Returns the local URL for a Marvel avatar if the name matches, otherwise null. */
+/** Returns the local URL for a Marvel avatar if the name matches and we generated one, otherwise null. */
 export function getMarvelAvatarUrl(name: string): string | null {
-  if (MARVEL_ROSTER.has(name)) {
+  if (HAS_AVATAR_IMAGE.has(name)) {
     const safeFilename = name.toLowerCase().replace(/[^a-z0-9]/g, "-")
     return `/avatars/${safeFilename}.jpg`
   }

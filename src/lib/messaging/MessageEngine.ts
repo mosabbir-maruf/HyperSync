@@ -32,6 +32,7 @@ export class MessageEngine {
   private handlers = new Set<MessageEngineEventHandler>()
   private outboundQueue: MsgFrame[] = []
   private isOpen = false
+  private isPeerOnline = false
 
   // Typing state
   private typingThrottleTimer: ReturnType<typeof setTimeout> | null = null
@@ -68,6 +69,7 @@ export class MessageEngine {
 
     const handleOpen = () => {
       this.isOpen = true
+      this.isPeerOnline = true
       this.startPing()
       this.startTokenRefill()
       this.drainQueue()
@@ -87,6 +89,7 @@ export class MessageEngine {
 
     ch.onclose = () => {
       this.isOpen = false
+      this.isPeerOnline = false
       this.stopPing()
       this.emit({ type: "ChannelClose" })
       this.emit({ type: "PeerOffline" })
@@ -94,6 +97,7 @@ export class MessageEngine {
 
     ch.onerror = () => {
       this.isOpen = false
+      this.isPeerOnline = false
       this.stopPing()
       this.emit({ type: "PeerOffline" })
     }
@@ -196,6 +200,13 @@ export class MessageEngine {
   // ── Incoming frame handling ────────────────────────────────────────────────
 
   private handleFrame(frame: MsgFrame): void {
+      
+    // Any frame received means the peer is alive
+    if (!this.isPeerOnline) {
+      this.isPeerOnline = true
+      this.emit({ type: "PeerOnline" })
+    }
+
     switch (frame.t) {
       case "MESSAGE": {
         if (!frame.id || !frame.text) return
@@ -268,7 +279,10 @@ export class MessageEngine {
       this.rawSend({ t: "PING" })
       // Expect PONG within PONG_TIMEOUT_MS
       this.pongTimeout = setTimeout(() => {
-        this.emit({ type: "PeerOffline" })
+        if (this.isPeerOnline) {
+          this.isPeerOnline = false
+          this.emit({ type: "PeerOffline" })
+        }
       }, PONG_TIMEOUT_MS)
     }, PING_INTERVAL_MS)
   }

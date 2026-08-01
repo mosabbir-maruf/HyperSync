@@ -94,6 +94,9 @@ export class SessionManager {
       },
       onError: (msg) => {
         this.set({ error: msg })
+        if (msg.includes("disconnected temporarily")) {
+          this.connection.setHeartbeatHealthy(false)
+        }
       }
     })
 
