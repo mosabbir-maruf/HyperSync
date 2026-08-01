@@ -32,7 +32,6 @@ export class ChunkReceiver {
 
   private readonly abortHandler = () => {
     this.abort()
-    this.onError("Transfer aborted by receiver")
   }
 
   constructor(
@@ -98,6 +97,7 @@ export class ChunkReceiver {
         }
       })
       .catch((err: unknown) => {
+        if (this.isAborted) return
         this.abort()
         this.onError(err instanceof Error ? err.message : "Disk write failed")
       }) as Promise<void>)
