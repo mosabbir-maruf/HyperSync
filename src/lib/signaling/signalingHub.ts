@@ -38,8 +38,11 @@ class SignalingHub {
   constructor() {
     this.channel.onmessage = (event) => {
       const msg = event.data
-      if (msg.type === "LOBBY_ANNOUNCE") {
-        this.broadcastRoster()
+      if (msg.type === "LOBBY_SYNC") {
+        for (const device of msg.devices) {
+          // Temporarily store external devices for this broadcast tick
+        }
+        this.broadcastRoster(msg.devices)
       } else if (msg.type === "LOBBY_INVITE") {
         const target = this.lobby.get(msg.targetId)
         if (target) target.onInvite(msg.fromId, msg.fromName, msg.code)
@@ -87,15 +90,10 @@ class SignalingHub {
       } else if (msg.type === "ROSTER_REQUEST") {
         if (this.lobby.size > 0) {
           this.channel.postMessage({
-            type: "ROSTER_REPLY",
+            type: "LOBBY_SYNC",
             devices: [...this.lobby.values()].map((m) => m.presence),
           })
         }
-      } else if (msg.type === "ROSTER_REPLY") {
-        for (const device of msg.devices) {
-          // just trigger broadcast
-        }
-        this.broadcastRoster(msg.devices)
       }
     }
 
@@ -105,13 +103,19 @@ class SignalingHub {
 
   announceLobby(member: LobbyMember): void {
     this.lobby.set(member.presence.peerId, member)
-    this.channel.postMessage({ type: "LOBBY_ANNOUNCE" })
+    this.channel.postMessage({
+      type: "LOBBY_SYNC",
+      devices: [...this.lobby.values()].map((m) => m.presence),
+    })
     this.broadcastRoster()
   }
 
   leaveLobby(peerId: string): void {
     if (this.lobby.delete(peerId)) {
-      this.channel.postMessage({ type: "LOBBY_ANNOUNCE" })
+      this.channel.postMessage({
+        type: "LOBBY_SYNC",
+        devices: [...this.lobby.values()].map((m) => m.presence),
+      })
       this.broadcastRoster()
     }
   }

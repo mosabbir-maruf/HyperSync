@@ -18,6 +18,7 @@ import { Avatar } from "../ui/Avatar"
 import { Button } from "../ui/Button"
 import { SendIcon, UsersIcon, InfoIcon } from "../ui/icons"
 import type { TimelineItem } from "./MessageList"
+import { DropZone } from "../session/DropZone"
 
 export interface IChatMessagingState {
   messages: ChatMessage[]
@@ -91,6 +92,7 @@ export function ChatPanel({
   onInfoClick,
 }: ChatPanelProps) {
   const [dragging, setDragging] = useState(false)
+  const [viewMode, setViewMode] = useState<"chat" | "files">("chat")
 
   // Subscribe to messaging state
   const state = useSyncExternalStore(
@@ -178,6 +180,11 @@ export function ChatPanel({
     })
   }
 
+  const filteredTimeline =
+    viewMode === "files"
+      ? timeline.filter((t) => t.type !== "message")
+      : timeline
+
   return (
     <div
       onDragEnter={(e) => {
@@ -227,8 +234,8 @@ export function ChatPanel({
       )}
 
       {/* Header */}
-      <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-3 shrink-0">
-        <div className="flex items-center gap-3 min-w-0">
+      <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-3 shrink-0 overflow-x-auto">
+        <div className="flex items-center gap-3 min-w-0 shrink-0">
           <div className="relative">
             {isGroup ? (
               <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground shrink-0">
@@ -272,7 +279,31 @@ export function ChatPanel({
             </span>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 shrink-0">
+          <div className="flex bg-secondary/50 rounded-lg p-0.5 sm:mr-2">
+            <button
+              onClick={() => setViewMode("chat")}
+              className={cn(
+                "px-3 py-1 text-xs font-medium rounded-md transition-all",
+                viewMode === "chat"
+                  ? "bg-background text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground",
+              )}
+            >
+              Chat
+            </button>
+            <button
+              onClick={() => setViewMode("files")}
+              className={cn(
+                "px-3 py-1 text-xs font-medium rounded-md transition-all",
+                viewMode === "files"
+                  ? "bg-background text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground",
+              )}
+            >
+              Files
+            </button>
+          </div>
           {onInfoClick && (
             <Button
               variant="ghost"
@@ -318,9 +349,9 @@ export function ChatPanel({
 
       {/* Message list — flex-1 fills available height */}
       <MessageList
-        items={timeline}
+        items={filteredTimeline}
         peerName={displayPeerName}
-        isRemoteTyping={!!isTyping}
+        isRemoteTyping={viewMode === "chat" ? !!isTyping : false}
         onPause={(id) => sessionController.pause(id)}
         onResume={(id) => sessionController.resume(id)}
         onCancel={(id) => sessionController.cancel(id)}
@@ -329,18 +360,24 @@ export function ChatPanel({
         onReject={(ids) => sessionController.reject(ids)}
       />
 
-      {/* Input */}
+      {/* Input or DropZone */}
       <div className="px-4 pb-4">
-        <MessageInput
-          recentEmoji={state.recentEmoji}
-          onSend={handleSend}
-          onTypingStart={handleTypingStart}
-          onTypingStop={handleTypingStop}
-          onEmojiSelect={handleEmojiSelect}
-          onAttach={onFiles ? handleAttach : undefined}
-          disabled={isDisabled}
-          autoFocus={visible}
-        />
+        {viewMode === "chat" ? (
+          <MessageInput
+            recentEmoji={state.recentEmoji}
+            onSend={handleSend}
+            onTypingStart={handleTypingStart}
+            onTypingStop={handleTypingStop}
+            onEmojiSelect={handleEmojiSelect}
+            onAttach={onFiles ? handleAttach : undefined}
+            disabled={isDisabled}
+            autoFocus={visible}
+          />
+        ) : (
+          <div className="pt-2">
+            <DropZone onFiles={onFiles!} disabled={isDisabled} />
+          </div>
+        )}
       </div>
     </div>
   )
