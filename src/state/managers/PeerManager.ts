@@ -85,6 +85,11 @@ export class PeerManager {
     })
 
     this.signaling.on("error", (e) => {
+      if (e.message.includes("disconnected temporarily")) {
+        console.warn("[WebRTC] signaling error:", e.message)
+        this.onError(e.message)
+        return
+      }
       this.fail(appError("network", e.message))
     })
 

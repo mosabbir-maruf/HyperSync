@@ -126,6 +126,11 @@ export class GroupPeerManager {
     })
 
     this.signaling.on("error", (e) => {
+      if (e.message.includes("disconnected temporarily")) {
+        console.warn("[GroupWebRTC] signaling error:", e.message)
+        this.onError(e.message)
+        return
+      }
       this.fail(appError("network", e.message))
     })
   }
