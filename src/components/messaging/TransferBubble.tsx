@@ -156,7 +156,7 @@ export const TransferBubble = memo(function TransferBubble({
               </div>
 
               <div className="flex shrink-0 items-center gap-0.5 mt-0.5 ml-1">
-                {item.status === "progress" && isLocal && (
+                {item.status === "progress" && (
                   <IconButton label="Pause" onClick={() => onPause(item.id)}>
                     <PauseIcon width={18} height={18} />
                   </IconButton>
