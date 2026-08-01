@@ -4,7 +4,12 @@ import { useGroupSession } from "../state/GroupSessionProvider"
 import { Button } from "../components/ui/Button"
 import { Card } from "../components/ui/Card"
 import { toast } from "../lib/notify/toast"
-import { RadarIcon, QrIcon, UsersIcon } from "../components/ui/icons"
+import {
+  RadarIcon,
+  QrIcon,
+  UsersIcon,
+  KeyboardIcon,
+} from "../components/ui/icons"
 import { QrScannerModal } from "../components/session/QrScannerModal"
 import { CodeInput } from "../components/session/CodeInput"
 
@@ -51,7 +56,7 @@ export function GroupLanding() {
       <div className="mx-auto max-w-md space-y-6">
         <header className="space-y-2 text-center">
           <span className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-secondary text-primary">
-            <QrIcon width={24} height={24} />
+            <KeyboardIcon width={24} height={24} />
           </span>
           <h1 className="text-2xl font-semibold tracking-tight">
             Join a group
@@ -159,7 +164,7 @@ export function GroupLanding() {
             className="group flex items-center gap-3 p-5 transition-colors hover:bg-card text-left w-full"
           >
             <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border-strong">
-              <QrIcon width={20} height={20} />
+              <KeyboardIcon width={20} height={20} />
             </span>
             <div>
               <p className="text-sm font-bold tracking-tight">Join a group</p>

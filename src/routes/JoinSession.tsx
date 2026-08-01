@@ -6,7 +6,7 @@ import { SessionRoom } from "../components/session/SessionRoom"
 import { ConnectionStatus } from "../components/layout/ConnectionStatus"
 import { Button } from "../components/ui/Button"
 import { Card } from "../components/ui/Card"
-import { QrIcon } from "../components/ui/icons"
+import { QrIcon, KeyboardIcon } from "../components/ui/icons"
 import { QrScannerModal } from "../components/session/QrScannerModal"
 import { ConnectionState } from "../state/managers/ConnectionStateManager"
 
@@ -74,7 +74,7 @@ export function JoinSession() {
     <div className="mx-auto max-w-md space-y-6">
       <header className="space-y-2 text-center">
         <span className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-secondary text-primary">
-          <QrIcon width={24} height={24} />
+          <KeyboardIcon width={24} height={24} />
         </span>
         <h1 className="text-2xl font-semibold tracking-tight">
           Join a session

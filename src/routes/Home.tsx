@@ -4,7 +4,12 @@ import { NearbyDevices } from "../components/session/NearbyDevices"
 import { SessionSurface } from "../components/session/SessionSurface"
 import { FilePanel } from "../components/transfer/FilePanel"
 import { ConnectionState } from "../state/managers/ConnectionStateManager"
-import { QrIcon, RadarIcon, UsersIcon } from "../components/ui/icons"
+import {
+  QrIcon,
+  RadarIcon,
+  UsersIcon,
+  KeyboardIcon,
+} from "../components/ui/icons"
 import { capabilityService } from "../services/CapabilityService"
 
 export function Home() {
@@ -74,7 +79,7 @@ export function Home() {
             className="group flex items-center gap-3 p-5 transition-colors hover:bg-card"
           >
             <span className="flex h-10 w-10 items-center justify-center rounded-full border border-border-strong">
-              <QrIcon width={20} height={20} />
+              <KeyboardIcon width={20} height={20} />
             </span>
             <div>
               <p className="text-sm font-bold tracking-tight">Enter a code</p>
