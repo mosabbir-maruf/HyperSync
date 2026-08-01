@@ -4,7 +4,7 @@ import { useGroupSession } from "../state/GroupSessionProvider"
 import { Button } from "../components/ui/Button"
 import { Card } from "../components/ui/Card"
 import { toast } from "../lib/notify/toast"
-import { RadarIcon, QrIcon } from "../components/ui/icons"
+import { RadarIcon, QrIcon, UsersIcon } from "../components/ui/icons"
 import { QrScannerModal } from "../components/session/QrScannerModal"
 import { CodeInput } from "../components/session/CodeInput"
 
@@ -140,7 +140,7 @@ export function GroupLanding() {
               {isCreating ? (
                 <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent" />
               ) : (
-                <RadarIcon width={20} height={20} />
+                <UsersIcon width={20} height={20} />
               )}
             </span>
             <div>

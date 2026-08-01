@@ -4,7 +4,7 @@ import { NearbyDevices } from "../components/session/NearbyDevices"
 import { SessionSurface } from "../components/session/SessionSurface"
 import { FilePanel } from "../components/transfer/FilePanel"
 import { ConnectionState } from "../state/managers/ConnectionStateManager"
-import { QrIcon, RadarIcon } from "../components/ui/icons"
+import { QrIcon, RadarIcon, UsersIcon } from "../components/ui/icons"
 import { capabilityService } from "../services/CapabilityService"
 
 export function Home() {
@@ -99,7 +99,7 @@ export function Home() {
           className="group flex items-center gap-3 rounded-3xl border border-border-strong p-5 transition-colors hover:bg-card"
         >
           <span className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary text-primary">
-            <RadarIcon width={20} height={20} />
+            <UsersIcon width={20} height={20} />
           </span>
           <div>
             <p className="text-sm font-bold tracking-tight">Group Session</p>
