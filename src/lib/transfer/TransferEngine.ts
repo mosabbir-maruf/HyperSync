@@ -137,11 +137,11 @@ export class TransferEngine {
       // Start the producer coroutine (reads disk -> encodes -> pushes to pipeline)
       const pumpPromise = engine.pump([pipeline], ac.signal)
 
-      // Wait until every chunk has been flushed to channel.send()
-      await pipeline.waitUntilDone()
-
-      // Ensure pump hasn't thrown (e.g. read error)
-      await pumpPromise
+      // Wait until every chunk has been flushed to channel.send(), or an error occurs (e.g. aborted)
+      await Promise.all([
+        pipeline.waitUntilDone(),
+        pumpPromise
+      ])
 
       if (ac.signal.aborted) {
         this.sendControl({ t: "TRANSFER_CANCEL", id: meta.transferId })
@@ -159,6 +159,7 @@ export class TransferEngine {
         })
       }
     } finally {
+      pipeline.destroy()
       this.pipelines.delete(meta.transferId)
       this.abortControllers.delete(meta.transferId)
       transfer.file = (undefined as any)
@@ -232,6 +233,7 @@ export class TransferEngine {
 
   cancel(id: string) {
     this.abortControllers.get(id)?.abort()
+    this.pipelines.get(id)?.destroy()
     this.queue.remove(id)
     this.sendControl({ t: "TRANSFER_CANCEL", id })
     this.emit({ type: "TransferCancelled", transferId: id })
@@ -328,6 +330,7 @@ export class TransferEngine {
       case "TRANSFER_ABORT": {
         const ac = this.abortControllers.get(msg.id)
         if (ac) ac.abort()
+        this.pipelines.get(msg.id)?.destroy()
         this.emit({ type: "TransferCancelled", transferId: msg.id })
         this.cleanupReceiver(msg.id)
         break
@@ -368,9 +371,11 @@ export class TransferEngine {
       })
     }
     for (const ac of this.abortControllers.values()) ac.abort()
+    for (const pipeline of this.pipelines.values()) pipeline.destroy()
     this.queue.clear()
     this.receivers.clear()
     this.abortControllers.clear()
+    this.pipelines.clear()
     this.acceptedIds.clear()
   }
 

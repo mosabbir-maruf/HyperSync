@@ -31,9 +31,8 @@ export function SessionRoom({ onLeave }: { onLeave: () => void }) {
   }, [messagingCtrl, getMessagingController])
 
   return (
-    <>
-      {/* ── Mobile: full height layout ─────────────────────────────────── */}
-      <div className="md:hidden flex flex-col h-[700px]">
+    <div className="flex flex-col md:items-center w-full h-[700px] md:h-[800px]">
+      <div className="flex flex-col w-full h-full">
         {messagingCtrl ? (
           <ChatPanel
             controller={messagingCtrl}
@@ -46,24 +45,7 @@ export function SessionRoom({ onLeave }: { onLeave: () => void }) {
           <ChatPlaceholder />
         )}
       </div>
-
-      {/* ── Desktop: full width layout ─────────────────────────────────── */}
-      <div className="hidden md:flex flex-col items-center">
-        <div className="w-full h-[800px]">
-          {messagingCtrl ? (
-            <ChatPanel
-              controller={messagingCtrl}
-              sessionController={controller}
-              visible={true}
-              onFiles={(files) => controller.sendFiles(files)}
-              onLeave={onLeave}
-            />
-          ) : (
-            <ChatPlaceholder />
-          )}
-        </div>
-      </div>
-    </>
+    </div>
   )
 }
 

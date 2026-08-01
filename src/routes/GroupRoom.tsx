@@ -56,26 +56,8 @@ export function GroupRoom() {
 
     return (
       <>
-        {/* ── Mobile: full height layout ─────────────────────────────────── */}
-        <div className="md:hidden flex flex-col h-[700px]">
-          {messagingCtrl ? (
-            <ChatPanel
-              controller={messagingCtrl}
-              sessionController={controller}
-              visible={true}
-              onFiles={(files) => controller.sendFiles(files)}
-              onLeave={handleLeave}
-              title={code}
-              isGroup={true}
-              onInfoClick={() => setIsInfoOpen(true)}
-            />
-          ) : (
-            <ChatPlaceholder />
-          )}
-        </div>
-
-        <div className="hidden md:flex flex-col items-center">
-          <div className="w-full h-[800px]">
+        <div className="flex flex-col md:items-center w-full h-[700px] md:h-[800px]">
+          <div className="flex flex-col w-full h-full">
             {messagingCtrl ? (
               <ChatPanel
                 controller={messagingCtrl}
