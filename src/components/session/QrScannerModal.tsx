@@ -5,7 +5,7 @@ import { Card } from "../ui/Card"
 interface QrScannerModalProps {
   isOpen: boolean
   onClose: () => void
-  onScan: (code: string) => void
+  onScan: (code: string, isGroup: boolean) => void
 }
 
 export function QrScannerModal({
@@ -56,10 +56,10 @@ export function QrScannerModal({
                 const barcodes = await detector.detect(videoRef.current)
                 if (barcodes.length > 0 && barcodes[0].rawValue) {
                   const raw = barcodes[0].rawValue.trim()
-                  const code = extractCode(raw)
-                  if (code) {
+                  const result = extractCode(raw)
+                  if (result) {
                     active = false
-                    onScan(code)
+                    onScan(result.code, result.isGroup)
                     onClose()
                     return
                   }
@@ -141,14 +141,19 @@ export function QrScannerModal({
   )
 }
 
-function extractCode(raw: string): string | null {
+function extractCode(raw: string): { code: string; isGroup: boolean } | null {
   try {
     const url = new URL(raw)
     const code = url.searchParams.get("code")
-    if (code) return code.toUpperCase()
+    if (code) {
+      return {
+        code: code.toUpperCase(),
+        isGroup: url.pathname.includes("/group"),
+      }
+    }
   } catch {
     const clean = raw.replace(/[^A-Za-z0-9]/g, "").toUpperCase()
-    if (clean.length === 6) return clean
+    if (clean.length === 6) return { code: clean, isGroup: false }
   }
   return null
 }

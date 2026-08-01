@@ -1,9 +1,10 @@
-import { useState } from "react"
-import { useNavigate } from "react-router-dom"
+import { useEffect, useRef, useState } from "react"
+import { useNavigate, useSearchParams } from "react-router-dom"
 import { useGroupSession } from "../state/GroupSessionProvider"
 import { Button } from "../components/ui/Button"
 import { Card } from "../components/ui/Card"
 import { toast } from "../lib/notify/toast"
+import { ConnectionState } from "../state/managers/ConnectionStateManager"
 import {
   RadarIcon,
   QrIcon,
@@ -15,12 +16,28 @@ import { CodeInput } from "../components/session/CodeInput"
 
 export function GroupLanding() {
   const navigate = useNavigate()
-  const { controller } = useGroupSession()
+  const [params] = useSearchParams()
+  const { controller, state } = useGroupSession()
   const [joinCode, setJoinCode] = useState("")
   const [isCreating, setIsCreating] = useState(false)
   const [isJoining, setIsJoining] = useState(false)
   const [isScannerOpen, setIsScannerOpen] = useState(false)
   const [mode, setMode] = useState<"menu" | "join">("menu")
+  const autoTried = useRef(false)
+
+  // Auto-join when arriving via a QR link (?code=...).
+  useEffect(() => {
+    const code = params.get("code")
+    if (
+      code &&
+      !autoTried.current &&
+      state.connectionState === ConnectionState.DISCONNECTED
+    ) {
+      autoTried.current = true
+      setMode("join")
+      handleJoinGroupWithCode(code)
+    }
+  }, [params, controller, state.connectionState])
 
   const handleCreateGroup = async () => {
     setIsCreating(true)
@@ -110,9 +127,14 @@ export function GroupLanding() {
         <QrScannerModal
           isOpen={isScannerOpen}
           onClose={() => setIsScannerOpen(false)}
-          onScan={(code) => {
-            setJoinCode(code)
-            setIsScannerOpen(false)
+          onScan={(code, isGroup) => {
+            if (!isGroup) {
+              navigate(`/join?code=${code}`, { replace: true })
+            } else {
+              setJoinCode(code)
+              setIsScannerOpen(false)
+              handleJoinGroupWithCode(code)
+            }
           }}
         />
       </div>

@@ -115,7 +115,13 @@ export function JoinSession() {
       <QrScannerModal
         isOpen={isScannerOpen}
         onClose={() => setIsScannerOpen(false)}
-        onScan={(code) => join(code)}
+        onScan={(code, isGroup) => {
+          if (isGroup) {
+            navigate(`/group?code=${code}`, { replace: true })
+          } else {
+            join(code)
+          }
+        }}
       />
     </div>
   )
