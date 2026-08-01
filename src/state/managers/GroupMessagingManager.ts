@@ -10,6 +10,7 @@ export interface GroupMessagingState {
   typingPeers: string[] // List of peer display names currently typing
   unreadCount: number
   recentEmoji: string[]
+  memberNames: string[]
 }
 
 const INITIAL_STATE: GroupMessagingState = {
@@ -17,6 +18,7 @@ const INITIAL_STATE: GroupMessagingState = {
   typingPeers: [],
   unreadCount: 0,
   recentEmoji: [],
+  memberNames: [],
 }
 
 const MAX_RECENT_EMOJI = 8
@@ -116,6 +118,7 @@ export class GroupMessagingManager {
 
         case "PeerNameReceived":
           this.peerNames.set(peerId, event.name)
+          this.set({ memberNames: Array.from(this.peerNames.values()) })
           break
       }
     })
@@ -136,6 +139,7 @@ export class GroupMessagingManager {
 
     this.stopTyping(peerId)
     this.peerNames.delete(peerId)
+    this.set({ memberNames: Array.from(this.peerNames.values()) })
   }
 
   private stopTyping(peerId: string) {

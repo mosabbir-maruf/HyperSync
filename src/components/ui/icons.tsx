@@ -169,6 +169,14 @@ export const KeyboardIcon = (p: IconProps) => (
   </svg>
 )
 
+export const InfoIcon = (p: IconProps) => (
+  <svg {...base(p)}>
+    <circle cx="12" cy="12" r="10" />
+    <path d="M12 16v-4" />
+    <path d="M12 8h.01" />
+  </svg>
+)
+
 export const HyperSyncLogo = (p: IconProps) => (
   <svg
     viewBox="0 0 24 24"

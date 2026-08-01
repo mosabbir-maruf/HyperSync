@@ -103,7 +103,9 @@ export class GroupPeerManager {
         console.log(
           `[GroupWebRTC] Received signal from unknown peer ${event.from}, creating connection as guest`,
         )
-        this.establishMeshConnection(event.from, "guest")
+        this.establishMeshConnection(event.from, "guest", event.signal)
+        // Set phase to connected since we're now actively negotiating
+        this.onPhaseChange("connected")
       }
     })
 
@@ -131,6 +133,7 @@ export class GroupPeerManager {
   private establishMeshConnection(
     targetPeerId: string,
     role: "host" | "guest",
+    initialSignal?: PeerSignal,
   ) {
     if (this.peers.has(targetPeerId)) return
 
@@ -164,6 +167,10 @@ export class GroupPeerManager {
     if (role === "host") {
       setTimeout(() => {
         adapter.simulatePeerJoined()
+      }, 0)
+    } else if (initialSignal) {
+      setTimeout(() => {
+        adapter.simulateSignal(initialSignal)
       }, 0)
     }
   }

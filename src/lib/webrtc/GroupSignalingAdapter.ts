@@ -20,6 +20,11 @@ export class GroupSignalingAdapter implements SignalingClient {
     type: "peer-joined"
     peerId: string
   }) => void[] = []
+  private signalHandlers: (event: {
+    type: "signal"
+    from: string
+    signal: PeerSignal
+  }) => void[] = []
 
   constructor(
     private readonly base: SignalingClient,
@@ -31,6 +36,7 @@ export class GroupSignalingAdapter implements SignalingClient {
     handler: SignalingEventHandler<T>,
   ): Unsubscribe {
     if (type === "signal") {
+      this.signalHandlers.push(handler as any)
       // Map 'group-signal' from targetPeerId to 'signal'
       const unsub = this.base.on("group-signal", (event) => {
         if (event.from === this.targetPeerId) {
@@ -73,6 +79,12 @@ export class GroupSignalingAdapter implements SignalingClient {
   simulatePeerJoined(): void {
     for (const handler of this.peerJoinedHandlers) {
       handler({ type: "peer-joined", peerId: this.targetPeerId })
+    }
+  }
+
+  simulateSignal(signal: PeerSignal): void {
+    for (const handler of this.signalHandlers) {
+      handler({ type: "signal", from: this.targetPeerId, signal })
     }
   }
 

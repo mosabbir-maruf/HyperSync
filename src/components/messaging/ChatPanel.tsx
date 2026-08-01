@@ -16,13 +16,14 @@ import { clipboardService } from "../../browser/ClipboardService"
 import { toast } from "../../lib/notify/toast"
 import { Avatar } from "../ui/Avatar"
 import { Button } from "../ui/Button"
-import { SendIcon, UsersIcon } from "../ui/icons"
+import { SendIcon, UsersIcon, InfoIcon } from "../ui/icons"
 import type { TimelineItem } from "./MessageList"
 
 export interface IChatMessagingState {
   messages: ChatMessage[]
   recentEmoji: string[]
   peerName?: string | null
+  memberNames?: string[]
   isRemoteTyping?: boolean
   typingPeers?: string[]
 }
@@ -64,6 +65,7 @@ interface ChatPanelProps {
   onLeave: () => void
   title?: string
   isGroup?: boolean
+  onInfoClick?: () => void
 }
 
 /**
@@ -86,6 +88,7 @@ export function ChatPanel({
   onLeave,
   title,
   isGroup,
+  onInfoClick,
 }: ChatPanelProps) {
   const [dragging, setDragging] = useState(false)
 
@@ -269,7 +272,18 @@ export function ChatPanel({
             </span>
           </div>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2">
+          {onInfoClick && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 text-muted-foreground"
+              title="Group Info"
+              onClick={onInfoClick}
+            >
+              <InfoIcon width={16} height={16} />
+            </Button>
+          )}
           <Button
             variant="secondary"
             size="sm"

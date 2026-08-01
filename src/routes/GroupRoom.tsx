@@ -1,4 +1,4 @@
-import { useEffect } from "react"
+import { useEffect, useState, useSyncExternalStore } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import { useGroupSession } from "../state/GroupSessionProvider"
 import { useSettings } from "../state/SettingsProvider"
@@ -9,12 +9,19 @@ import { ConnectionState } from "../state/managers/ConnectionStateManager"
 import { SessionCode } from "../components/session/SessionCode"
 import { QRDisplay } from "../components/session/QRDisplay"
 import { ChatPanel } from "../components/messaging/ChatPanel"
+import { GroupInfoModal } from "../components/session/GroupInfoModal"
 
 export function GroupRoom() {
   const { code } = useParams<{ code: string }>()
+  const [isInfoOpen, setIsInfoOpen] = useState(false)
   const navigate = useNavigate()
   const { state, controller } = useGroupSession()
   const { settings } = useSettings()
+
+  const messagingState = useSyncExternalStore(
+    (cb) => controller.getMessagingManager().subscribe(cb),
+    () => controller.getMessagingManager().getState(),
+  )
 
   useEffect(() => {
     if (
@@ -60,13 +67,13 @@ export function GroupRoom() {
               onLeave={handleLeave}
               title={code}
               isGroup={true}
+              onInfoClick={() => setIsInfoOpen(true)}
             />
           ) : (
             <ChatPlaceholder />
           )}
         </div>
 
-        {/* ── Desktop: full width layout ─────────────────────────────────── */}
         <div className="hidden md:flex flex-col items-center">
           <div className="w-full h-[800px]">
             {messagingCtrl ? (
@@ -78,12 +85,21 @@ export function GroupRoom() {
                 onLeave={handleLeave}
                 title={code}
                 isGroup={true}
+                onInfoClick={() => setIsInfoOpen(true)}
               />
             ) : (
               <ChatPlaceholder />
             )}
           </div>
         </div>
+
+        <GroupInfoModal
+          isOpen={isInfoOpen}
+          onClose={() => setIsInfoOpen(false)}
+          joinUrl={state.info?.joinUrl}
+          code={code}
+          members={messagingState.memberNames}
+        />
       </>
     )
   }
@@ -110,20 +126,35 @@ export function GroupRoom() {
         </Card>
       )}
 
-      <Card className="flex flex-col items-center gap-6 p-6 md:flex-row md:items-center md:gap-8 md:p-8">
-        {state.info && <QRDisplay value={state.info.joinUrl} />}
-        <div className="flex-1 space-y-4 text-center md:text-left">
-          <div className="space-y-1.5">
-            <p className="text-sm text-muted-foreground">
-              On the other device, scan this QR or enter the code:
+      {state.role === "host" ? (
+        <Card className="flex flex-col items-center gap-6 p-6 md:flex-row md:items-center md:gap-8 md:p-8">
+          {state.info && <QRDisplay value={state.info.joinUrl} />}
+          <div className="flex-1 space-y-4 text-center md:text-left">
+            <div className="space-y-1.5">
+              <p className="text-sm text-muted-foreground">
+                On the other device, scan this QR or enter the code:
+              </p>
+            </div>
+            <SessionCode code={code || ""} />
+            <p className="text-[13px] leading-relaxed text-muted-foreground">
+              Keep this tab open. Share this code with up to 7 other people.
             </p>
           </div>
-          <SessionCode code={code || ""} />
-          <p className="text-[13px] leading-relaxed text-muted-foreground">
-            Keep this tab open. Share this code with up to 7 other people.
-          </p>
-        </div>
-      </Card>
+        </Card>
+      ) : (
+        <Card className="flex flex-col items-center justify-center p-12 space-y-4 h-[300px]">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+          <p className="text-sm text-muted-foreground">Joining group...</p>
+        </Card>
+      )}
+
+      <GroupInfoModal
+        isOpen={isInfoOpen}
+        onClose={() => setIsInfoOpen(false)}
+        joinUrl={state.info?.joinUrl}
+        code={code}
+        members={messagingState.memberNames}
+      />
     </div>
   )
 }

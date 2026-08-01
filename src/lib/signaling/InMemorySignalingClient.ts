@@ -83,11 +83,10 @@ export class InMemorySignalingClient
     const normalizedCode = normalizeCode(code)
     this.code = normalizedCode
     this.role = "member"
-    const existing = this.attach(normalizedCode, "member", true)
+    this.attach(normalizedCode, "member", true)
     this.setState("connected")
-    // For groups, emit group-peer-joined
-    for (const p of existing)
-      this.emit({ type: "group-peer-joined", peerId: p.peerId, role: p.role })
+    // For groups, existing members will receive our join event and initiate connections.
+    // We do not emit group-peer-joined here because that would cause us to act as the offerer.
     return this.buildInfo(normalizedCode, normalizedCode, "member")
   }
 
