@@ -7,23 +7,63 @@ import {
 } from "react"
 import { MessageList } from "./MessageList"
 import { MessageInput } from "./MessageInput"
-import type { MessagingManager } from "../../state/managers/MessagingManager"
-import type { SessionManager } from "../../state/managers/SessionManager"
+import type { ChatMessage } from "../../lib/messaging/MessageEngine"
+import type { TransferItem, FileMetadata } from "../../lib/transfer/types"
 import { ConnectionState } from "../../state/managers/ConnectionStateManager"
 import { cn } from "../../lib/utils"
 import { storageProvider } from "../../browser/FileSelectionService"
+import { clipboardService } from "../../browser/ClipboardService"
+import { toast } from "../../lib/notify/toast"
 import { Avatar } from "../ui/Avatar"
 import { Button } from "../ui/Button"
-import { SendIcon } from "../ui/icons"
+import { SendIcon, UsersIcon } from "../ui/icons"
 import type { TimelineItem } from "./MessageList"
 
+export interface IChatMessagingState {
+  messages: ChatMessage[]
+  recentEmoji: string[]
+  peerName?: string | null
+  isRemoteTyping?: boolean
+  typingPeers?: string[]
+}
+
+export interface IChatMessagingController {
+  subscribe(fn: (s: any) => void): () => void
+  getState(): IChatMessagingState
+  setPanelVisible(visible: boolean): void
+  sendMessage(text: string): void
+  sendTypingStart(): void
+  sendTypingStop(): void
+  recordRecentEmoji(emoji: string): void
+}
+
+export interface IChatSessionState {
+  connectionState: ConnectionState | string
+  items: TransferItem & { peerId?: string }[]
+  incoming: FileMetadata & { peerId?: string }[] | null
+}
+
+export interface IChatSessionController {
+  subscribe(fn: (s: any) => void): () => void
+  getState(): IChatSessionState
+  sendFiles(files: File[]): void
+  pause(id: string): void
+  resume(id: string): void
+  cancel(id: string): void
+  retry(id: string): void
+  accept(ids: string[]): Promise<void>
+  reject(ids: string[]): void
+}
+
 interface ChatPanelProps {
-  controller: MessagingManager
-  sessionController: SessionManager
+  controller: IChatMessagingController
+  sessionController: IChatSessionController
   /** Whether the panel is currently visible (for unread tracking). */
   visible: boolean
   onFiles?: (files: File[]) => void
   onLeave: () => void
+  title?: string
+  isGroup?: boolean
 }
 
 /**
@@ -44,6 +84,8 @@ export function ChatPanel({
   visible,
   onFiles,
   onLeave,
+  title,
+  isGroup,
 }: ChatPanelProps) {
   const [dragging, setDragging] = useState(false)
 
@@ -51,13 +93,21 @@ export function ChatPanel({
   const state = useSyncExternalStore(
     (cb) => controller.subscribe(cb),
     () => controller.getState(),
-  )
+  ) as IChatMessagingState
 
   // Subscribe to session state to get transfers and incoming files
   const sessionState = useSyncExternalStore(
     (cb) => sessionController.subscribe(cb),
     () => sessionController.getState(),
-  )
+  ) as IChatSessionState
+
+  const displayPeerName =
+    state.peerName ||
+    (state.typingPeers && state.typingPeers.length > 0
+      ? state.typingPeers[0]
+      : title || "Group")
+  const isTyping =
+    state.isRemoteTyping || (state.typingPeers && state.typingPeers.length > 0)
 
   // Report visibility so unread counter resets when panel is open
   const visibleRef = useRef(visible)
@@ -177,7 +227,13 @@ export function ChatPanel({
       <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-3 shrink-0">
         <div className="flex items-center gap-3 min-w-0">
           <div className="relative">
-            <Avatar name={state.peerName || "Guest"} size="sm" />
+            {isGroup ? (
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground shrink-0">
+                <UsersIcon width={16} height={16} />
+              </div>
+            ) : (
+              <Avatar name={displayPeerName} size="sm" />
+            )}
             <span
               className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-card bg-success"
               title="Online"
@@ -185,13 +241,22 @@ export function ChatPanel({
           </div>
           <div className="flex flex-col">
             <span
-              className="font-bold truncate text-[15px] leading-tight text-foreground"
-              title={state.peerName || "Conversation"}
+              className={cn(
+                "font-bold truncate text-[15px] leading-tight text-foreground",
+                isGroup && title ? "cursor-pointer hover:underline" : "",
+              )}
+              title={isGroup ? "Click to copy Group ID" : displayPeerName}
+              onClick={() => {
+                if (isGroup && title) {
+                  clipboardService.writeText(title)
+                  toast.success("Group ID copied")
+                }
+              }}
             >
-              {state.peerName || "Conversation"}
+              {displayPeerName}
             </span>
             <span className="text-[11px] font-medium text-muted-foreground leading-none mt-1">
-              {state.isRemoteTyping &&
+              {isTyping &&
               sessionState.connectionState === ConnectionState.CONNECTED ? (
                 <span className="text-primary animate-pulse">Typing...</span>
               ) : sessionState.connectionState === ConnectionState.DEGRADED ? (
@@ -240,8 +305,8 @@ export function ChatPanel({
       {/* Message list — flex-1 fills available height */}
       <MessageList
         items={timeline}
-        peerName={state.peerName}
-        isRemoteTyping={state.isRemoteTyping && state.messages.length > 0}
+        peerName={displayPeerName}
+        isRemoteTyping={!!isTyping}
         onPause={(id) => sessionController.pause(id)}
         onResume={(id) => sessionController.resume(id)}
         onCancel={(id) => sessionController.cancel(id)}

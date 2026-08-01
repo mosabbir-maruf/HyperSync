@@ -56,10 +56,6 @@ export class InMemorySignalingClient
   ): Promise<SessionInfo> {
     this.setState("connecting")
     const normalizedCode = normalizeCode(code)
-    if (!signalingHub.hasSession(normalizedCode)) {
-      this.setState("error")
-      throw new Error("No active session for that code")
-    }
     this.code = normalizedCode
     this.role = "guest"
     const existing = this.attach(normalizedCode, "guest", false)
@@ -85,10 +81,6 @@ export class InMemorySignalingClient
   async joinGroup(code: string): Promise<SessionInfo> {
     this.setState("connecting")
     const normalizedCode = normalizeCode(code)
-    if (!signalingHub.hasSession(normalizedCode)) {
-      this.setState("error")
-      throw new Error("No active group session for that code")
-    }
     this.code = normalizedCode
     this.role = "member"
     const existing = this.attach(normalizedCode, "member", true)

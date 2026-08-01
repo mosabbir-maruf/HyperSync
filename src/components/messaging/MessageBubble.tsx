@@ -110,11 +110,17 @@ export const MessageBubble = memo(function MessageBubble({
 }: MessageBubbleProps) {
   const isLocal = message.senderId === "local"
 
+  // In a group, senderId is the actual sender's name. In 1:1, it's "remote".
+  const senderName =
+    !isLocal && message.senderId !== "remote"
+      ? message.senderId
+      : peerName || "Guest"
+
   return (
     <div
       className={cn("flex w-full", isLocal ? "justify-end" : "justify-start")}
       role="article"
-      aria-label={`${isLocal ? "You" : "Peer"}: ${message.text}`}
+      aria-label={`${isLocal ? "You" : senderName}: ${message.text}`}
     >
       <div
         className={cn(
@@ -125,7 +131,7 @@ export const MessageBubble = memo(function MessageBubble({
         {/* Avatar for remote */}
         {!isLocal && (
           <div className="flex flex-col justify-end pb-[22px] shrink-0">
-            <Avatar name={peerName || "Guest"} size="sm" />
+            <Avatar name={senderName} size="sm" />
           </div>
         )}
 
@@ -136,6 +142,12 @@ export const MessageBubble = memo(function MessageBubble({
             isLocal ? "items-end" : "items-start",
           )}
         >
+          {/* Group Sender Name Label */}
+          {!isLocal && message.senderId !== "remote" && (
+            <span className="text-[10px] text-muted-foreground ml-1 mb-0.5">
+              {senderName}
+            </span>
+          )}
           {/* Bubble */}
           <div
             className={cn(
