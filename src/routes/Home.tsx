@@ -78,7 +78,7 @@ export function Home() {
             to="/join"
             className="group flex items-center gap-3 p-5 transition-colors hover:bg-card"
           >
-            <span className="flex h-10 w-10 items-center justify-center rounded-full border border-border-strong">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-secondary text-primary">
               <KeyboardIcon width={20} height={20} />
             </span>
             <div>

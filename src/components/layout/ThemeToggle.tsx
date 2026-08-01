@@ -58,7 +58,7 @@ export function ThemeToggle() {
       onClick={toggle}
       aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
       title={isDark ? "Switch to light mode" : "Switch to dark mode"}
-      className="relative flex h-8 w-8 items-center justify-center overflow-hidden rounded-full border border-border text-foreground transition-colors hover:bg-secondary"
+      className="relative flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-secondary text-primary transition-opacity hover:opacity-80"
     >
       <span className="relative block h-4 w-4">
         {/* Sun */}

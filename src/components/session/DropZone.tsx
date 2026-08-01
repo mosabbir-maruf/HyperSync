@@ -48,7 +48,7 @@ export function DropZone({
         disabled && "opacity-50",
       )}
     >
-      <span className="flex h-12 w-12 items-center justify-center rounded-2xl border border-border-strong text-primary">
+      <span className="flex h-12 w-12 items-center justify-center rounded-full bg-secondary text-primary">
         <SendIcon width={22} height={22} />
       </span>
       <div className="space-y-1">

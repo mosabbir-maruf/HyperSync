@@ -73,7 +73,7 @@ export function JoinSession() {
   return (
     <div className="mx-auto max-w-md space-y-6">
       <header className="space-y-2 text-center">
-        <span className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-secondary text-primary">
+        <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-secondary text-primary">
           <KeyboardIcon width={24} height={24} />
         </span>
         <h1 className="text-2xl font-semibold tracking-tight">

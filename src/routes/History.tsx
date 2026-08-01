@@ -58,7 +58,7 @@ export function History() {
 
       {entries.length === 0 ? (
         <Card className="flex flex-col items-center gap-3 px-6 py-16 text-center">
-          <span className="flex h-12 w-12 items-center justify-center rounded-2xl border border-border-strong text-muted-foreground">
+          <span className="flex h-12 w-12 items-center justify-center rounded-full bg-secondary text-primary">
             <HistoryIcon width={22} height={22} />
           </span>
           <p className="text-sm font-bold tracking-tight">No transfers yet</p>
@@ -72,7 +72,7 @@ export function History() {
           {entries.map((e) => (
             <li key={e.id}>
               <Card className="flex items-center gap-3 px-3.5 py-3">
-                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-border-strong text-muted-foreground">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-secondary text-primary">
                   {e.direction === "send" ? (
                     <SendIcon width={17} height={17} />
                   ) : (

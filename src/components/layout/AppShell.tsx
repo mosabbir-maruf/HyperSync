@@ -78,7 +78,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               target="_blank"
               rel="noopener noreferrer"
               title="View Source on GitHub"
-              className="flex h-8 w-8 items-center justify-center rounded-full border border-border text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-secondary text-primary transition-opacity hover:opacity-80"
             >
               <svg
                 viewBox="0 0 24 24"
