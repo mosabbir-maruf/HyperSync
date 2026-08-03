@@ -190,6 +190,12 @@ export class TransferManager {
           },
           true,
         )
+        if (this.state.incoming) {
+          const newIncoming = this.state.incoming.filter(m => m.transferId !== event.transferId)
+          if (newIncoming.length !== this.state.incoming.length) {
+            this.set({ incoming: newIncoming.length > 0 ? newIncoming : null })
+          }
+        }
         break
       case "VerificationStarted":
         this.patchItem(event.transferId, { verification: "verifying" })

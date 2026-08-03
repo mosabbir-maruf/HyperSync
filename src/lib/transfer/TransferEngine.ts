@@ -50,11 +50,27 @@ export class TransferEngine {
   private messageQueue: ArrayBuffer[] = [] // binary only
   private controlQueue: string[] = [] // control text only
   private isProcessingBinary = false
+  private controlBuffer: Parameters<typeof encodeControl>[0][] = []
 
   constructor(private readonly channel: RTCDataChannel) {
     channel.binaryType = "arraybuffer"
     channel.onmessage = (ev) => this.onMessage(ev.data)
     channel.onclose = () => this.failAll("DataChannel closed")
+    
+    if (channel.readyState === "open") {
+      this.flushControlBuffer()
+    } else {
+      channel.addEventListener("open", () => this.flushControlBuffer(), { once: true })
+    }
+  }
+
+  private flushControlBuffer() {
+    if (this.channel.readyState === "open") {
+      for (const msg of this.controlBuffer) {
+        this.channel.send(encodeControl(msg))
+      }
+      this.controlBuffer = []
+    }
   }
 
   onEvent(handler: TransferEventHandler): () => void {
@@ -250,8 +266,11 @@ export class TransferEngine {
   }
 
   private sendControl(msg: Parameters<typeof encodeControl>[0]) {
-    if (this.channel.readyState === "open")
+    if (this.channel.readyState === "open") {
       this.channel.send(encodeControl(msg))
+    } else if (this.channel.readyState === "connecting") {
+      this.controlBuffer.push(msg)
+    }
   }
 
   // ── Message handling ──────────────────────────────────────────────────────

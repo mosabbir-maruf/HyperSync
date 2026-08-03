@@ -150,7 +150,8 @@ export class GroupPeerManager {
         this.onPeerStateChange(targetPeerId, peerState)
 
         if (peerState === "connected") {
-          toast.success("Device connected", `Linked to device.`)
+          // In a group, we do not show a toast for every individual connection
+          // because it causes spam when connecting to a large mesh.
         } else if (peerState === "failed") {
           this.fail(
             appError("network", "Connection failed to a device"),

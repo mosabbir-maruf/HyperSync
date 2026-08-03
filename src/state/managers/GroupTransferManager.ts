@@ -48,18 +48,46 @@ export class GroupTransferManager {
     let allItems: any[] = []
     let allIncoming: any[] = []
 
+    const outgoingGroups = new Map<string, any[]>()
+
     for (const [peerId, tm] of this.managers.entries()) {
       const s = tm.getState()
 
-      // Tag items with peerId for UI
-      const taggedItems = s.items.map((i) => ({ ...i, peerId }))
-      allItems = allItems.concat(taggedItems)
+      for (const item of s.items) {
+        if (item.direction === "send") {
+          const key = `${item.name}_${item.size}`
+          if (!outgoingGroups.has(key)) outgoingGroups.set(key, [])
+          outgoingGroups.get(key)!.push({ ...item, peerId })
+        } else {
+          allItems.push({ ...item, peerId })
+        }
+      }
 
       if (s.incoming) {
         allIncoming = allIncoming.concat(
           s.incoming.map((i) => ({ ...i, peerId })),
         )
       }
+    }
+
+    for (const group of outgoingGroups.values()) {
+      const first = group[0]
+      const totalBytesTransferred = group.reduce((sum, i) => sum + i.bytesTransferred, 0)
+      const avgSpeed = group.reduce((sum, i) => sum + i.speed, 0) / group.length
+
+      let unifiedStatus = "completed"
+      if (group.some((i: any) => i.status === "progress")) unifiedStatus = "progress"
+      else if (group.some((i: any) => i.status === "paused")) unifiedStatus = "paused"
+      else if (group.some((i: any) => i.status === "pending")) unifiedStatus = "pending"
+      else if (group.some((i: any) => i.status === "failed") && !group.some((i: any) => i.status === "completed")) unifiedStatus = "failed"
+      else if (group.some((i: any) => i.status === "cancelled") && !group.some((i: any) => i.status === "completed")) unifiedStatus = "cancelled"
+
+      allItems.push({
+        ...first,
+        status: unifiedStatus,
+        bytesTransferred: totalBytesTransferred / group.length,
+        speed: avgSpeed,
+      })
     }
 
     this.state = {
@@ -116,29 +144,63 @@ export class GroupTransferManager {
     else for (const tm of this.managers.values()) tm.reject(ids)
   }
 
+  private applyFanOutAction(
+    id: string,
+    peerId: string | undefined,
+    action: (tm: TransferManager, targetId: string) => void
+  ) {
+    if (peerId) {
+      const tm = this.managers.get(peerId)
+      if (tm) action(tm, id)
+      return
+    }
+
+    let targetName = ""
+    let targetSize = 0
+    let isSend = false
+
+    for (const tm of this.managers.values()) {
+      const item = tm.getState().items.find((i) => i.id === id)
+      if (item) {
+        targetName = item.name
+        targetSize = item.size
+        isSend = item.direction === "send"
+        break
+      }
+    }
+
+    if (isSend) {
+      for (const tm of this.managers.values()) {
+        const item = tm.getState().items.find(
+          (i) => i.direction === "send" && i.name === targetName && i.size === targetSize
+        )
+        if (item) action(tm, item.id)
+      }
+    } else {
+      for (const tm of this.managers.values()) {
+        action(tm, id)
+      }
+    }
+  }
+
   public pause(id: string, peerId?: string): void {
-    if (peerId) this.managers.get(peerId)?.pause(id)
-    else for (const tm of this.managers.values()) tm.pause(id)
+    this.applyFanOutAction(id, peerId, (tm, targetId) => tm.pause(targetId))
   }
 
   public resume(id: string, peerId?: string): void {
-    if (peerId) this.managers.get(peerId)?.resume(id)
-    else for (const tm of this.managers.values()) tm.resume(id)
+    this.applyFanOutAction(id, peerId, (tm, targetId) => tm.resume(targetId))
   }
 
   public cancel(id: string, peerId?: string): void {
-    if (peerId) this.managers.get(peerId)?.cancel(id)
-    else for (const tm of this.managers.values()) tm.cancel(id)
+    this.applyFanOutAction(id, peerId, (tm, targetId) => tm.cancel(targetId))
   }
 
   public retry(id: string, peerId?: string): void {
-    if (peerId) this.managers.get(peerId)?.retry(id)
-    else for (const tm of this.managers.values()) tm.retry(id)
+    this.applyFanOutAction(id, peerId, (tm, targetId) => tm.retry(targetId))
   }
 
   public remove(id: string, peerId?: string): void {
-    if (peerId) this.managers.get(peerId)?.remove(id)
-    else for (const tm of this.managers.values()) tm.remove(id)
+    this.applyFanOutAction(id, peerId, (tm, targetId) => tm.remove(targetId))
   }
 
   public clearQueue(): void {
