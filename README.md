@@ -23,6 +23,27 @@ The frontend is a Single Page Application (SPA) built with:
 
 ## How It Works & Connects
 
+```mermaid
+sequenceDiagram
+    participant PeerA as Peer A (Frontend)
+    participant Backend as HyperSync Backend (Worker)
+    participant PeerB as Peer B (Frontend)
+
+    PeerA->>Backend: Connect WebSocket (Join Lobby)
+    PeerB->>Backend: Connect WebSocket (Join Lobby)
+    Backend-->>PeerA: Broadcast Presence (Peer B is Nearby)
+    
+    Note over PeerA,Backend: WebRTC Signaling Phase
+    PeerA->>Backend: Send WebRTC SDP Offer
+    Backend->>PeerB: Route SDP Offer to Peer B
+    PeerB->>Backend: Send WebRTC SDP Answer
+    Backend->>PeerA: Route SDP Answer to Peer A
+    
+    Note over PeerA,PeerB: Peer-to-Peer Transfer Phase
+    PeerA<-->>PeerB: Exchange ICE Candidates (STUN/TURN)
+    PeerA===>>PeerB: Direct RTCDataChannel (File Stream bypassing Backend)
+```
+
 1. **Signaling**: When you open the application, it establishes a secure WebSocket connection to the HyperSync Cloudflare Worker backend.
 2. **Presence & Lobbies**: The backend tracks active devices (using Durable Objects) and broadcasts presence information (e.g. "Nearby Devices").
 3. **WebRTC Peer-to-Peer**: When you select a device to transfer a file:
