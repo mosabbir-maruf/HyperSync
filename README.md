@@ -12,6 +12,41 @@
 
 ---
 
+## Features
+
+- ⚡ **Blazing Fast**: Direct peer-to-peer WebRTC file transfers bypassing server bottlenecks.
+- 🔒 **Secure & Private**: Files are encrypted end-to-end via WebRTC; the backend never sees your data.
+- ♾️ **No File Size Limits**: Stream massive files directly between browsers.
+- 👥 **Group Sharing**: Share files seamlessly with multiple peers simultaneously in group rooms.
+- 🎨 **Modern UI**: Clean, responsive interface built with React 19 and Tailwind CSS v4.
+
+## Prerequisites
+
+- [Node.js](https://nodejs.org/) (v18 or newer)
+- npm or yarn
+
+## Local Development
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/mosabbir-maruf/HyperSync.git
+   cd HyperSync
+   ```
+
+2. **Install dependencies:**
+   ```bash
+   npm install
+   ```
+
+3. **Set up environment variables:**
+   Create a `.env.local` file based on the environment section below.
+
+4. **Start the development server:**
+   ```bash
+   npm run dev
+   ```
+   The app will be available at `http://localhost:8443` (or the port specified in your console).
+
 ## Architecture
 
 The frontend is a Single Page Application (SPA) built with:
