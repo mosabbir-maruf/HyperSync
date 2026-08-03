@@ -237,18 +237,24 @@ export class TransferEngine {
 
   // ── Controls ──────────────────────────────────────────────────────────────
 
+  private hasTransfer(id: string): boolean {
+    return this.pipelines.has(id) || this.receivers.has(id) || this.queue.items.some(i => i.metadata.transferId === id)
+  }
+
   pause(id: string) {
+    if (!this.hasTransfer(id)) return
     this.pipelines.get(id)?.pause()
     this.emit({ type: "BufferPause", transferId: id })
     this.sendControl({ t: "TRANSFER_PAUSE", id })
   }
   resume(id: string) {
+    if (!this.hasTransfer(id)) return
     this.pipelines.get(id)?.resume()
     this.emit({ type: "BufferResume", transferId: id })
     this.sendControl({ t: "TRANSFER_RESUME", id })
   }
-
   cancel(id: string, remote: boolean = false) {
+    if (!this.hasTransfer(id)) return
     this.abortControllers.get(id)?.abort()
     this.pipelines.get(id)?.destroy()
     this.queue.remove(id)
@@ -257,6 +263,19 @@ export class TransferEngine {
     }
     this.emit({ type: "TransferCancelled", transferId: id, remote })
     this.cleanupReceiver(id)
+  }
+  retry(id: string) {
+    if (!this.hasTransfer(id)) return
+    // Simple reset: we just re-queue and re-init.
+    const queued = this.queue.items.find((t) => t.metadata.transferId === id)
+    if (!queued) return
+    queued.status = "pending"
+    this.sendControl({ t: "TRANSFER_INIT", files: [queued.metadata] })
+  }
+  remove(id: string) {
+    if (!this.hasTransfer(id)) return
+    this.cancel(id)
+    this.queue.remove(id)
   }
 
   private cleanupReceiver(id: string) {
