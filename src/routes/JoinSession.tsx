@@ -33,6 +33,10 @@ export function JoinSession() {
   }, [params, controller, state.connectionState])
 
   const join = (code: string) => {
+    if (code.toUpperCase().startsWith("G")) {
+      navigate(`/group?code=${code}`, { replace: true })
+      return
+    }
     setAttempted(true)
     void controller.join(code)
   }

@@ -127,10 +127,11 @@ export function GroupRoom() {
           </div>
         </Card>
       ) : (
-        <Card className="flex flex-col items-center justify-center p-12 space-y-4 h-[300px]">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-          <p className="text-sm text-muted-foreground">Joining group...</p>
-        </Card>
+        <div className="flex h-[300px] items-center justify-center rounded-2xl border border-border bg-card">
+          <p className={`label-mono px-6 text-center ${state.connectionState === ConnectionState.FAILED ? "text-destructive" : "animate-pulse"}`}>
+            {state.connectionState === ConnectionState.FAILED ? "Connection failed" : "Joining group..."}
+          </p>
+        </div>
       )}
 
       <GroupInfoModal

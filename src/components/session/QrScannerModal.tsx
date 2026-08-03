@@ -141,19 +141,22 @@ export function QrScannerModal({
   )
 }
 
-function extractCode(raw: string): { code: string isGroup: boolean } | null {
+function extractCode(raw: string): { code: string, isGroup: boolean } | null {
   try {
     const url = new URL(raw)
     const code = url.searchParams.get("code")
     if (code) {
+      const upperCode = code.toUpperCase()
       return {
-        code: code.toUpperCase(),
-        isGroup: url.pathname.includes("/group"),
+        code: upperCode,
+        isGroup: upperCode.startsWith("G") || url.pathname.includes("/group"),
       }
     }
   } catch {
     const clean = raw.replace(/[^A-Za-z0-9]/g, "").toUpperCase()
-    if (clean.length === 6) return { code: clean, isGroup: false }
+    if (clean.length === 6) {
+      return { code: clean, isGroup: clean.startsWith("G") }
+    }
   }
   return null
 }

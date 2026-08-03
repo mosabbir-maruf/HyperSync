@@ -57,6 +57,10 @@ export function GroupLanding() {
 
   const handleJoinGroupWithCode = async (code: string) => {
     if (!code) return
+    if (code.toUpperCase().startsWith("P")) {
+      navigate(`/join?code=${code}`, { replace: true })
+      return
+    }
     setIsJoining(true)
     try {
       await controller.join(code)
