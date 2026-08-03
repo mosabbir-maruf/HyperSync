@@ -95,7 +95,7 @@ Create a `.env.production` or `.env.local` file in the root of the `frontend` di
 
 ```env
 # URL of the HyperSync Cloudflare Worker backend
-VITE_PUBLIC_URL=https://your-worker-url.workers.dev
+VITE_WS_URL=https://your-worker-url.workers.dev
 ```
 
 ## File Structure
