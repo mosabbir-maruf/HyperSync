@@ -21,7 +21,7 @@ The frontend is a Single Page Application (SPA) built with:
 - **WebRTC** (For peer-to-peer data transfer)
 - **WebSockets** (For signaling via the Cloudflare Worker backend)
 
-## How It Works & Connects
+## System Workflow
 
 ```mermaid
 sequenceDiagram
