@@ -35,7 +35,7 @@ VITE_PUBLIC_URL=https://your-worker-url.workers.dev
 ## File Structure
 
 ```text
-frontend/
+HyperSync-Frontend/
 ├── public/                 # Static assets (Favicons, OG Images)
 │   └── avatars/            # Marvel hero avatar library
 ├── src/                    
