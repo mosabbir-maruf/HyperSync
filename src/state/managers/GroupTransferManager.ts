@@ -33,8 +33,9 @@ export class GroupTransferManager {
   public removeEngine(peerId: string) {
     const tm = this.managers.get(peerId)
     if (tm) {
-      tm.destroy()
-      this.managers.delete(peerId)
+      tm.detachEngine()
+      // We purposefully DO NOT delete(peerId) from managers here so that transfer history
+      // remains visible in the UI even if the peer temporarily disconnects.
     }
     this.aggregateState()
   }

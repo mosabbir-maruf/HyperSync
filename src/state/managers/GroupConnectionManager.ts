@@ -163,11 +163,12 @@ export class GroupConnectionManager {
     }
 
     // 3. Fallbacks based on signaling phase
-    if (
-      this.signalingPhase === "connected" ||
-      this.signalingPhase === "connecting"
-    ) {
-      // In group room, but no peers yet (or peers connecting)
+    if (this.signalingPhase === "connected") {
+      // In group room, but no peers currently connected (e.g., you're alone or others dropped)
+      return ConnectionState.DEGRADED
+    }
+    
+    if (this.signalingPhase === "connecting") {
       return ConnectionState.CONNECTING
     }
 

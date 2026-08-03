@@ -32,7 +32,7 @@ export class TransferManager {
   private eventListeners = new Set<(e: TransferEvent) => void>()
 
   public attachEngine(engine: TransferEngine): void {
-    if (this.engine) this.destroy()
+    if (this.engine) this.detachEngine()
     this.engine = engine
 
     this.unsubEngine = this.engine.onEvent((event: TransferEvent) => {
@@ -318,5 +318,20 @@ export class TransferManager {
     this.itemsMap.clear()
     this.lastStatus.clear()
     this.state = { ...INITIAL_STATE }
+  }
+
+  public detachEngine(): void {
+    this.unsubEngine?.()
+    this.unsubEngine = null
+    this.engine?.destroy()
+    this.engine = null
+
+    // Mark any active transfers as failed due to disconnect
+    for (const item of this.itemsMap.values()) {
+      if (item.status === "progress" || item.status === "pending" || item.status === "paused") {
+        this.patchItem(item.id, { status: "failed", error: "Connection lost" })
+      }
+    }
+    this.scheduleEmit()
   }
 }

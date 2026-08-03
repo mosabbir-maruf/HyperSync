@@ -88,6 +88,7 @@ interface MessageInputProps {
   onAttach?: () => void
   disabled?: boolean
   autoFocus?: boolean
+  placeholder?: string
 }
 
 export function MessageInput({
@@ -99,6 +100,7 @@ export function MessageInput({
   onAttach,
   disabled = false,
   autoFocus = false,
+  placeholder,
 }: MessageInputProps) {
   const [text, setText] = useState("")
   const [showEmoji, setShowEmoji] = useState(false)
@@ -276,9 +278,10 @@ export function MessageInput({
           disabled={disabled}
           rows={1}
           placeholder={
-            disabled
+            placeholder ||
+            (disabled
               ? "Connecting…"
-              : "Message or drag & drop files  ·  Enter to send"
+              : "Message or drag & drop files  ·  Enter to send")
           }
           className={cn(
             "flex-1 resize-none bg-transparent text-sm text-foreground",

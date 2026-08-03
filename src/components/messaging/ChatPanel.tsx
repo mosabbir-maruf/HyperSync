@@ -270,8 +270,8 @@ export function ChatPanel({
               sessionState.connectionState === ConnectionState.CONNECTED ? (
                 <span className="text-primary animate-pulse">Typing...</span>
               ) : sessionState.connectionState === ConnectionState.DEGRADED ? (
-                <span className="text-warning animate-pulse">
-                  Reconnecting...
+                <span className={cn(isGroup ? "text-muted-foreground" : "text-warning animate-pulse")}>
+                  {isGroup ? "Waiting for members..." : "Reconnecting..."}
                 </span>
               ) : (
                 "Connected"
@@ -373,6 +373,11 @@ export function ChatPanel({
             onAttach={onFiles ? handleAttach : undefined}
             disabled={isDisabled}
             autoFocus={visible}
+            placeholder={
+              isDisabled && isGroup && sessionState.connectionState === ConnectionState.DEGRADED
+                ? "Waiting for members to join…"
+                : undefined
+            }
           />
         ) : (
           <div className="pt-2">

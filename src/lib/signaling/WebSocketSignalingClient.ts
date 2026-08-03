@@ -22,6 +22,7 @@ export class WebSocketSignalingClient
   private pingInterval: number | null = null
   private hasPeerJoined = false
   private joinedPeerId = "remote"
+  private roomType: "direct" | "group" = "direct"
 
   // Lobby connection
   private lobbyWs: WebSocket | null = null
@@ -95,6 +96,7 @@ export class WebSocketSignalingClient
     roomType: "direct" | "group" = "direct",
     attempt: number,
   ): Promise<void> {
+    this.roomType = roomType
     return new Promise((resolve, reject) => {
       // Connect to the room by its URL
       const wsUrl = new URL(this.url)
@@ -595,7 +597,7 @@ export class WebSocketSignalingClient
     this.lobbyProfile = null
     this.clearLobbyReconnectTimeout()
     this.stopLobbyPing()
-    this.sendMessage("LEAVE", {})
+    this.sendMessage(this.roomType === "group" ? "GROUP_LEAVE" : "LEAVE", {})
     if (this.ws) {
       this.ws.close(1000, "Normal closure")
     }
