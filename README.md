@@ -134,5 +134,5 @@ HyperSync-Frontend/
    - **Root directory**: `/` (Leave as is)
 6. Under **Environment variables (advanced)**, click Add variable:
    - **Variable name**: `VITE_WS_URL`
-   - **Value**: The live URL of your deployed Worker backend (e.g. `https://ws-hypersync.yourdomain.workers.dev`)
+   - **Value**: The live URL of your deployed Worker backend (e.g. `https://yourdomain.workers.dev`)
 7. Click **Save and Deploy**.
