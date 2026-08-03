@@ -119,7 +119,9 @@ export class GroupMessagingManager {
         case "PeerNameReceived": {
           const currentName = this.peerNames.get(peerId)
           if (currentName !== event.name) {
-            const isAlreadyInGroup = Array.from(this.peerNames.values()).includes(event.name)
+            const isAlreadyInGroup = Array.from(
+              this.peerNames.values(),
+            ).includes(event.name)
             this.peerNames.set(peerId, event.name)
             this.set({ memberNames: Array.from(this.peerNames.values()) })
             if (!isAlreadyInGroup) {

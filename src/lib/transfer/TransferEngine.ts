@@ -138,10 +138,7 @@ export class TransferEngine {
       const pumpPromise = engine.pump([pipeline], ac.signal)
 
       // Wait until every chunk has been flushed to channel.send(), or an error occurs (e.g. aborted)
-      await Promise.all([
-        pipeline.waitUntilDone(),
-        pumpPromise
-      ])
+      await Promise.all([pipeline.waitUntilDone(), pumpPromise])
 
       if (ac.signal.aborted) {
         this.sendControl({ t: "TRANSFER_CANCEL", id: meta.transferId })

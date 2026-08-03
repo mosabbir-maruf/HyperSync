@@ -37,7 +37,9 @@ class SignalingHub {
   private channel = new BroadcastChannel("dropsync_signaling")
 
   constructor() {
-    console.log("[SignalingHub] Initializing BroadcastChannel 'dropsync_signaling'")
+    console.log(
+      "[SignalingHub] Initializing BroadcastChannel 'dropsync_signaling'",
+    )
     this.channel.onmessage = (event) => {
       const msg = event.data
       console.log("[SignalingHub] Received message:", msg.type, msg)
@@ -109,7 +111,10 @@ class SignalingHub {
   }
 
   announceLobby(member: LobbyMember): void {
-    console.log("[SignalingHub] announceLobby called for", member.presence.peerId)
+    console.log(
+      "[SignalingHub] announceLobby called for",
+      member.presence.peerId,
+    )
     this.lobby.set(member.presence.peerId, member)
     this.channel.postMessage({
       type: "LOBBY_SYNC",
@@ -146,9 +151,9 @@ class SignalingHub {
       const localOthers = [...this.lobby.values()]
         .filter((m) => m.presence.peerId !== member.presence.peerId)
         .map((m) => m.presence)
-      
+
       const externalOthers = Array.from(this.externalLobby.values()).filter(
-        (d) => d.peerId !== member.presence.peerId && !this.lobby.has(d.peerId)
+        (d) => d.peerId !== member.presence.peerId && !this.lobby.has(d.peerId),
       )
 
       const allOthers = [...localOthers, ...externalOthers]

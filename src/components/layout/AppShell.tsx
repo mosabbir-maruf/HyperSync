@@ -1,5 +1,7 @@
-import type { ReactNode } from "react"
-import { Link, NavLink, useLocation } from "react-router-dom"
+import { useEffect, useRef, type ReactNode } from "react"
+import { Link, NavLink, useLocation, useNavigate } from "react-router-dom"
+import { useSession } from "../../state/SessionProvider"
+import { ConnectionState } from "../../state/managers/ConnectionStateManager"
 import { ThemeToggle } from "./ThemeToggle"
 import { ShieldIcon, HyperSyncLogo } from "../ui/icons"
 import { PerformanceOverlay } from "../ui/PerformanceOverlay"
@@ -55,7 +57,28 @@ function Nav({ className }: { className?: string }) {
 
 export function AppShell({ children }: { children: ReactNode }) {
   const location = useLocation()
+  const navigate = useNavigate()
+  const { state: sessionState } = useSession()
   const isLanding = location.pathname === "/"
+
+  const prevConnRef = useRef(sessionState.connectionState)
+
+  // Automatically navigate to the session view ONLY when a connection initially starts.
+  useEffect(() => {
+    const isNowConnected = sessionState.connectionState !== ConnectionState.DISCONNECTED
+    const wasDisconnected = prevConnRef.current === ConnectionState.DISCONNECTED
+
+    if (isNowConnected && wasDisconnected) {
+      const isSessionRoute = ["/app", "/send", "/join"].includes(location.pathname)
+      const isGroupRoute = location.pathname.startsWith("/group")
+      
+      if (!isSessionRoute && !isGroupRoute) {
+        navigate("/app")
+      }
+    }
+
+    prevConnRef.current = sessionState.connectionState
+  }, [sessionState.connectionState, location.pathname, navigate])
 
   return (
     <div className="min-h-[100dvh] bg-background text-foreground">

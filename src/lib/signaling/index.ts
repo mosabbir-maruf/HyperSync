@@ -22,9 +22,7 @@ export function createSignalingClient(): SignalingClient {
   const wsUrl = import.meta.env.VITE_WS_URL || DEFAULT_SIGNALING_URL
 
   // If explicitly requested, use in-memory mock for dev testing without backend
-  if (
-    import.meta.env.VITE_USE_MOCK_SIGNALING === "true"
-  ) {
+  if (import.meta.env.VITE_USE_MOCK_SIGNALING === "true") {
     return new InMemorySignalingClient()
   }
   return new WebSocketSignalingClient(wsUrl)

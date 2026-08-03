@@ -155,8 +155,12 @@ export function NotFound() {
               disabled={isScanning}
               className="inline-flex h-12 sm:h-11 items-center justify-center gap-2.5 rounded-full bg-primary px-6 font-mono text-xs font-bold uppercase tracking-wider text-primary-foreground transition-all hover:bg-primary/90 disabled:opacity-80 active:scale-[0.98]"
             >
-              <RadarIcon className={`h-4 w-4 ${isScanning ? "animate-spin" : ""}`} />
-              <span>{isScanning ? `Scanning (${scanProgress}%)` : "Re-Scan Radar"}</span>
+              <RadarIcon
+                className={`h-4 w-4 ${isScanning ? "animate-spin" : ""}`}
+              />
+              <span>
+                {isScanning ? `Scanning (${scanProgress}%)` : "Re-Scan Radar"}
+              </span>
               <ArrowRightIcon className="h-3.5 w-3.5" />
             </button>
 
@@ -177,13 +181,18 @@ export function NotFound() {
           <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             <AlertTriangleIcon className="h-4 w-4 text-destructive shrink-0" />
             <div className="flex items-center gap-x-2 sm:gap-x-4 text-muted-foreground min-w-0">
-              <span className="shrink-0">STATUS: <strong className="text-destructive">404</strong></span>
+              <span className="shrink-0">
+                STATUS: <strong className="text-destructive">404</strong>
+              </span>
               <span className="hidden xs:inline text-border-strong">|</span>
               <span className="truncate max-w-[120px] xs:max-w-[180px] sm:max-w-none">
-                URI: <strong className="text-foreground">{requestedPath}</strong>
+                URI:{" "}
+                <strong className="text-foreground">{requestedPath}</strong>
               </span>
               <span className="hidden md:inline text-border-strong">|</span>
-              <span className="hidden md:inline">LATENCY: <strong className="text-success">0ms</strong></span>
+              <span className="hidden md:inline">
+                LATENCY: <strong className="text-success">0ms</strong>
+              </span>
             </div>
           </div>
 

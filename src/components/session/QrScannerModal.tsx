@@ -141,7 +141,7 @@ export function QrScannerModal({
   )
 }
 
-function extractCode(raw: string): { code: string; isGroup: boolean } | null {
+function extractCode(raw: string): { code: string isGroup: boolean } | null {
   try {
     const url = new URL(raw)
     const code = url.searchParams.get("code")
