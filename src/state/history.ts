@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react"
 import {
   addHistoryEntry as dbAdd,
   clearHistory as dbClear,
+  removeHistoryEntry as dbRemove,
   getHistory,
   onHistoryChange,
   type HistoryEntry,
@@ -16,6 +17,10 @@ export function addHistoryEntry(entry: HistoryEntry): void {
   void dbAdd(entry)
 }
 
+export function removeHistoryEntry(id: string): void {
+  void dbRemove(id)
+}
+
 export function clearHistory(): void {
   void dbClear()
   if (typeof caches !== "undefined") {
@@ -28,7 +33,7 @@ export function clearHistory(): void {
 }
 
 /** React hook exposing the local history list, reactive to writes. */
-export function useHistory(): { entries: HistoryEntry[] clear: () => void } {
+export function useHistory(): { entries: HistoryEntry[]; clear: () => void; remove: (id: string) => void } {
   const [entries, setEntries] = useState<HistoryEntry[]>([])
 
   useEffect(() => {
@@ -47,5 +52,6 @@ export function useHistory(): { entries: HistoryEntry[] clear: () => void } {
   }, [])
 
   const clear = useCallback(() => clearHistory(), [])
-  return { entries, clear }
+  const remove = useCallback((id: string) => removeHistoryEntry(id), [])
+  return { entries, clear, remove }
 }

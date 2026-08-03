@@ -24,7 +24,7 @@ function relativeTime(ts: number): string {
 }
 
 export function History() {
-  const { entries, clear } = useHistory()
+  const { entries, clear, remove } = useHistory()
 
   return (
     <div className="space-y-10">
@@ -71,7 +71,7 @@ export function History() {
         <ul className="space-y-2">
           {entries.map((e) => (
             <li key={e.id}>
-              <Card className="flex items-center gap-3 px-3.5 py-3">
+              <Card className="group flex items-center gap-3 px-3.5 py-3">
                 <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-secondary text-primary">
                   {e.direction === "send" ? (
                     <SendIcon width={17} height={17} />
@@ -87,21 +87,30 @@ export function History() {
                     {formatBytes(e.size)} · {relativeTime(e.timestamp)}
                   </p>
                 </div>
-                <span
-                  className={
-                    "flex h-6 w-6 items-center justify-center rounded-full " +
-                    (e.status === "completed"
-                      ? "bg-success text-primary-foreground"
-                      : "bg-muted text-muted-foreground")
-                  }
-                  title={e.status}
-                >
-                  {e.status === "completed" ? (
-                    <CheckIcon width={14} height={14} />
-                  ) : (
+                <div className="relative flex h-6 w-6 items-center justify-center">
+                  <span
+                    className={
+                      "absolute inset-0 flex items-center justify-center rounded-full transition-opacity group-hover:opacity-0 " +
+                      (e.status === "completed"
+                        ? "bg-success text-primary-foreground"
+                        : "bg-muted text-muted-foreground")
+                    }
+                    title={e.status}
+                  >
+                    {e.status === "completed" ? (
+                      <CheckIcon width={14} height={14} />
+                    ) : (
+                      <CloseIcon width={14} height={14} />
+                    )}
+                  </span>
+                  <button
+                    onClick={() => remove(e.id)}
+                    className="absolute inset-0 flex items-center justify-center rounded-full bg-muted text-muted-foreground opacity-0 transition-opacity hover:bg-destructive hover:text-destructive-foreground group-hover:opacity-100"
+                    title="Remove from history"
+                  >
                     <CloseIcon width={14} height={14} />
-                  )}
-                </span>
+                  </button>
+                </div>
               </Card>
             </li>
           ))}

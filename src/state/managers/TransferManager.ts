@@ -165,8 +165,9 @@ export class TransferManager {
               : p.speedBytesPerSecond < 1024 * 1024
                 ? "fair"
                 : "good"
+        const currentItem = this.transfers.get(p.transferId)
         this.patchItem(p.transferId, {
-          status: "progress",
+          status: currentItem?.status === "paused" ? "paused" : "progress",
           bytesTransferred: transferred,
           speed: p.speedBytesPerSecond,
           eta: p.estimatedTimeRemainingSeconds,

@@ -80,6 +80,20 @@ export async function getHistory(): Promise<HistoryEntry[]> {
   }
 }
 
+export async function removeHistoryEntry(id: string): Promise<void> {
+  try {
+    const db = await openDb()
+    await new Promise<void>((resolve, reject) => {
+      const req = tx(db, "readwrite").delete(id)
+      req.onsuccess = () => resolve()
+      req.onerror = () => reject(req.error)
+    })
+    notifyChange()
+  } catch (err) {
+    logger.warn("Could not remove local history entry", err)
+  }
+}
+
 export async function clearHistory(): Promise<void> {
   try {
     const db = await openDb()
