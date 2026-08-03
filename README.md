@@ -40,8 +40,8 @@ sequenceDiagram
     Backend->>PeerA: Route SDP Answer to Peer A
     
     Note over PeerA,PeerB: Peer-to-Peer Transfer Phase
-    PeerA<-->>PeerB: Exchange ICE Candidates (STUN/TURN)
-    PeerA===>>PeerB: Direct RTCDataChannel (File Stream bypassing Backend)
+    PeerA->>PeerB: Exchange ICE Candidates (STUN/TURN)
+    PeerA->>PeerB: Direct RTCDataChannel (File Stream bypassing Backend)
 ```
 
 1. **Signaling**: When you open the application, it establishes a secure WebSocket connection to the HyperSync Cloudflare Worker backend.
