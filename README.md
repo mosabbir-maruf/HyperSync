@@ -131,4 +131,8 @@ HyperSync-Frontend/
    - **Framework preset**: `Vite` (or `None` if Vite is not listed)
    - **Build command**: `npm run build`
    - **Build output directory**: `dist`
-6. Click **Save and Deploy**.
+   - **Root directory**: `/` (Leave as is)
+6. Under **Environment variables (advanced)**, click Add variable:
+   - **Variable name**: `VITE_WS_URL`
+   - **Value**: The live URL of your deployed Worker backend (e.g. `https://ws-hypersync.yourdomain.workers.dev`)
+7. Click **Save and Deploy**.
