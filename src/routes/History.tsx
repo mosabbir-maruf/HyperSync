@@ -45,13 +45,13 @@ export function History() {
               </Button>
             ) : (
               <span className="font-mono text-[10px] uppercase tracking-widest text-primary">
-                Local Device
+                Activity Log
               </span>
             )}
           </div>
           <h1 className="text-4xl font-black leading-[0.9] tracking-tighter md:text-6xl lg:text-7xl">
             History. <br />
-            <span className="text-[#cf4322]">Local device.</span>
+            <span className="text-[#cf4322]">Past transfers.</span>
           </h1>
         </div>
       </section>

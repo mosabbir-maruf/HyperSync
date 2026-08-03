@@ -82,12 +82,12 @@ export function Settings() {
             <span className="label-mono">System configuration</span>
             <span className="h-px w-8 bg-border-strong" />
             <span className="font-mono text-[10px] uppercase tracking-widest text-primary">
-              Local Device
+              Preferences
             </span>
           </div>
           <h1 className="text-4xl font-black leading-[0.9] tracking-tighter md:text-6xl lg:text-7xl">
             Settings. <br />
-            <span className="text-[#cf4322]">Local device.</span>
+            <span className="text-[#cf4322]">Preferences.</span>
           </h1>
         </div>
       </section>

@@ -152,7 +152,16 @@ const HAS_AVATAR_IMAGE = new Set([
   "Black Panther",
   "Captain Marvel",
   "Wolverine",
+  "Deadpool",
+  "Ant-Man",
+  "Scarlet Witch",
   "Vision",
+  "Hawkeye",
+  "Daredevil",
+  "Star-Lord",
+  "Groot",
+  "Rocket Raccoon",
+  "Gamora",
   "Drax",
 ])
 

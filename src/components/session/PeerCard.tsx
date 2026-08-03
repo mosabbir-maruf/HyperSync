@@ -164,7 +164,7 @@ export function PeerCard({
         <span
           aria-hidden
           className={cn(
-            "absolute -inset-2.5 rounded-full border transition-all duration-300",
+            "absolute -inset-1.5 rounded-full border transition-all duration-300",
             connecting
               ? "animate-spin-slow border-2 border-dashed border-primary"
               : "border-border-strong/40 group-hover:scale-110 group-hover:border-primary group-hover:bg-primary/5",
