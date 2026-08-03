@@ -199,6 +199,7 @@ export class GroupSessionManager {
 
   public leave(): void {
     this.peer.destroy()
+    this.connection.destroy()
     this.transfer.destroy()
     this.messaging.destroy()
     this.set({ ...INITIAL })

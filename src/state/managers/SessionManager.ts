@@ -201,6 +201,7 @@ export class SessionManager {
 
   public leave(): void {
     this.peer.destroy()
+    this.connection.destroy()
     this.transfer.destroy()
     this.messaging?.destroy()
     this.presence.destroy()
