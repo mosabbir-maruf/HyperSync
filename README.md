@@ -6,7 +6,8 @@
 ---
 
 <div align="center">
-  <strong>HyperSync is a blazingly fast, peer-to-peer file transfer application built with modern web technologies. This repository contains the frontend client.</strong>
+  <strong>HyperSync is a blazingly fast, peer-to-peer file transfer application built with modern web technologies. This repository contains the frontend client.</strong><br>
+  <em>Looking for the signaling server? Check out the <a href="https://github.com/mosabbir-maruf/HyperSync-Backend">HyperSync Backend</a>.</em>
 </div>
 
 ---
