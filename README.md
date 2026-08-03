@@ -1,10 +1,15 @@
-<p align="center">
+<div align="center">
   <img src="public/favicon.svg" width="120" alt="HyperSync Logo" />
-</p>
+  <h1>HyperSync Frontend</h1>
+</div>
 
-# HyperSync Frontend
+---
 
-HyperSync is a blazingly fast, peer-to-peer file transfer application built with modern web technologies. This repository contains the frontend client.
+<div align="center">
+  <strong>HyperSync is a blazingly fast, peer-to-peer file transfer application built with modern web technologies. This repository contains the frontend client.</strong>
+</div>
+
+---
 
 ## Architecture
 
