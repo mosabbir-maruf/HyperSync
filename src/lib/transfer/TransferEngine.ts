@@ -84,11 +84,12 @@ export class TransferEngine {
 
   // ── Queueing & Sending ────────────────────────────────────────────────────
 
-  sendFiles(files: File[]) {
+  sendFiles(files: File[], overrideIds?: string[]) {
     const metas: FileMetadata[] = []
 
-    for (const file of files) {
-      const id = makeTransferId()
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i]
+      const id = overrideIds?.[i] || makeTransferId()
       const meta: FileMetadata = {
         transferId: id,
         fileName: file.name,

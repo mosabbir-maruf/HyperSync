@@ -9,6 +9,14 @@ export function SessionRoom({ onLeave }: { onLeave: () => void }) {
   const { settings } = useSettings()
   const [messagingCtrl, setMessagingCtrl] = useState(getMessagingController())
 
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      controller.leave()
+    }
+    window.addEventListener("beforeunload", handleBeforeUnload)
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload)
+  }, [controller])
+
   // Honor the auto-accept preference: skip the prompt for incoming files.
   useEffect(() => {
     if (settings.autoAccept && state.incoming) {

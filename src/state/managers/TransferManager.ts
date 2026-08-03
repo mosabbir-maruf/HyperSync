@@ -247,9 +247,9 @@ export class TransferManager {
 
   // --- Actions ---
 
-  public sendFiles(files: File[]): void {
+  public sendFiles(files: File[], overrideIds?: string[]): void {
     if (!this.engine) return
-    this.engine.sendFiles(files)
+    this.engine.sendFiles(files, overrideIds)
   }
 
   public async accept(ids: string[]): Promise<void> {

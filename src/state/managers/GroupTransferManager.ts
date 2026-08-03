@@ -1,4 +1,5 @@
 import { TransferManager, type TransferState } from "./TransferManager"
+import { makeTransferId } from "../../lib/utils"
 import { TransferEngine } from "../../lib/transfer/TransferEngine"
 import type { TransferEvent } from "../../lib/transfer/types"
 
@@ -56,7 +57,7 @@ export class GroupTransferManager {
 
       for (const item of s.items) {
         if (item.direction === "send") {
-          const key = `${item.name}_${item.size}`
+          const key = item.id
           if (!outgoingGroups.has(key)) outgoingGroups.set(key, [])
           outgoingGroups.get(key)!.push({ ...item, peerId })
         } else {
@@ -121,12 +122,13 @@ export class GroupTransferManager {
   // --- Actions ---
 
   public sendFiles(files: File[], targetPeerId?: string): void {
+    const overrideIds = Array.from({ length: files.length }, () => makeTransferId())
     if (targetPeerId) {
-      this.managers.get(targetPeerId)?.sendFiles(files)
+      this.managers.get(targetPeerId)?.sendFiles(files, overrideIds)
     } else {
       // Fan-out to all
       for (const tm of this.managers.values()) {
-        tm.sendFiles(files)
+        tm.sendFiles(files, overrideIds)
       }
     }
   }

@@ -50,6 +50,16 @@ export function GroupRoom() {
     navigate("/group")
   }
 
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      if (!leavingRef.current) {
+        controller.leave()
+      }
+    }
+    window.addEventListener("beforeunload", handleBeforeUnload)
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload)
+  }, [controller])
+
   const connected =
     state.connectionState === ConnectionState.CONNECTED ||
     state.connectionState === ConnectionState.DEGRADED
