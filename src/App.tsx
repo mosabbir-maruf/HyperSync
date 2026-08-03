@@ -117,7 +117,13 @@ function RouteTitle() {
         document.title = `Changelog | ${base}`
         break
       default:
-        document.title = `404 Signal Lost | ${base}`
+        if (pathname === "/group") {
+          document.title = `Group Session | ${base}`
+        } else if (pathname.startsWith("/group/")) {
+          document.title = `Group Room | ${base}`
+        } else {
+          document.title = `404 Signal Lost | ${base}`
+        }
     }
   }, [pathname])
   return null
