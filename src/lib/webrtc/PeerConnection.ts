@@ -123,11 +123,13 @@ export class PeerConnection {
         if (ch.label === MSG_CHANNEL_LABEL) {
           // Messaging channel — deliver to messaging subsystem.
           this.events.onMessageChannel?.(ch)
-        } else {
+        } else if (ch.label === CHANNEL_LABEL) {
           // File transfer channel — deliver to transfer engine.
           ch.binaryType = "arraybuffer"
           ch.bufferedAmountLowThreshold = LOW_WATER_MARK
           this.events.onDataChannel?.(ch)
+        } else {
+          console.warn("[WebRTC] Ignored unknown data channel:", ch.label)
         }
       }
     }

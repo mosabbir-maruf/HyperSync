@@ -26,6 +26,7 @@ export class TransferManager {
   private emitScheduled = false
   private emitTimeout: number | null = null
   private unsubEngine: (() => void) | null = null
+  private pendingSends: { files: File[]; overrideIds?: string[] }[] = []
 
   // We allow an external observer to listen to raw engine events (like ChannelOpen/Close)
   // so that ConnectionStateManager can consume them.
@@ -42,6 +43,13 @@ export class TransferManager {
       }
       this.handleTransferEvent(event)
     })
+
+    // Flush any sends that were queued before the engine was attached
+    const queued = this.pendingSends
+    this.pendingSends = []
+    for (const pending of queued) {
+      this.engine.sendFiles(pending.files, pending.overrideIds)
+    }
   }
 
   public onEngineEvent(fn: (e: TransferEvent) => void): () => void {
@@ -249,7 +257,29 @@ export class TransferManager {
   // --- Actions ---
 
   public sendFiles(files: File[], overrideIds?: string[]): void {
-    if (!this.engine) return
+    if (!this.engine) {
+      this.pendingSends.push({ files, overrideIds })
+      
+      // Emit TransferQueued so the UI updates immediately to show pending state
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i]
+        const id = overrideIds?.[i] || "pending-" + Math.random().toString(36).substring(7)
+        this.handleTransferEvent({
+          type: "TransferQueued",
+          metadata: {
+            transferId: id,
+            fileName: file.name,
+            fileSize: file.size,
+            mimeType: file.type || "application/octet-stream",
+            lastModified: file.lastModified,
+            chunkCount: 1,
+            checksumMethod: "SHA-256-CHUNK-XOR",
+            protocolVersion: 1,
+          }
+        })
+      }
+      return
+    }
     this.engine.sendFiles(files, overrideIds)
   }
 

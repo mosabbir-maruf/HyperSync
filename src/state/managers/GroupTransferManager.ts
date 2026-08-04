@@ -121,8 +121,29 @@ export class GroupTransferManager {
 
   // --- Actions ---
 
-  public sendFiles(files: File[], targetPeerId?: string): void {
-    const overrideIds = Array.from({ length: files.length }, () => makeTransferId())
+  public sendFiles(
+    files: File[],
+    allPeerIds: string[],
+    targetPeerId?: string,
+  ): void {
+    const overrideIds = Array.from({ length: files.length }, () =>
+      makeTransferId(),
+    )
+
+    // Pre-create TransferManagers for any peers that we know about but haven't fired onDataChannel yet
+    for (const peerId of allPeerIds) {
+      if (!this.managers.has(peerId)) {
+        const tm = new TransferManager()
+        tm.subscribe((s) => this.aggregateState())
+        tm.onEngineEvent((e) => {
+          for (const listener of this.eventListeners) {
+            listener(peerId, e)
+          }
+        })
+        this.managers.set(peerId, tm)
+      }
+    }
+
     if (targetPeerId) {
       this.managers.get(targetPeerId)?.sendFiles(files, overrideIds)
     } else {

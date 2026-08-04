@@ -24,6 +24,10 @@ export class GroupConnectionManager {
   // Peer-level tracking
   private peers = new Map<string, PeerConnectionStatus>()
 
+  public getPeerIds(): string[] {
+    return Array.from(this.peers.keys())
+  }
+
   public getState(): ConnectionState {
     return this.currentState
   }

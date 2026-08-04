@@ -140,7 +140,8 @@ export class GroupSessionManager {
   }
 
   public sendFiles(files: File[], targetPeerId?: string): void {
-    this.transfer.sendFiles(files, targetPeerId)
+    const allPeers = this.connection.getPeerIds()
+    this.transfer.sendFiles(files, allPeers, targetPeerId)
   }
 
   public async accept(ids: string[], peerId?: string): Promise<void> {

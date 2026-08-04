@@ -126,9 +126,12 @@ export class TransferEngine {
 
     this.queue.remove(next.metadata.transferId)
     this.activeSendId = next.metadata.transferId
-    await this.processSend(next)
-    this.activeSendId = null
-    void this.startNext()
+    try {
+      await this.processSend(next)
+    } finally {
+      this.activeSendId = null
+      void this.startNext()
+    }
   }
 
   private async processSend(transfer: QueuedTransfer) {
