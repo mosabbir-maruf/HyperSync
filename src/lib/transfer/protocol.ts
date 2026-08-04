@@ -55,8 +55,8 @@ export const HEADER_SIZE = 36 + 4 + 8 + 4 + 1 // 53 bytes
 // LOW:  resume when bufferedAmount drops below bufferedAmountLowThreshold (set to LOW_WATER_MARK).
 // 8 MB window keeps a fast 5GHz LAN link continuously saturated.
 // Sender re-fills from LOW to HIGH on every bufferedamountlow event — no idle gaps.
-export const HIGH_WATER_MARK = 8 * 1024 * 1024 // 8 MB — stop threshold
-export const LOW_WATER_MARK = 4 * 1024 * 1024 // 4 MB — resume threshold
+export const HIGH_WATER_MARK = 2 * 1024 * 1024
+export const LOW_WATER_MARK = 1 * 1024 * 1024
 
 import type { ChunkHeader } from "./types"
 

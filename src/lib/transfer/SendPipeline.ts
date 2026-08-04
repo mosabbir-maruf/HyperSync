@@ -121,7 +121,7 @@ export class SendPipeline {
   // Import watermarks as statics so they can be read without an instance
   static readonly HIGH_WATER_MARK = HIGH_WATER_MARK
   static readonly LOW_WATER_MARK =
-    4 * 1024 * 1024 // keep in sync with protocol.ts
+    1 * 1024 * 1024 // keep in sync with protocol.ts
 
   // ── Producer API ─────────────────────────────────────────────────────────
 
