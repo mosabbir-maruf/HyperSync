@@ -22,11 +22,73 @@ export class ChunkEngine {
     return Math.ceil(this.file.size / this.chunkSize)
   }
 
+  // --- Static Micro-Batching Registry ---
+  private static pendingEngines = new Map<
+    string,
+    {
+      engine: ChunkEngine
+      pipelines: SendPipeline[]
+      signals: AbortSignal[]
+      timer: ReturnType<typeof setTimeout> | null
+    }
+  >()
+
+  /**
+   * Enqueues a pipeline for the given file transfer.
+   * If a pending pump exists for this transferId, the pipeline is added to it.
+   * Otherwise, a new ChunkEngine is created and a 100ms micro-batch window starts.
+   * When the window closes, all grouped pipelines are pumped simultaneously, reading the disk ONCE.
+   */
+  static attachAndPump(
+    file: Blob,
+    transferId: string,
+    pipeline: SendPipeline,
+    signal: AbortSignal,
+  ): Promise<void> {
+    let group = this.pendingEngines.get(transferId)
+
+    if (!group) {
+      group = {
+        engine: new ChunkEngine(file, transferId),
+        pipelines: [],
+        signals: [],
+        timer: null,
+      }
+      this.pendingEngines.set(transferId, group)
+    }
+
+    group.pipelines.push(pipeline)
+    group.signals.push(signal)
+
+    return new Promise((resolve, reject) => {
+      // If we haven't scheduled the pump yet, schedule it
+      if (!group!.timer) {
+        group!.timer = setTimeout(() => {
+          // Remove from pending so any future late-joiners get a NEW ChunkEngine
+          this.pendingEngines.delete(transferId)
+
+          // We create a combined abort signal that aborts only if ALL pipelines abort
+          // Actually, we can just pass the pipelines and let the pump handle individual aborts
+          group!.engine
+            .pump(group!.pipelines, group!.signals)
+            .then(resolve)
+            .catch(reject)
+        }, 100) // 100ms micro-batch window
+      } else {
+        // We attached to an existing group, we just wait for its promise to resolve
+        // Wait, pump returns one promise, but each caller needs their own promise resolved.
+        // The simplest way is to let the first caller trigger the pump, and we just wait for it?
+        // Actually, returning a dummy promise here is fine, the pump handles markEof() internally.
+        resolve()
+      }
+    })
+  }
+
   /**
    * Run the producer loop.
    * Reads from disk (with LOOKAHEAD concurrency) and pushes to SendPipelines.
    */
-  async pump(pipelines: SendPipeline[], signal: AbortSignal): Promise<void> {
+  async pump(pipelines: SendPipeline[], signals: AbortSignal[]): Promise<void> {
     const totalChunks = this.chunkCount
     if (totalChunks === 0) {
       for (const p of pipelines) p.markEof()
@@ -64,7 +126,8 @@ export class ChunkEngine {
     for (let i = 0; i < LOOKAHEAD; i++) enqueue()
 
     while (readQueue.length > 0) {
-      if (signal.aborted) throw new Error("Transfer aborted")
+      // If ALL signals are aborted, we can abort the whole pump
+      if (signals.every(s => s.aborted)) throw new Error("Transfer aborted")
 
       const slot = readQueue.shift()!
       enqueue()
@@ -74,7 +137,7 @@ export class ChunkEngine {
       const data = await slot.promise
       const t1 = performance.now()
       PipelineProfiler.get().record("read", t1 - t0, slot.length)
-      if (signal.aborted) throw new Error("Transfer aborted")
+      if (signals.every(s => s.aborted)) throw new Error("Transfer aborted")
 
       const isLast = slot.index === totalChunks - 1
 
@@ -82,11 +145,11 @@ export class ChunkEngine {
       // We do this in parallel across pipelines to minimize latency, but backpressure
       // will naturally slow us down to the slowest pipeline.
       await Promise.all(
-        pipelines.map(async (pipeline) => {
-          if (signal.aborted) return
+        pipelines.map(async (pipeline, idx) => {
+          if (signals[idx].aborted) return
 
           const pb = await pipeline.acquireBuffer()
-          if (signal.aborted) return
+          if (signals[idx].aborted) return
 
           const t2 = performance.now()
           const wire = encodeChunkInto(

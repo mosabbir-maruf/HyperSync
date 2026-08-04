@@ -139,15 +139,17 @@ export class TransferEngine {
   private async processSend(transfer: QueuedTransfer) {
     const meta = transfer.metadata
     const file = transfer.file!
-    const engine = new ChunkEngine(file, meta.transferId)
     const ac = new AbortController()
     this.abortControllers.set(meta.transferId, ac)
 
     // Setup the decoupled send pipeline
+    // ChunkSize is now derived inside ChunkEngine, but we need it here to initialize the pipeline buffer pool.
+    // We can use the same strategy to get the chunk size.
+    const { ChunkStrategy } = await import("./ChunkStrategy")
     const pipeline = new SendPipeline(
       this.channel,
       meta,
-      engine.chunkSize,
+      ChunkStrategy.getOptimalChunkSize(file.size),
       (progress) => this.emit({ type: "LocalProgress", progress }),
     )
     this.pipelines.set(meta.transferId, pipeline)
@@ -157,7 +159,7 @@ export class TransferEngine {
       this.sendControl({ t: "TRANSFER_METADATA", metadata: meta })
 
       // Start the producer coroutine (reads disk -> encodes -> pushes to pipeline)
-      const pumpPromise = engine.pump([pipeline], ac.signal)
+      const pumpPromise = ChunkEngine.attachAndPump(file, meta.transferId, pipeline, ac.signal)
 
       // Wait until every chunk has been flushed to channel.send(), or an error occurs (e.g. aborted)
       await Promise.all([pipeline.waitUntilDone(), pumpPromise])
