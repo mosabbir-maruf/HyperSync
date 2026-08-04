@@ -147,8 +147,10 @@ export class GroupPeerManager {
         if (peerState === "connected") {
           // In a group, we do not show a toast for every individual connection
           // because it causes spam when connecting to a large mesh.
-        } else if (peerState === "failed" || peerState === "closed") {
-          console.warn(`[GroupWebRTC] Peer connection failed/closed to ${targetPeerId}`)
+        } else if (peerState === "failed") {
+          console.warn(`[GroupWebRTC] Peer connection failed to ${targetPeerId}. Awaiting ICE restart...`)
+        } else if (peerState === "closed") {
+          console.warn(`[GroupWebRTC] Peer connection closed to ${targetPeerId}`)
           const pc = this.peers.get(targetPeerId)
           if (pc) {
             this.peers.delete(targetPeerId)
