@@ -92,7 +92,7 @@ export class PeerConnection {
         case "failed":
           if (!iceRestartAttempted && this.role === "host") {
             iceRestartAttempted = true
-                        void this.makeOffer()
+            void this.makeOffer(true)
           } else {
             this.setState("failed")
             this.events.onError?.("Connection failed")
@@ -156,11 +156,11 @@ export class PeerConnection {
     )
   }
 
-  private async makeOffer(): Promise<void> {
-        try {
+  private async makeOffer(iceRestart: boolean = false): Promise<void> {
+    try {
       this.makingOffer = true
       this.setState("negotiating")
-      const offer = await this.pc.createOffer()
+      const offer = await this.pc.createOffer({ iceRestart })
       await this.pc.setLocalDescription(offer)
       this.signaling.send({
         kind: "offer",

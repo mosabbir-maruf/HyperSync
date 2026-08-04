@@ -233,6 +233,9 @@ export class WebSocketSignalingClient
         })
         break
       case "GROUP_SIGNAL":
+        if (msg.payload.targetPeerId && msg.payload.targetPeerId !== this.peerId) {
+          break
+        }
         this.emit({
           type: "group-signal",
           from: msg.peerId,
