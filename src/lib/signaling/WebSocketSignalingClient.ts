@@ -100,7 +100,8 @@ export class WebSocketSignalingClient
     return new Promise((resolve, reject) => {
       // Connect to the room by its URL
       const wsUrl = new URL(this.url)
-      wsUrl.pathname = roomType === "group" ? "/group/ws" : "/ws"
+      const basePath = wsUrl.pathname === "/" ? "" : wsUrl.pathname
+      wsUrl.pathname = basePath + (roomType === "group" ? "/group/ws" : "/ws")
       wsUrl.searchParams.set("code", code)
       wsUrl.protocol = wsUrl.protocol === "http:" ? "ws:" : "wss:"
 
@@ -477,7 +478,8 @@ export class WebSocketSignalingClient
 
     const endpoint = new URL(this.url)
     endpoint.protocol = endpoint.protocol === "https:" ? "wss:" : "ws:"
-    endpoint.pathname = "/lobby"
+    const basePath = endpoint.pathname === "/" ? "" : endpoint.pathname
+    endpoint.pathname = basePath + "/lobby"
     endpoint.search = ""
     endpoint.hash = ""
 
