@@ -40,7 +40,6 @@ export class GroupConnectionManager {
 
   // --- Group Updaters ---
   public setSignalingPhase(phase: SignalingPhase): void {
-    if (this.isDestroyed) return
     this.signalingPhase = phase
     this.recalculate()
   }
@@ -61,28 +60,24 @@ export class GroupConnectionManager {
   }
 
   public setPeerState(peerId: string, state: PeerConnectionState): void {
-    if (this.isDestroyed) return
     const p = this.ensurePeer(peerId)
     p.peerState = state
     this.recalculate()
   }
 
   public setTransferChannelState(peerId: string, state: ChannelState): void {
-    if (this.isDestroyed) return
     const p = this.ensurePeer(peerId)
     p.transferState = state
     this.recalculate()
   }
 
   public setMessagingChannelState(peerId: string, state: ChannelState): void {
-    if (this.isDestroyed) return
     const p = this.ensurePeer(peerId)
     p.messagingState = state
     this.recalculate()
   }
 
   public setHeartbeatHealthy(peerId: string, healthy: boolean): void {
-    if (this.isDestroyed) return
     const p = this.ensurePeer(peerId)
     p.heartbeatHealthy = healthy
     this.recalculate()
@@ -93,10 +88,7 @@ export class GroupConnectionManager {
     this.recalculate()
   }
 
-  private isDestroyed = false
-
   public destroy(): void {
-    this.isDestroyed = true
     this.peers.clear()
     this.signalingPhase = "disconnected"
     this.listeners.clear()
