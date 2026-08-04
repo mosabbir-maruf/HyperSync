@@ -7,7 +7,7 @@ export class BrowserDownloadProvider implements SaveProvider {
   constructor(private readonly meta: FileMetadata) {}
 
   write(chunk: ArrayBuffer | Uint8Array, _offset: number): void {
-    this.parts.push(chunk)
+    this.parts.push(chunk as any)
   }
 
   async close() {

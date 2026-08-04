@@ -4,6 +4,7 @@ import {
   useRef,
   useState,
   useSyncExternalStore,
+  useMemo,
 } from "react"
 import { MessageList } from "./MessageList"
 import { MessageInput } from "./MessageInput"
@@ -41,8 +42,8 @@ export interface IChatMessagingController {
 
 export interface IChatSessionState {
   connectionState: ConnectionState | string
-  items: TransferItem & { peerId?: string }[]
-  incoming: FileMetadata & { peerId?: string }[] | null
+  items: Array<TransferItem & { peerId?: string }>
+  incoming: Array<FileMetadata & { peerId?: string }> | null
 }
 
 export interface IChatSessionController {
@@ -152,33 +153,37 @@ export function ChatPanel({
   const isDisabled = sessionState.connectionState !== ConnectionState.CONNECTED
 
   // Construct unified timeline
-  const timeline: TimelineItem[] = [
-    ...state.messages.map((m) => ({
-      type: "message" as const,
-      id: m.id,
-      data: m,
-      timestamp: m.timestamp,
-    })),
-    ...sessionState.items.map((t) => ({
-      type: "transfer" as const,
-      id: t.id,
-      data: t,
-      timestamp: t.startedAt,
-    })),
-  ]
+  const timeline: TimelineItem[] = useMemo(() => {
+    const list: TimelineItem[] = [
+      ...state.messages.map((m) => ({
+        type: "message" as const,
+        id: m.id,
+        data: m,
+        timestamp: m.timestamp,
+      })),
+      ...sessionState.items.map((t) => ({
+        type: "transfer" as const,
+        id: t.id,
+        data: t,
+        timestamp: t.startedAt || 0,
+      })),
+    ]
 
-  // Sort chronologically (oldest to newest)
-  timeline.sort((a, b) => a.timestamp - b.timestamp)
+    // Sort chronologically (oldest to newest)
+    list.sort((a, b) => a.timestamp - b.timestamp)
 
-  // Append incoming prompts at the very bottom (most recent)
-  if (sessionState.incoming && sessionState.incoming.length > 0) {
-    timeline.push({
-      type: "incoming",
-      id: "incoming-prompt",
-      data: sessionState.incoming,
-      timestamp: Date.now(),
-    })
-  }
+    // Append incoming prompts at the very bottom (most recent)
+    if (sessionState.incoming && sessionState.incoming.length > 0) {
+      list.push({
+        type: "incoming",
+        id: "incoming-prompt",
+        data: sessionState.incoming,
+        timestamp: Date.now(),
+      })
+    }
+    
+    return list
+  }, [state.messages, sessionState.items, sessionState.incoming])
 
   const filteredTimeline =
     viewMode === "files"
@@ -307,7 +312,7 @@ export function ChatPanel({
           {onInfoClick && (
             <Button
               variant="ghost"
-              size="icon"
+              size="sm"
               className="h-8 w-8 text-muted-foreground"
               title="Group Info"
               onClick={onInfoClick}

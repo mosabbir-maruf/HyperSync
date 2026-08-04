@@ -209,7 +209,7 @@ export class SendPipeline {
 
       // channel.send() copies bytes into SCTP buffer synchronously.
       // After this call the buffer is safe to reuse immediately.
-      this.channel.send(item.pb.view.subarray(0, item.wireLen))
+      this.channel.send(item.pb.view.subarray(0, item.wireLen) as any)
       this.lastSendTime = now
 
       this.bytesSent += item.payloadLen

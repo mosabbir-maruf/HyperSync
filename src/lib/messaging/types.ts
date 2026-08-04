@@ -40,12 +40,12 @@ export interface ChatMessage {
 export type MessageEngineEvent = {
   type: "MessageReceived"
   message: ChatMessage
-} | { type: "MessageSent" id: string } | {
+} | { type: "MessageSent"; id: string } | {
   type: "MessageDelivered"
   id: string
-} | { type: "MessageFailed" id: string } | { type: "TypingStarted" } | {
+} | { type: "MessageFailed"; id: string } | { type: "TypingStarted" } | {
   type: "TypingStopped"
-} | { type: "PeerNameReceived" name: string } | { type: "PeerOnline" } | {
+} | { type: "PeerNameReceived"; name: string } | { type: "PeerOnline" } | {
   type: "PeerOffline"
 } | { type: "ChannelOpen" } | { type: "ChannelClose" }
 

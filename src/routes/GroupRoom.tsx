@@ -107,7 +107,7 @@ export function GroupRoom() {
             Connecting to Group
           </h1>
           <div className="mt-1.5">
-            <ConnectionStatus phase={state.connectionState} />
+            <ConnectionStatus phase={state.connectionState as ConnectionState} />
           </div>
         </div>
         <Button variant="ghost" size="sm" onClick={handleLeave}>

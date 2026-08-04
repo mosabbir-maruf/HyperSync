@@ -39,6 +39,7 @@ export class SessionManager {
 
   private state: SessionState = { ...INITIAL }
   private listeners = new Set<(s: SessionState) => void>()
+  private polls: number[] = []
 
   constructor() {
     // 1. PeerManager -> ConnectionStateManager
@@ -205,6 +206,8 @@ export class SessionManager {
     this.transfer.destroy()
     this.messaging?.destroy()
     this.presence.destroy()
+    this.polls.forEach(clearTimeout)
+    this.polls = []
     this.messaging = null
     this.set({ ...INITIAL })
   }

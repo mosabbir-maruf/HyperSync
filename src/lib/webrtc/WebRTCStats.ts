@@ -85,7 +85,7 @@ export class WebRTCStatsCollector {
         cb(metrics)
       }
     } catch (e) {
-      console.warn("Failed to collect WebRTC stats", e)
+      // stats collection error ignored
     }
   }
 

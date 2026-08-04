@@ -35,7 +35,7 @@ export class OpfsDownloadProvider implements SaveProvider {
     // write() allows an object specifying { type: "write", position: offset, data: chunk }
     // which guarantees chunks go to the correct offset even if out-of-order,
     // though WebRTC DataChannel (ordered: true) guarantees order.
-    await this.writable.write({ type: "write", position: offset, data: chunk })
+    await this.writable.write({ type: "write", position: offset, data: chunk as any })
   }
 
   async close() {
@@ -84,7 +84,7 @@ export class OpfsDownloadProvider implements SaveProvider {
         try {
           await opfsDir.removeEntry(name)
         } catch (e) {
-          console.warn(`Failed to clean up stale OPFS file: ${name}`, e)
+          // cleanup error ignored
         }
       }
     } catch (e) {

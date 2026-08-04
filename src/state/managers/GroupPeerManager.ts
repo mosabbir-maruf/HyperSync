@@ -1,4 +1,4 @@
-import { createSignalingClient } from "../../lib/signaling"
+import { createSignalingClient, type PeerSignal } from "../../lib/signaling"
 import type { SessionInfo, Role } from "../../lib/signaling"
 import {
   PeerConnection,
@@ -85,9 +85,7 @@ export class GroupPeerManager {
 
   private attachSignaling(): void {
     this.signaling.on("group-peer-joined", (event) => {
-      console.log(
-        `[GroupWebRTC] Member joined: ${event.peerId} as ${event.role}`,
-      )
+
       // If a new member joins, and we are already in the group, we act as the "host" (offerer)
       // to establish a connection with them.
       this.establishMeshConnection(event.peerId, "host")
@@ -100,9 +98,7 @@ export class GroupPeerManager {
     // However, the `group-signal` will trigger the creation of a PeerConnection if it doesn't exist yet!
     this.signaling.on("group-signal", (event) => {
       if (!this.peers.has(event.from)) {
-        console.log(
-          `[GroupWebRTC] Received signal from unknown peer ${event.from}, creating connection as guest`,
-        )
+
         this.establishMeshConnection(event.from, "guest", event.signal)
         // Set phase to connected since we're now actively negotiating
         this.onPhaseChange("connected")
@@ -110,7 +106,7 @@ export class GroupPeerManager {
     })
 
     this.signaling.on("group-peer-left", (event) => {
-      console.log(`[GroupWebRTC] Member left signaling room: ${event.peerId}`)
+
       const pc = this.peers.get(event.peerId)
       if (pc) {
         pc.close()

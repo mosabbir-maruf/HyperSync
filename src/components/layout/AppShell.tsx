@@ -4,10 +4,10 @@ import { useSession } from "../../state/SessionProvider"
 import { ConnectionState } from "../../state/managers/ConnectionStateManager"
 import { ThemeToggle } from "./ThemeToggle"
 import { ShieldIcon, HyperSyncLogo } from "../ui/icons"
-import { PerformanceOverlay } from "../ui/PerformanceOverlay"
+
 import { cn } from "../../lib/utils"
 
-const nav = [
+const nav: { to: string; label: string; end?: boolean }[] = [
   { to: "/app", label: "Connect" },
   { to: "/history", label: "History" },
   { to: "/settings", label: "Settings" },
@@ -135,7 +135,6 @@ export function AppShell({ children }: { children: ReactNode }) {
       </main>
 
       <Footer />
-      <PerformanceOverlay />
     </div>
   )
 }

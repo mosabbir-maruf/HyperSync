@@ -15,16 +15,17 @@ import type {
  * in a mesh network of peers.
  */
 export class GroupSignalingAdapter implements SignalingClient {
+  get state() { return this.base.state }
   private unsubscribers: Unsubscribe[] = []
-  private peerJoinedHandlers: (event: {
+  private peerJoinedHandlers: Array<(event: {
     type: "peer-joined"
     peerId: string
-  }) => void[] = []
-  private signalHandlers: (event: {
+  }) => void> = []
+  private signalHandlers: Array<(event: {
     type: "signal"
     from: string
     signal: PeerSignal
-  }) => void[] = []
+  }) => void> = []
 
   constructor(
     private readonly base: SignalingClient,

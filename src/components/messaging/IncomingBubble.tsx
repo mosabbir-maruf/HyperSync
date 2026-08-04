@@ -1,4 +1,4 @@
-import { memo } from "react"
+import { memo, useState } from "react"
 import { Button } from "../ui/Button"
 import { DownloadIcon } from "../ui/icons"
 import type { FileMetadata } from "../../lib/transfer/types"
@@ -31,6 +31,8 @@ export const IncomingBubble = memo(function IncomingBubble({
 
   // Incoming prompts are always from the remote peer, so they align left
   const isLocal = false
+  
+  const [timestamp] = useState(Date.now)
 
   return (
     <div
@@ -100,8 +102,8 @@ export const IncomingBubble = memo(function IncomingBubble({
           </div>
 
           <div className="flex items-center gap-1.5 px-1">
-            <time dateTime={new Date().toISOString()} className="label-mono">
-              {formatMsgTime(Date.now())}
+            <time dateTime={new Date(timestamp).toISOString()} className="label-mono">
+              {formatMsgTime(timestamp)}
             </time>
           </div>
         </div>

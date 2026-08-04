@@ -28,7 +28,9 @@ export function JoinSession() {
     ) {
       autoTried.current = true
       setAttempted(true)
-      void controller.join(code)
+      controller.join(code).catch((err) => {
+        console.warn("Failed to auto-join:", err)
+      })
     }
   }, [params, controller, state.connectionState])
 
@@ -38,7 +40,9 @@ export function JoinSession() {
       return
     }
     setAttempted(true)
-    void controller.join(code)
+    controller.join(code).catch((err) => {
+      console.warn("Failed to join:", err)
+    })
   }
 
   const leave = () => {

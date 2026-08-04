@@ -8,7 +8,7 @@ interface ChatStatusBarProps {
   className?: string
 }
 
-const STATUS_CONFIG: Record<ConnectionState, { dot: string label: string }> = {
+const STATUS_CONFIG: Record<ConnectionState, { dot: string; label: string }> = {
   [ConnectionState.DISCONNECTED]: {
     dot: "bg-destructive",
     label: "Disconnected",

@@ -53,26 +53,19 @@ export class PeerConnection {
 
     pc.onicecandidate = (ev) => {
       if (ev.candidate) {
-        console.log(
-          `[WebRTC] Gathered ICE candidate: type=${ev.candidate.type} protocol=${ev.candidate.protocol} address=${ev.candidate.address}`,
-        )
-        this.signaling.send({ kind: "ice", candidate: ev.candidate.toJSON() })
+                this.signaling.send({ kind: "ice", candidate: ev.candidate.toJSON() })
       } else {
-        console.log(`[WebRTC] ICE gathering complete`)
-      }
+              }
     }
 
     pc.onicegatheringstatechange = () => {
-      console.log(`[WebRTC] iceGatheringState=${pc.iceGatheringState}`)
-    }
+          }
 
     let iceRestartAttempted = false
     pc.oniceconnectionstatechange = () => {
-      console.log(`[WebRTC] iceConnectionState=${pc.iceConnectionState}`)
-      if (pc.iceConnectionState === "failed" && !iceRestartAttempted) {
+            if (pc.iceConnectionState === "failed" && !iceRestartAttempted) {
         iceRestartAttempted = true
-        console.warn(`[WebRTC] ICE failed. Attempting ICE restart...`)
-        if (typeof pc.restartIce === "function") {
+                if (typeof pc.restartIce === "function") {
           pc.restartIce()
         }
         if (this.role === "host") {
@@ -87,10 +80,7 @@ export class PeerConnection {
     }
 
     pc.onconnectionstatechange = () => {
-      console.log(
-        `[WebRTC] connectionState=${pc.connectionState} iceConnectionState=${pc.iceConnectionState}`,
-      )
-      switch (pc.connectionState) {
+            switch (pc.connectionState) {
         case "connected":
           this.stats.start()
           this.setState("connected")
@@ -102,8 +92,7 @@ export class PeerConnection {
         case "failed":
           if (!iceRestartAttempted && this.role === "host") {
             iceRestartAttempted = true
-            console.warn(`[WebRTC] Connection failed. Restarting ICE...`)
-            void this.makeOffer()
+                        void this.makeOffer()
           } else {
             this.setState("failed")
             this.events.onError?.("Connection failed")
@@ -148,8 +137,7 @@ export class PeerConnection {
     let hasMadeInitialOffer = false
     this.unsubscribers.push(
       this.signaling.on("peer-joined", () => {
-        console.log(`[WebRTC] peer-joined received, role=${this.role}`)
-        // Host initiates negotiation once the guest is present.
+                // Host initiates negotiation once the guest is present.
         if (this.role === "host" && !hasMadeInitialOffer) {
           hasMadeInitialOffer = true
           void this.makeOffer()
@@ -167,8 +155,7 @@ export class PeerConnection {
   }
 
   private async makeOffer(): Promise<void> {
-    console.log(`[WebRTC] Creating offer...`)
-    try {
+        try {
       this.makingOffer = true
       this.setState("negotiating")
       const offer = await this.pc.createOffer()
@@ -177,8 +164,7 @@ export class PeerConnection {
         kind: "offer",
         sdp: this.pc.localDescription!.toJSON(),
       })
-      console.log(`[WebRTC] Offer sent`)
-    } catch (err) {
+          } catch (err) {
       this.events.onError?.(errMessage(err))
     } finally {
       this.makingOffer = false
@@ -186,14 +172,10 @@ export class PeerConnection {
   }
 
   private async handleSignal(signal: PeerSignal): Promise<void> {
-    console.log(`[WebRTC] handleSignal kind=${signal.kind}`)
-    try {
+        try {
       if (signal.kind === "offer") {
         if (this.pc.signalingState !== "stable") {
-          console.warn(
-            `[WebRTC] Ignoring offer in state: ${this.pc.signalingState}`,
-          )
-          return
+                    return
         }
         this.setState("negotiating")
         await this.pc.setRemoteDescription(signal.sdp)
@@ -206,10 +188,7 @@ export class PeerConnection {
         await this.flushPendingIce()
       } else if (signal.kind === "answer") {
         if (this.pc.signalingState !== "have-local-offer") {
-          console.warn(
-            `[WebRTC] Ignoring answer in state: ${this.pc.signalingState}`,
-          )
-          return
+                    return
         }
         await this.pc.setRemoteDescription(signal.sdp)
         await this.flushPendingIce()
@@ -220,8 +199,7 @@ export class PeerConnection {
           try {
             await this.pc.addIceCandidate(signal.candidate)
           } catch (err) {
-            console.warn("Failed to add ICE candidate", err)
-          }
+                      }
         }
       }
     } catch (err) {
@@ -234,8 +212,7 @@ export class PeerConnection {
       try {
         await this.pc.addIceCandidate(candidate)
       } catch (err) {
-        console.warn("Failed to add queued ICE candidate", err)
-      }
+              }
     }
     this.pendingIce = []
   }

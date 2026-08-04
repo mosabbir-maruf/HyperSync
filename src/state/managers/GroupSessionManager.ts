@@ -12,8 +12,8 @@ export interface GroupSessionState {
   connectionState: string // from ConnectionState
   role: "host" | "member" | null
   info: SessionInfo | null
-  items: TransferItem & { peerId?: string }[]
-  incoming: FileMetadata & { peerId?: string }[] | null
+  items: Array<TransferItem & { peerId?: string }>
+  incoming: Array<FileMetadata & { peerId?: string }> | null
   error: string | null
   typingPeers: string[]
 }
@@ -37,6 +37,7 @@ export class GroupSessionManager {
 
   private state: GroupSessionState = { ...INITIAL }
   private listeners = new Set<(s: GroupSessionState) => void>()
+  private polls: number[] = []
 
   constructor() {
     this.peer.setCallbacks({
@@ -115,8 +116,8 @@ export class GroupSessionManager {
 
     this.transfer.subscribe((transferState) => {
       this.set({
-        items: transferState.items,
-        incoming: transferState.incoming,
+        items: transferState.items as Array<TransferItem & { peerId?: string }>,
+        incoming: transferState.incoming as Array<FileMetadata & { peerId?: string }> | null,
       })
     })
 
@@ -202,6 +203,8 @@ export class GroupSessionManager {
     this.connection.destroy()
     this.transfer.destroy()
     this.messaging.destroy()
+    this.polls.forEach(clearTimeout)
+    this.polls = []
     this.set({ ...INITIAL })
   }
 }

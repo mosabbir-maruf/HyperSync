@@ -1,7 +1,7 @@
 import { TransferQueue, QueuedTransfer } from "./TransferQueue"
 import { ChunkEngine } from "./ChunkEngine"
 import { ChunkReceiver } from "./ChunkReceiver"
-import { FlowController } from "./FlowController"
+
 import {
   encodeControl,
   decodeControl,
@@ -270,8 +270,7 @@ export class TransferEngine {
     // Simple reset: we just re-queue and re-init.
     const queued = this.queue.items.find((t) => t.metadata.transferId === id)
     if (!queued) return
-    queued.status = "pending"
-    this.sendControl({ t: "TRANSFER_INIT", files: [queued.metadata] })
+    this.sendControl({ t: "TRANSFER_INIT", files: [queued.metadata], protocolVersion: CURRENT_PROTOCOL_VERSION })
   }
   remove(id: string) {
     if (!this.hasTransfer(id)) return

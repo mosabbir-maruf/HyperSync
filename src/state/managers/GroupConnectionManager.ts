@@ -99,6 +99,7 @@ export class GroupConnectionManager {
     this.isDestroyed = true
     this.peers.clear()
     this.signalingPhase = "disconnected"
+    this.listeners.clear()
     this.recalculate()
   }
 

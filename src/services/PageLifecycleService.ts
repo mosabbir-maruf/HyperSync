@@ -1,3 +1,5 @@
+import { browserAdapter } from "../browser/BrowserAdapter"
+
 export type PageLifecycleEvent = "visibility" | "pagehide" | "pageshow" | "beforeunload"
 
 export interface PageLifecycleService {
@@ -17,4 +19,4 @@ export class BrowserPageLifecycleService implements PageLifecycleService {
 
 export const pageLifecycleService: PageLifecycleService =
   new BrowserPageLifecycleService()
-import { browserAdapter } from "../browser/BrowserAdapter"
+

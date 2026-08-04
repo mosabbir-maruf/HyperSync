@@ -1,7 +1,7 @@
 import { ConnectionState } from "../../state/managers/ConnectionStateManager"
 import { cn } from "../../lib/utils"
 
-const MAP: Record<ConnectionState, { label: string dot: string text: string }> =
+const MAP: Record<ConnectionState, { label: string; dot: string; text: string }> =
   {
     [ConnectionState.DISCONNECTED]: {
       label: "Not connected",

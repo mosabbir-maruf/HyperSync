@@ -7,6 +7,7 @@ import {
   type ReactNode,
 } from "react"
 import { SessionManager, type SessionState } from "./managers/SessionManager"
+import { ConnectionState } from "./managers/ConnectionStateManager"
 import { addHistoryEntry } from "./history"
 import { useSettings } from "./SettingsProvider"
 import { pageLifecycleService } from "../services/PageLifecycleService"
@@ -53,7 +54,10 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         })
       }
     }
-  }, [state.items, state.role, settings.keepHistory])
+    if (state.connectionState === ConnectionState.DISCONNECTED) {
+      recorded.current.clear()
+    }
+  }, [state.connectionState, state.items, state.role, settings.keepHistory])
 
   // Keep active transfers visible through mobile suspend/wake and warn before
   // a browser refresh or tab close can discard an in-memory connection.

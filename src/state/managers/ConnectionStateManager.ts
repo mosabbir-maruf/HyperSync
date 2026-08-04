@@ -91,6 +91,7 @@ export class ConnectionStateManager {
     this.isDestroyed = true
     this.signalingPhase = "disconnected"
     this.peerState = "new"
+    this.listeners.clear()
     this.recalculate()
   }
 

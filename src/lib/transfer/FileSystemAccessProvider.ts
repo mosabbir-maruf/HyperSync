@@ -4,7 +4,7 @@ export class FileSystemAccessProvider implements SaveProvider {
   constructor(private readonly writable: FileSystemWritableFileStream) {}
 
   write(chunk: ArrayBuffer | Uint8Array, _offset: number) {
-    return this.writable.write(chunk)
+    return this.writable.write(chunk as any)
   }
 
   async close() {

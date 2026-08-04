@@ -13,7 +13,7 @@ import { cn } from "../../lib/utils"
 
 const PINNED_EMOJI = ["😀", "😂", "❤️", "👍", "🎉", "🔥", "😎", "👋"]
 
-const EMOJI_CATEGORIES: { label: string items: string[] }[] = [
+const EMOJI_CATEGORIES: { label: string; items: string[] }[] = [
   {
     label: "Faces",
     items: [
@@ -341,7 +341,4 @@ function EmojiButton({
   )
 }
 
-// Re-export cn for use in parent
-function cn(...parts: Array<string | false | null | undefined>): string {
-  return parts.filter(Boolean).join(" ")
-}
+

@@ -19,7 +19,7 @@ export function Changelog() {
   }
 
   // Group changes by type
-  const groupByType = (changes: { type: string description: string }[]) => {
+  const groupByType = (changes: { type: string; description: string }[]) => {
     return changes.reduce(
       (acc, change) => {
         const type = change.type.toLowerCase()

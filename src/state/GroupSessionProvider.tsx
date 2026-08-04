@@ -54,7 +54,10 @@ export function GroupSessionProvider({ children }: { children: ReactNode }) {
         })
       }
     }
-  }, [state.items, settings.keepHistory])
+    if (state.connectionState === "disconnected") {
+      recorded.current.clear()
+    }
+  }, [state.connectionState, state.items, settings.keepHistory])
 
   useEffect(() => {
     const hasActiveTransfer = () =>

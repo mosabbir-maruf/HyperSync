@@ -66,7 +66,11 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   })
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(settings))
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(settings))
+    } catch (err) {
+      console.error("Failed to save settings:", err)
+    }
   }, [settings])
 
   const value = useMemo<SettingsContextValue>(

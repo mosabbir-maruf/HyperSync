@@ -27,7 +27,7 @@ export function clearHistory(): void {
     caches
       .keys()
       .then((names) => Promise.all(names.map((name) => caches.delete(name))))
-      .catch((e) => console.warn("Could not clear caches", e))
+      .catch((e) => {})
   }
   toast.success("Local history and cache cleared")
 }

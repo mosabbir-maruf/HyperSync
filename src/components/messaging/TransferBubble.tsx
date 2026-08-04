@@ -203,14 +203,16 @@ export const TransferBubble = memo(function TransferBubble({
             </div>
           </div>
 
-          <div className="flex items-center gap-1.5 px-1">
-            <time
-              dateTime={new Date(item.startedAt).toISOString()}
-              className="label-mono"
-            >
-              {formatMsgTime(item.startedAt)}
-            </time>
-          </div>
+          {item.startedAt && (
+            <div className="flex items-center gap-1.5 px-1">
+              <time
+                dateTime={new Date(item.startedAt).toISOString()}
+                className="label-mono"
+              >
+                {formatMsgTime(item.startedAt)}
+              </time>
+            </div>
+          )}
         </div>
       </div>
     </div>

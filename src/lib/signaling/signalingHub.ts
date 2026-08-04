@@ -37,12 +37,10 @@ class SignalingHub {
   private channel = new BroadcastChannel("dropsync_signaling")
 
   constructor() {
-    console.log(
-      "[SignalingHub] Initializing BroadcastChannel 'dropsync_signaling'",
-    )
+
     this.channel.onmessage = (event) => {
       const msg = event.data
-      console.log("[SignalingHub] Received message:", msg.type, msg)
+
 
       if (msg.type === "LOBBY_SYNC") {
         for (const device of msg.devices) {
@@ -111,10 +109,7 @@ class SignalingHub {
   }
 
   announceLobby(member: LobbyMember): void {
-    console.log(
-      "[SignalingHub] announceLobby called for",
-      member.presence.peerId,
-    )
+
     this.lobby.set(member.presence.peerId, member)
     this.channel.postMessage({
       type: "LOBBY_SYNC",

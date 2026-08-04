@@ -62,6 +62,16 @@ export function DialogProvider({ children }: { children: ReactNode }) {
     return () => previouslyFocused?.focus?.()
   }, [open])
 
+  // Prevent dangling promise if provider unmounts while open
+  useEffect(() => {
+    return () => {
+      if (resolverRef.current) {
+        resolverRef.current(false)
+        resolverRef.current = null
+      }
+    }
+  }, [])
+
   // Escape to cancel; Tab traps focus inside the panel.
   useEffect(() => {
     if (!open) return

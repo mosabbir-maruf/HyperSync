@@ -1,5 +1,4 @@
 import type { SignalingClient } from "./SignalingClient"
-import { InMemorySignalingClient } from "./InMemorySignalingClient"
 import { WebSocketSignalingClient } from "./WebSocketSignalingClient"
 
 export type { SignalingClient } from "./SignalingClient"
@@ -16,9 +15,5 @@ export function createSignalingClient(): SignalingClient {
   // or the local Vite proxy. This avoids relying on environment variables for the frontend.
   const wsUrl = new URL("/api", window.location.origin).toString()
 
-  // If explicitly requested, use in-memory mock for dev testing without backend
-  if (import.meta.env.VITE_USE_MOCK_SIGNALING === "true") {
-    return new InMemorySignalingClient()
-  }
   return new WebSocketSignalingClient(wsUrl)
 }

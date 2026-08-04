@@ -63,8 +63,7 @@ export class WebSocketSignalingClient
           }) => void
           emitPeerJoined({ type: "peer-joined", peerId: this.joinedPeerId })
         } catch (e) {
-          console.warn("Error replaying peer-joined handler", e)
-        }
+                  }
       }, 0)
     }
     return unsub
@@ -113,12 +112,7 @@ export class WebSocketSignalingClient
           ws.close(1000, "Stale connection")
           return
         }
-        console.log(
-          `[Signaling] WebSocket open, role=${role}, sending ${
-            roomType === "group" ? "GROUP_JOIN" : "JOIN"
-          }`,
-        )
-        // Send JOIN message
+                // Send JOIN message
         this.sendMessage(roomType === "group" ? "GROUP_JOIN" : "JOIN", { role })
 
         // Start heartbeat
@@ -132,8 +126,7 @@ export class WebSocketSignalingClient
       ws.onmessage = (event) => {
         try {
           const msg = JSON.parse(event.data)
-          console.log(`[Signaling] ← ${msg.type}`, msg.payload)
-          this.handleMessage(msg, resolve, reject)
+                    this.handleMessage(msg, resolve, reject)
         } catch (err) {
           console.error("Failed to parse websocket message", err)
         }
@@ -147,10 +140,7 @@ export class WebSocketSignalingClient
       }
 
       ws.onclose = (ev) => {
-        console.log(
-          `[Signaling] WebSocket closed code=${ev.code} reason=${ev.reason}`,
-        )
-        this.cleanup()
+                this.cleanup()
         if (ev.code === 4004 || ev.code === 4003) {
           this.emit({ type: "error", message: "Session expired or full" })
         }
@@ -191,29 +181,20 @@ export class WebSocketSignalingClient
           const joinedRole = msg.payload?.joinedRole as string | undefined
           const yourRole = msg.payload?.yourRole as string | undefined
           const joinedPeerId = msg.payload?.joinedPeerId || "remote"
-          console.log(
-            `[Signaling] READY payload: joinedRole=${joinedRole} yourRole=${yourRole} this.role=${this.role}`,
-          )
-          // If the server sends READY and a GUEST just joined, notify the HOST to start negotiation
+                    // If the server sends READY and a GUEST just joined, notify the HOST to start negotiation
           if (
             joinedRole === "GUEST" &&
             (yourRole === "HOST" || this.role === "host")
           ) {
             this.hasPeerJoined = true
             this.joinedPeerId = joinedPeerId
-            console.log(
-              `[Signaling] Emitting peer-joined (we are host, guest joined)`,
-            )
-            this.emit({ type: "peer-joined", peerId: joinedPeerId })
+                        this.emit({ type: "peer-joined", peerId: joinedPeerId })
           }
           // If no payload (fallback for old server), emit for host only
           if (!joinedRole && this.role === "host") {
             this.hasPeerJoined = true
             this.joinedPeerId = "remote"
-            console.log(
-              `[Signaling] Emitting peer-joined (fallback, no payload)`,
-            )
-            this.emit({ type: "peer-joined", peerId: "remote" })
+                        this.emit({ type: "peer-joined", peerId: "remote" })
           }
         }
         break
@@ -516,20 +497,17 @@ export class WebSocketSignalingClient
           })
         }
       } catch (err) {
-        console.warn("[Lobby] Failed to parse message", err)
-      }
+              }
     }
 
     ws.onerror = () => {
       // Browsers follow this with close. Reconnect there so a failure cannot
       // create overlapping lobby sockets.
-      console.warn("[Lobby] WebSocket error")
-    }
+          }
 
     ws.onclose = (ev) => {
       if (this.lobbyWs !== ws) return
-      console.log("[Lobby] WebSocket closed", ev.code, ev.reason)
-      this.lobbyWs = null
+            this.lobbyWs = null
       this.stopLobbyPing()
       this.emit({ type: "roster", devices: [] })
       this.scheduleLobbyReconnect()

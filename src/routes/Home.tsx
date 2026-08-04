@@ -2,7 +2,7 @@ import { Link } from "react-router-dom"
 import { useSession } from "../state/SessionProvider"
 import { NearbyDevices } from "../components/session/NearbyDevices"
 import { SessionSurface } from "../components/session/SessionSurface"
-import { FilePanel } from "../components/transfer/FilePanel"
+
 import { ConnectionState } from "../state/managers/ConnectionStateManager"
 import {
   QrIcon,

@@ -17,7 +17,21 @@ export default defineConfig(({ mode }) => {
     build: {
       sourcemap: emitSourcemaps ? "inline" : false,
       minify: !emitSourcemaps,
+      target: "esnext",
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            if (id.includes("node_modules")) {
+              if (id.includes("react")) return "vendor-react"
+              return "vendor"
+            }
+          },
+        },
+      },
     },
+    esbuild: (emitSourcemaps ? undefined : {
+      drop: ["console", "debugger"],
+    }) as any,
     plugins: [
       react(),
       tailwindcss(),

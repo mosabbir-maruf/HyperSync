@@ -37,7 +37,7 @@ export class DownloadManager {
         await opfs.initialize()
         return opfs
       } catch (e) {
-        console.warn("OPFS initialization failed, falling back to RAM", e)
+        // fallback silently
       }
     }
 

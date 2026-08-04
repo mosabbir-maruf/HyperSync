@@ -11,7 +11,7 @@ export type TimelineItem = {
   id: string
   data: ChatMessage
   timestamp: number
-} | { type: "transfer" id: string data: TransferItem timestamp: number } | {
+} | { type: "transfer"; id: string; data: TransferItem; timestamp: number } | {
   type: "incoming"
   id: string
   data: FileMetadata[]

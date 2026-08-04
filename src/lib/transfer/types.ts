@@ -37,19 +37,19 @@ export interface TransferProgress {
 export type TransferEvent = {
   type: "TransferQueued"
   metadata: FileMetadata
-} | { type: "TransferStarted" metadata: FileMetadata } | {
+} | { type: "TransferStarted"; metadata: FileMetadata } | {
   type: "MetadataReceived"
   metadata: FileMetadata
-} | { type: "ChunkSent" transferId: string progress: TransferProgress } | {
+} | { type: "ChunkSent"; transferId: string; progress: TransferProgress } | {
   type: "ChunkReceived"
   transferId: string
   progress: TransferProgress
-} | { type: "VerificationStarted" transferId: string } | {
+} | { type: "VerificationStarted"; transferId: string } | {
   type: "VerificationFinished"
   transferId: string
   isValid: boolean
   checksum?: string
-} | { type: "DownloadCompleted" transferId: string downloadUrl?: string } | {
+} | { type: "DownloadCompleted"; transferId: string; downloadUrl?: string } | { type: "DownloadStarted"; transferId: string } | {
   type: "TransferCancelled"
   transferId: string
   remote?: boolean
@@ -57,17 +57,17 @@ export type TransferEvent = {
   type: "TransferFailed"
   transferId: string
   error: string
-} | { type: "TransferCompleted" transferId: string } | {
+} | { type: "TransferCompleted"; transferId: string } | {
   type: "LocalProgress"
   progress: TransferProgress
-} | { type: "RemoteProgress" progress: TransferProgress } | {
+} | { type: "RemoteProgress"; progress: TransferProgress } | {
   type: "TransferSpeed"
   transferId: string
   speedBytesPerSecond: number
-} | { type: "ETA" transferId: string estimatedTimeRemainingSeconds: number } | {
-  type: "BufferPause"
+} | { type: "ETA"; transferId: string; estimatedTimeRemainingSeconds: number } | {
+  type: "BufferPause";
   transferId: string
-} | { type: "BufferResume" transferId: string }
+} | { type: "BufferResume"; transferId: string }
 
 export type TransferEventHandler = (event: TransferEvent) => void
 

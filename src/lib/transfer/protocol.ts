@@ -6,24 +6,24 @@ export type ControlMessage = {
   t: "TRANSFER_INIT"
   files: FileMetadata[]
   protocolVersion: string
-} | { t: "TRANSFER_ACCEPT" ids: string[] } | {
+} | { t: "TRANSFER_ACCEPT"; ids: string[] } | {
   t: "TRANSFER_REJECT"
   ids: string[]
-} | { t: "TRANSFER_METADATA" metadata: FileMetadata } | {
+} | { t: "TRANSFER_METADATA"; metadata: FileMetadata } | {
   t: "TRANSFER_PROGRESS"
   id: string
   percentage: number
-} | { t: "TRANSFER_COMPLETE" id: string checksum?: string } | {
+} | { t: "TRANSFER_COMPLETE"; id: string; checksum?: string } | {
   t: "TRANSFER_VERIFY"
   id: string
-} | { t: "TRANSFER_SUCCESS" id: string } | {
+} | { t: "TRANSFER_SUCCESS"; id: string } | {
   t: "TRANSFER_FAILED"
   id: string
   reason: string
-} | { t: "TRANSFER_CANCEL" id: string } | { t: "TRANSFER_ABORT" id: string } | {
+} | { t: "TRANSFER_CANCEL"; id: string } | { t: "TRANSFER_ABORT"; id: string } | {
   t: "TRANSFER_PAUSE"
   id: string
-} | { t: "TRANSFER_RESUME" id: string }
+} | { t: "TRANSFER_RESUME"; id: string }
 
 export function encodeControl(msg: ControlMessage): string {
   return JSON.stringify(msg)
@@ -129,7 +129,7 @@ export function encodeChunk(
  */
 export function decodeChunk(
   buffer: ArrayBuffer,
-): { header: ChunkHeader data: Uint8Array } {
+): { header: ChunkHeader; data: Uint8Array } {
   const view = new DataView(buffer)
 
   // Decode the 36-byte ASCII transfer ID (zero-copy view)
