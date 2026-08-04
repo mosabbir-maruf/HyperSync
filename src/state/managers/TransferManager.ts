@@ -308,9 +308,6 @@ export class TransferManager {
     this.engine?.destroy()
     this.engine = null
 
-    this.listeners.clear()
-    this.eventListeners.clear()
-
     for (const item of this.itemsMap.values()) {
       if (item.blobUrl) {
         URL.revokeObjectURL(item.blobUrl)

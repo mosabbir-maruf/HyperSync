@@ -217,8 +217,6 @@ export class GroupTransferManager {
       this.removeEngine(peerId)
     }
     this.managers.clear()
-    this.listeners.clear()
-    this.eventListeners.clear()
     this.state = { items: [], incoming: null }
   }
 }

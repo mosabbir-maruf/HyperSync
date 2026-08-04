@@ -260,7 +260,6 @@ export class GroupMessagingManager {
     for (const peerId of this.engines.keys()) {
       this.removeEngine(peerId)
     }
-    this.listeners.clear()
     this.eventListeners.clear()
     this.state = { ...INITIAL_STATE }
   }
