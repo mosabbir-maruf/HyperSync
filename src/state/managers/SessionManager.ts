@@ -39,7 +39,6 @@ export class SessionManager {
 
   private state: SessionState = { ...INITIAL }
   private listeners = new Set<(s: SessionState) => void>()
-  private polls: number[] = []
 
   constructor() {
     // 1. PeerManager -> ConnectionStateManager
@@ -62,17 +61,6 @@ export class SessionManager {
         if (channel.readyState === "open") markOpen()
         else {
           channel.addEventListener("open", markOpen, { once: true })
-          const poll = setInterval(() => {
-            if (channel.readyState === "open") {
-              clearInterval(poll)
-              markOpen()
-            } else if (
-              channel.readyState === "closed" ||
-              channel.readyState === "closing"
-            ) {
-              clearInterval(poll)
-            }
-          }, 100)
         }
         channel.addEventListener("close", markClosed, { once: true })
       },
@@ -90,17 +78,6 @@ export class SessionManager {
         if (channel.readyState === "open") markOpen()
         else {
           channel.addEventListener("open", markOpen, { once: true })
-          const poll = setInterval(() => {
-            if (channel.readyState === "open") {
-              clearInterval(poll)
-              markOpen()
-            } else if (
-              channel.readyState === "closed" ||
-              channel.readyState === "closing"
-            ) {
-              clearInterval(poll)
-            }
-          }, 100)
         }
         channel.addEventListener("close", markClosed, { once: true })
       },
@@ -206,8 +183,6 @@ export class SessionManager {
     this.transfer.destroy()
     this.messaging?.destroy()
     this.presence.destroy()
-    this.polls.forEach(clearTimeout)
-    this.polls = []
     this.messaging = null
     this.set({ ...INITIAL })
   }

@@ -37,7 +37,6 @@ export class GroupSessionManager {
 
   private state: GroupSessionState = { ...INITIAL }
   private listeners = new Set<(s: GroupSessionState) => void>()
-  private polls: number[] = []
 
   constructor() {
     this.peer.setCallbacks({
@@ -59,17 +58,6 @@ export class GroupSessionManager {
         if (channel.readyState === "open") markOpen()
         else {
           channel.addEventListener("open", markOpen, { once: true })
-          const poll = setInterval(() => {
-            if (channel.readyState === "open") {
-              clearInterval(poll)
-              markOpen()
-            } else if (
-              channel.readyState === "closed" ||
-              channel.readyState === "closing"
-            ) {
-              clearInterval(poll)
-            }
-          }, 100)
         }
         channel.addEventListener("close", markClosed, { once: true })
       },
@@ -84,17 +72,6 @@ export class GroupSessionManager {
         if (channel.readyState === "open") markOpen()
         else {
           channel.addEventListener("open", markOpen, { once: true })
-          const poll = setInterval(() => {
-            if (channel.readyState === "open") {
-              clearInterval(poll)
-              markOpen()
-            } else if (
-              channel.readyState === "closed" ||
-              channel.readyState === "closing"
-            ) {
-              clearInterval(poll)
-            }
-          }, 100)
         }
         channel.addEventListener("close", markClosed, { once: true })
       },
@@ -203,8 +180,6 @@ export class GroupSessionManager {
     this.connection.destroy()
     this.transfer.destroy()
     this.messaging.destroy()
-    this.polls.forEach(clearTimeout)
-    this.polls = []
     this.set({ ...INITIAL })
   }
 }
