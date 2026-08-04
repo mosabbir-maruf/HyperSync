@@ -21,20 +21,6 @@ export default defineConfig(({ mode }) => {
     plugins: [
       react(),
       tailwindcss(),
-      {
-        name: 'cloudflare-redirects',
-        writeBundle() {
-          const redirectsPath = path.resolve(import.meta.dirname, 'dist', '_redirects');
-          if (process.env.BACKEND_URL) {
-            const rule = `/api/* ${process.env.BACKEND_URL}/:splat 200\n`;
-            const existing = fs.existsSync(redirectsPath) ? fs.readFileSync(redirectsPath, 'utf-8') : '/* /index.html 200\n';
-            fs.writeFileSync(redirectsPath, rule + existing);
-            console.log(`\n[Vite Plugin] Injected proxy rule into _redirects targeting ${process.env.BACKEND_URL}`);
-          } else {
-            console.warn('\n[Vite Plugin] No BACKEND_URL provided, skipping proxy rule injection in _redirects.');
-          }
-        }
-      }
     ],
     resolve: {
       alias: {
