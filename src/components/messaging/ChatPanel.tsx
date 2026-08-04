@@ -315,39 +315,14 @@ export function ChatPanel({
               <InfoIcon width={16} height={16} />
             </Button>
           )}
-          <div className="hidden sm:block">
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={onLeave}
-              className="h-7 text-xs px-2.5"
-            >
-              End session
-            </Button>
-          </div>
-          <div className="sm:hidden">
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={onLeave}
-              className="h-7 w-7 p-0"
-              aria-label="End session"
-            >
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                className="w-4 h-4"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            </Button>
-          </div>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={onLeave}
+            className="h-7 text-xs px-2.5 shrink-0"
+          >
+            End session
+          </Button>
         </div>
       </div>
 
