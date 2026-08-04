@@ -20,7 +20,7 @@ export function QRDisplay({
         fgColor={payload.foreground}
         bgColor={payload.background}
         level="M"
-        marginSize={0}
+        marginSize={2}
       />
     </div>
   )
