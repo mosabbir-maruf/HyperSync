@@ -39,9 +39,10 @@ export class PeerConnection {
     private readonly signaling: SignalingClient,
     private readonly role: Role,
     private readonly events: PeerConnectionEvents = {},
+    private readonly peerId: string = "unknown",
   ) {
     this.pc = new RTCPeerConnection(RTC_CONFIG)
-    this.stats = new WebRTCStatsCollector(this.pc)
+    this.stats = new WebRTCStatsCollector(this.pc, this.peerId)
     this.wirePeerConnection()
     this.wireSignaling()
   }
@@ -55,6 +56,11 @@ export class PeerConnection {
       }, 10000)
     } else if (state === "connected" || state === "failed" || state === "closed") {
       this.clearNegotiationTimeout()
+      if (state === "connected") {
+        this.stats.start()
+      } else {
+        this.stats.stop()
+      }
     }
     this.events.onState?.(state)
   }

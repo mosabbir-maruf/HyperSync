@@ -140,34 +140,39 @@ export class GroupPeerManager {
     const adapter = new GroupSignalingAdapter(this.signaling, targetPeerId)
     this.adapters.set(targetPeerId, adapter)
 
-    const peer = new PeerConnection(adapter, role, {
-      onState: (peerState) => {
-        this.onPeerStateChange(targetPeerId, peerState)
+    const peer = new PeerConnection(
+      adapter,
+      role,
+      {
+        onState: (peerState) => {
+          this.onPeerStateChange(targetPeerId, peerState)
 
-        if (peerState === "connected") {
-          // In a group, we do not show a toast for every individual connection
-          // because it causes spam when connecting to a large mesh.
-        } else if (peerState === "failed") {
-          console.warn(`[GroupWebRTC] Peer connection failed to ${targetPeerId}. Awaiting ICE restart...`)
-        } else if (peerState === "closed") {
-          console.warn(`[GroupWebRTC] Peer connection closed to ${targetPeerId}`)
-          const pc = this.peers.get(targetPeerId)
-          if (pc) {
-            this.peers.delete(targetPeerId)
-            const adapter = this.adapters.get(targetPeerId)
-            if (adapter) {
-              adapter.destroy()
-              this.adapters.delete(targetPeerId)
+          if (peerState === "connected") {
+            // In a group, we do not show a toast for every individual connection
+            // because it causes spam when connecting to a large mesh.
+          } else if (peerState === "failed") {
+            console.warn(`[GroupWebRTC] Peer connection failed to ${targetPeerId}. Awaiting ICE restart...`)
+          } else if (peerState === "closed") {
+            console.warn(`[GroupWebRTC] Peer connection closed to ${targetPeerId}`)
+            const pc = this.peers.get(targetPeerId)
+            if (pc) {
+              this.peers.delete(targetPeerId)
+              const adapter = this.adapters.get(targetPeerId)
+              if (adapter) {
+                adapter.destroy()
+                this.adapters.delete(targetPeerId)
+              }
+              this.onMemberLeft(targetPeerId)
             }
-            this.onMemberLeft(targetPeerId)
           }
-        }
+        },
+        onDataChannel: (channel) => this.onDataChannel(targetPeerId, channel),
+        onMessageChannel: (channel) =>
+          this.onMessageChannel(targetPeerId, channel),
+        onError: (msg) => console.error(`[GroupWebRTC] Peer error with ${targetPeerId}:`, msg),
       },
-      onDataChannel: (channel) => this.onDataChannel(targetPeerId, channel),
-      onMessageChannel: (channel) =>
-        this.onMessageChannel(targetPeerId, channel),
-      onError: (msg) => console.error(`[GroupWebRTC] Peer error with ${targetPeerId}:`, msg),
-    })
+      targetPeerId
+    )
 
     this.peers.set(targetPeerId, peer)
 

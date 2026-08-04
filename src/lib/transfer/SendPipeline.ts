@@ -83,6 +83,8 @@ export class SendPipeline {
   private lastSendTime = performance.now()
   private queueStarves = 0
   private poolExhausts = 0
+  private backpressureWaitMs = 0
+  private lastChunksSent = 0
   private fillSamples: number[] = []
   private metricsTimer: ReturnType<typeof setInterval> | null = null
 
@@ -131,7 +133,9 @@ export class SendPipeline {
   async acquireBuffer(): Promise<PooledBuffer> {
     if (this.pool.length > 0) return this.pool.pop()!
     this.poolExhausts++
+    const startWait = performance.now()
     await new Promise<void>((r) => this.poolWaiters.push(r))
+    this.backpressureWaitMs += performance.now() - startWait
     return this.pool.pop()!
   }
 
@@ -277,12 +281,17 @@ export class SendPipeline {
     const rateMBps = (speed / 1_000_000).toFixed(1)
     const queueDepth = this.queue.length
     const freeBuffers = this.pool.length
+    
+    const chunksDelta = this.chunksSent - this.lastChunksSent
+    this.lastChunksSent = this.chunksSent
 
     console.debug(
       `[SendPipeline] ${rateMBps} MB/s  fill=${fillPct}%` +
         `  queue=${queueDepth}  pool=${freeBuffers}` +
         `  idle=${idleMs.toFixed(0)}ms` +
-        `  starves=${this.queueStarves} exhausts=${this.poolExhausts}`,
+        `  starves=${this.queueStarves} exhausts=${this.poolExhausts}` +
+        `  wait=${this.backpressureWaitMs.toFixed(0)}ms` +
+        `  freq=${(chunksDelta / 2).toFixed(1)}Hz`,
     )
 
     // Diagnose the bottleneck and hint in the log
@@ -303,5 +312,6 @@ export class SendPipeline {
     // Reset interval counters
     this.queueStarves = 0
     this.poolExhausts = 0
+    this.backpressureWaitMs = 0
   }
 }

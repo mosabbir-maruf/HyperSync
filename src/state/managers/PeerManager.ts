@@ -106,7 +106,7 @@ export class PeerManager {
       onDataChannel: (channel) => this.onDataChannel(channel),
       onMessageChannel: (channel) => this.onMessageChannel(channel),
       onError: (msg) => this.fail(appError("network", msg)),
-    })
+    }, undefined)
   }
 
   private fail(err: unknown, phase?: string): void {
