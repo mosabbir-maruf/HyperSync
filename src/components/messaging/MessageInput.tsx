@@ -281,7 +281,7 @@ export function MessageInput({
             placeholder ||
             (disabled
               ? "Connecting…"
-              : "Message or drag & drop files  ·  Enter to send")
+              : "Message or drop files…")
           }
           className={cn(
             "flex-1 resize-none bg-transparent text-sm text-foreground",
