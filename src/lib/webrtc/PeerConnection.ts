@@ -31,6 +31,8 @@ export class PeerConnection {
   private closed = false
   private pendingIce: RTCIceCandidateInit[] = []
   private signalQueue: Promise<void> = Promise.resolve()
+  private negotiationTimeout: ReturnType<typeof setTimeout> | null = null
+  private iceRestartAttempted = false
   public readonly stats: WebRTCStatsCollector
 
   constructor(
@@ -45,7 +47,33 @@ export class PeerConnection {
   }
 
   private setState(state: PeerConnectionState): void {
+    if (state === "negotiating") {
+      this.clearNegotiationTimeout()
+      this.negotiationTimeout = setTimeout(() => {
+        console.warn("[GroupWebRTC] Negotiation timed out, forcing failure handling")
+        this.handleFailure()
+      }, 10000)
+    } else if (state === "connected" || state === "failed" || state === "closed") {
+      this.clearNegotiationTimeout()
+    }
     this.events.onState?.(state)
+  }
+
+  private handleFailure(): void {
+    if (!this.iceRestartAttempted && this.role === "host") {
+      this.iceRestartAttempted = true
+      void this.makeOffer(true)
+    } else {
+      this.setState("failed")
+      this.events.onError?.("Connection failed")
+    }
+  }
+
+  private clearNegotiationTimeout(): void {
+    if (this.negotiationTimeout) {
+      clearTimeout(this.negotiationTimeout)
+      this.negotiationTimeout = null
+    }
   }
 
   private wirePeerConnection(): void {
@@ -61,15 +89,14 @@ export class PeerConnection {
     pc.onicegatheringstatechange = () => {
           }
 
-    let iceRestartAttempted = false
     pc.oniceconnectionstatechange = () => {
-            if (pc.iceConnectionState === "failed" && !iceRestartAttempted) {
-        iceRestartAttempted = true
-                if (typeof pc.restartIce === "function") {
+      if (pc.iceConnectionState === "failed" && !this.iceRestartAttempted) {
+        this.iceRestartAttempted = true
+        if (typeof pc.restartIce === "function") {
           pc.restartIce()
         }
         if (this.role === "host") {
-          void this.makeOffer()
+          void this.makeOffer(true)
         }
       } else if (pc.iceConnectionState === "failed") {
         console.error(`[WebRTC] ICE FAILED — no usable candidate pair found`)
@@ -90,13 +117,7 @@ export class PeerConnection {
           this.setState("disconnected")
           break
         case "failed":
-          if (!iceRestartAttempted && this.role === "host") {
-            iceRestartAttempted = true
-            void this.makeOffer(true)
-          } else {
-            this.setState("failed")
-            this.events.onError?.("Connection failed")
-          }
+          this.handleFailure()
           break
         case "closed":
           this.stats.stop()
