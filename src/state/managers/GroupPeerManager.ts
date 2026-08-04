@@ -178,15 +178,11 @@ export class GroupPeerManager {
 
     // The PeerConnection constructor will start negotiation if role==="host".
     // Since adapter is bound, it will automatically route `signal` to `group-signal`.
-    // We just need to kick off the "peer-joined" event artificially on the adapter so the host knows to start offering!
+    // We kick off the "peer-joined" event artificially on the adapter so the host knows to start offering.
     if (role === "host") {
-      setTimeout(() => {
-        adapter.simulatePeerJoined()
-      }, 0)
+      adapter.simulatePeerJoined()
     } else if (initialSignal) {
-      setTimeout(() => {
-        adapter.simulateSignal(initialSignal)
-      }, 0)
+      adapter.simulateSignal(initialSignal)
     }
   }
 

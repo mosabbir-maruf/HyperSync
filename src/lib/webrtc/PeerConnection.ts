@@ -53,7 +53,7 @@ export class PeerConnection {
       this.negotiationTimeout = setTimeout(() => {
         console.warn("[GroupWebRTC] Negotiation timed out, forcing failure handling")
         this.handleFailure()
-      }, 10000)
+      }, 30000) // Increased to 30s for slow mobile networks
     } else if (state === "connected" || state === "failed" || state === "closed") {
       this.clearNegotiationTimeout()
       if (state === "connected") {
@@ -71,7 +71,7 @@ export class PeerConnection {
       void this.makeOffer(true)
     } else {
       this.setState("failed")
-      this.events.onError?.("Connection failed")
+      this.events.onError?.("Connection failed. Please try rejoining the group.")
     }
   }
 
@@ -106,9 +106,7 @@ export class PeerConnection {
         }
       } else if (pc.iceConnectionState === "failed") {
         console.error(`[WebRTC] ICE FAILED — no usable candidate pair found`)
-        this.events.onError?.(
-          "ICE connection failed — cannot establish direct link",
-        )
+        this.handleFailure()
       }
     }
 
