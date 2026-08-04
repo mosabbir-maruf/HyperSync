@@ -12,8 +12,11 @@ export * from "./types"
  * without changing React, pairing, WebRTC, or transfer modules.
  */
 export function createSignalingClient(): SignalingClient {
-  const wsUrl = import.meta.env.VITE_WS_URL as string
+  let wsUrl = import.meta.env.VITE_WS_URL as string
   
+  if (wsUrl && wsUrl.startsWith("/")) {
+    wsUrl = new URL(wsUrl, window.location.origin).toString()
+  }
   if (!wsUrl && import.meta.env.VITE_USE_MOCK_SIGNALING !== "true") {
     throw new Error("VITE_WS_URL environment variable is required to connect to the backend.");
   }

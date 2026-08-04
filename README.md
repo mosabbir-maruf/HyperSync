@@ -95,7 +95,8 @@ Create a `.env.production` or `.env.local` file in the root of the `frontend` di
 
 ```env
 # URL of the HyperSync Cloudflare Worker backend
-VITE_WS_URL=https://your-worker-url.workers.dev
+# The Vite build process uses this to create a proxy so the backend URL remains completely hidden from the browser.
+BACKEND_URL=https://your-worker-url.workers.dev
 ```
 
 ## File Structure
@@ -133,6 +134,6 @@ HyperSync-Frontend/
    - **Build output directory**: `dist`
    - **Root directory**: `/` (Leave as is)
 6. Under **Environment variables (advanced)**, click Add variable:
-   - **Variable name**: `VITE_WS_URL`
+   - **Variable name**: `BACKEND_URL`
    - **Value**: The live URL of your deployed Worker backend (e.g. `https://yourdomain.workers.dev`)
 7. Click **Save and Deploy**.
