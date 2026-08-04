@@ -130,7 +130,7 @@ export const TransferBubble = memo(function TransferBubble({
                       value={ratio}
                       tone={item.status === "paused" ? "muted" : "primary"}
                     />
-                    <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1 font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
+                    <div className="flex items-center justify-between font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
                       <span>
                         {formatBytes(item.bytesTransferred)} /{" "}
                         {formatBytes(item.size)}
