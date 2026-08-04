@@ -52,18 +52,22 @@ export class ConnectionStateManager {
 
   // --- Input updaters ---
 
+  public setPeerState(state: PeerState): void {
     this.peerState = state
     this.recalculate()
   }
 
+  public setTransferChannelState(state: ChannelState): void {
     this.transferState = state
     this.recalculate()
   }
 
+  public setMessagingChannelState(state: ChannelState): void {
     this.messagingState = state
     this.recalculate()
   }
 
+  public setHeartbeatHealthy(healthy: boolean): void {
     const previous = this.heartbeatHealthy
     this.heartbeatHealthy = healthy
     if (!previous && healthy) this.emit({ type: "HeartbeatRecovered" })
@@ -71,6 +75,7 @@ export class ConnectionStateManager {
     this.recalculate()
   }
 
+  public setSignalingPhase(phase: SignalingPhase): void {
     this.signalingPhase = phase
     this.recalculate()
   }
