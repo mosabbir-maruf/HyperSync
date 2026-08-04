@@ -6,6 +6,7 @@ import fs from "node:fs"
 
 // Vite config — https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
+  const emitSourcemaps = mode === "development"
   // Uses BACKEND_URL from your environment variables (.env locally, or Cloudflare Dashboard in prod)
   const backendUrl = process.env.BACKEND_URL || "http://localhost:8787" // default to local wrangler dev server
 
