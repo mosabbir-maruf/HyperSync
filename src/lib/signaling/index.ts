@@ -12,14 +12,9 @@ export * from "./types"
  * without changing React, pairing, WebRTC, or transfer modules.
  */
 export function createSignalingClient(): SignalingClient {
-  let wsUrl = import.meta.env.VITE_WS_URL as string
-  
-  if (wsUrl && wsUrl.startsWith("/")) {
-    wsUrl = new URL(wsUrl, window.location.origin).toString()
-  }
-  if (!wsUrl && import.meta.env.VITE_USE_MOCK_SIGNALING !== "true") {
-    throw new Error("VITE_WS_URL environment variable is required to connect to the backend.");
-  }
+  // We now route everything through our proxy endpoint (/api) which is intercepted by Cloudflare _redirects
+  // or the local Vite proxy. This avoids relying on environment variables for the frontend.
+  const wsUrl = new URL("/api", window.location.origin).toString()
 
   // If explicitly requested, use in-memory mock for dev testing without backend
   if (import.meta.env.VITE_USE_MOCK_SIGNALING === "true") {
