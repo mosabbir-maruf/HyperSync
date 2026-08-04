@@ -74,12 +74,15 @@ export class WebRTCStatsCollector {
             selectedCandidatePairId = report.selectedCandidatePairId
           }
         }
-        if (report.type === "candidate-pair" && report.id === selectedCandidatePairId) {
-          currentRoundTripTime = report.currentRoundTripTime
-          availableOutgoingBitrate = report.availableOutgoingBitrate
-          availableIncomingBitrate = report.availableIncomingBitrate
-          localCandidateId = report.localCandidateId || ""
-          remoteCandidateId = report.remoteCandidateId || ""
+        if (report.type === "candidate-pair" && report.state === "succeeded") {
+          if (!selectedCandidatePairId) selectedCandidatePairId = report.id
+          if (report.id === selectedCandidatePairId) {
+            currentRoundTripTime = report.currentRoundTripTime
+            availableOutgoingBitrate = report.availableOutgoingBitrate
+            availableIncomingBitrate = report.availableIncomingBitrate
+            localCandidateId = report.localCandidateId || ""
+            remoteCandidateId = report.remoteCandidateId || ""
+          }
         }
       })
 

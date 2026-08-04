@@ -285,7 +285,7 @@ export class SendPipeline {
     const chunksDelta = this.chunksSent - this.lastChunksSent
     this.lastChunksSent = this.chunksSent
 
-    console.debug(
+    console.log(
       `[SendPipeline] ${rateMBps} MB/s  fill=${fillPct}%` +
         `  queue=${queueDepth}  pool=${freeBuffers}` +
         `  idle=${idleMs.toFixed(0)}ms` +
@@ -296,15 +296,15 @@ export class SendPipeline {
 
     // Diagnose the bottleneck and hint in the log
     if (this.queueStarves > 0 && this.poolExhausts === 0) {
-      console.debug(
+      console.log(
         "[SendPipeline] ⚠ Producer (disk) is slower than network — increase read-ahead",
       )
     } else if (this.poolExhausts > 0 && this.queueStarves === 0) {
-      console.debug(
+      console.log(
         "[SendPipeline] ⚠ Network is slower than disk — pool/watermarks may be oversized",
       )
     } else if (idleMs > 20) {
-      console.debug(
+      console.log(
         `[SendPipeline] ⚠ Sender idle ${idleMs.toFixed(0)}ms — possible stall`,
       )
     }

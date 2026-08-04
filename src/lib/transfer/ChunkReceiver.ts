@@ -51,7 +51,7 @@ export class ChunkReceiver {
     if (localStorage.getItem("DEBUG_PERF") === "true") {
       this.metricsTimer = setInterval(() => {
         if (this.pendingWrites > 0) {
-          console.debug(`[ChunkReceiver] pending disk writes: ${this.pendingWrites}`)
+          console.log(`[ChunkReceiver] pending disk writes: ${this.pendingWrites}`)
         }
       }, 2000)
     }
