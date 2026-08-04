@@ -1,4 +1,4 @@
-export const onRequest: PagesFunction<any> = async (context) => {
+export const onRequest = async (context: any) => {
   const requestUrl = new URL(context.request.url);
   
   // The BACKEND_URL environment variable must be set in the Cloudflare Dashboard
