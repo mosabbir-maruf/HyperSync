@@ -26,6 +26,7 @@ export interface IChatMessagingState {
   recentEmoji: string[]
   peerName?: string | null
   memberNames?: string[]
+  peerNames?: Record<string, string>
   isRemoteTyping?: boolean
   typingPeers?: string[]
 }
@@ -161,12 +162,18 @@ export function ChatPanel({
         data: m,
         timestamp: m.timestamp,
       })),
-      ...sessionState.items.map((t) => ({
-        type: "transfer" as const,
-        id: t.id,
-        data: t,
-        timestamp: t.startedAt || 0,
-      })),
+      ...sessionState.items.map((t) => {
+        const pName = isGroup
+          ? (t.peerId && state.peerNames && state.peerNames[t.peerId]) || "Guest"
+          : undefined
+        return {
+          type: "transfer" as const,
+          id: t.id,
+          data: t,
+          timestamp: t.startedAt || 0,
+          senderName: pName,
+        }
+      }),
     ]
 
     // Sort chronologically (oldest to newest)
@@ -174,11 +181,16 @@ export function ChatPanel({
 
     // Append incoming prompts at the very bottom (most recent)
     if (sessionState.incoming && sessionState.incoming.length > 0) {
+      const inc = sessionState.incoming[0]
+      const pName = isGroup
+        ? (inc.peerId && state.peerNames && state.peerNames[inc.peerId]) || "Guest"
+        : undefined
       list.push({
         type: "incoming",
         id: "incoming-prompt",
         data: sessionState.incoming,
         timestamp: Date.now(),
+        senderName: pName,
       })
     }
     

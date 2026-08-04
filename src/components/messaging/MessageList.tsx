@@ -11,11 +11,12 @@ export type TimelineItem = {
   id: string
   data: ChatMessage
   timestamp: number
-} | { type: "transfer"; id: string; data: TransferItem; timestamp: number } | {
+} | { type: "transfer"; id: string; data: TransferItem; timestamp: number; senderName?: string } | {
   type: "incoming"
   id: string
   data: FileMetadata[]
   timestamp: number
+  senderName?: string
 }
 
 import { Avatar } from "../ui/Avatar"
@@ -132,7 +133,7 @@ export const MessageList = memo(function MessageList({
             <TransferBubble
               key={item.id}
               item={item.data}
-              peerName={peerName}
+              peerName={item.senderName || peerName}
               onPause={onPause}
               onResume={onResume}
               onCancel={onCancel}
@@ -145,7 +146,7 @@ export const MessageList = memo(function MessageList({
             <IncomingBubble
               key={item.id}
               files={item.data}
-              peerName={peerName}
+              peerName={item.senderName || peerName}
               onAccept={onAccept}
               onReject={onReject}
             />

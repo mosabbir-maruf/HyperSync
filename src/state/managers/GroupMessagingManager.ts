@@ -11,6 +11,7 @@ export interface GroupMessagingState {
   unreadCount: number
   recentEmoji: string[]
   memberNames: string[]
+  peerNames: Record<string, string>
 }
 
 const INITIAL_STATE: GroupMessagingState = {
@@ -19,6 +20,7 @@ const INITIAL_STATE: GroupMessagingState = {
   unreadCount: 0,
   recentEmoji: [],
   memberNames: [],
+  peerNames: {},
 }
 
 const MAX_RECENT_EMOJI = 8
@@ -123,7 +125,10 @@ export class GroupMessagingManager {
               this.peerNames.values(),
             ).includes(event.name)
             this.peerNames.set(peerId, event.name)
-            this.set({ memberNames: Array.from(this.peerNames.values()) })
+            this.set({
+              memberNames: Array.from(this.peerNames.values()),
+              peerNames: Object.fromEntries(this.peerNames.entries())
+            })
             if (!isAlreadyInGroup) {
               this.addSystemMessage(`${event.name} joined`, event.name)
             }
@@ -150,7 +155,10 @@ export class GroupMessagingManager {
     this.stopTyping(peerId)
     const name = this.peerNames.get(peerId)
     this.peerNames.delete(peerId)
-    this.set({ memberNames: Array.from(this.peerNames.values()) })
+    this.set({
+      memberNames: Array.from(this.peerNames.values()),
+      peerNames: Object.fromEntries(this.peerNames.entries())
+    })
 
     if (name) {
       const isStillInGroup = Array.from(this.peerNames.values()).includes(name)
