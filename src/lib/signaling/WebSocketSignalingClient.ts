@@ -84,6 +84,8 @@ export class WebSocketSignalingClient
     url.hash = ""
     if (isGroup) {
       url.pathname = "/group"
+    } else {
+      url.pathname = "/join"
     }
     url.search = `?code=${encodeURIComponent(code)}`
     return { sessionId, code, role, joinUrl: url.toString() }
