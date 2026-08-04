@@ -274,7 +274,7 @@ export class TransferManager {
             lastModified: file.lastModified,
             chunkCount: 1,
             checksumMethod: "SHA-256-CHUNK-XOR",
-            protocolVersion: 1,
+            protocolVersion: "1",
           }
         })
       }

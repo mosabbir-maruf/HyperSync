@@ -3,6 +3,9 @@ import ReactDOM from "react-dom/client"
 import App from "./App"
 import "./index.css"
 import { OpfsDownloadProvider } from "./lib/transfer/OpfsDownloadProvider"
+import { registerSW } from "virtual:pwa-register"
+
+registerSW({ immediate: true })
 
 // Run cleanup of any leftover temp files from previous aborted transfers
 OpfsDownloadProvider.cleanupStaleFiles()

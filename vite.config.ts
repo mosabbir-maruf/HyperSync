@@ -1,6 +1,7 @@
 import { defineConfig } from "vite"
 import react from "@vitejs/plugin-react"
 import tailwindcss from "@tailwindcss/vite"
+import { VitePWA } from "vite-plugin-pwa"
 import path from "node:path"
 import fs from "node:fs"
 
@@ -35,6 +36,50 @@ export default defineConfig(({ mode }) => {
     plugins: [
       react(),
       tailwindcss(),
+      VitePWA({
+        registerType: 'autoUpdate',
+        includeAssets: ['favicon.svg', 'avatars/*', 'mosabbir-maruf.webp', 'og-image.svg'],
+        manifest: {
+          name: 'HyperSync',
+          short_name: 'HyperSync',
+          description: 'Lightning-fast peer-to-peer file transfer over your local network.',
+          theme_color: '#cf4322',
+          background_color: '#ffffff',
+          display: 'standalone',
+          icons: [
+            {
+              src: 'pwa-192x192.png',
+              sizes: '192x192',
+              type: 'image/png'
+            },
+            {
+              src: 'pwa-512x512.png',
+              sizes: '512x512',
+              type: 'image/png'
+            },
+            {
+              src: 'pwa-512x512.png',
+              sizes: '512x512',
+              type: 'image/png',
+              purpose: 'any maskable'
+            }
+          ]
+        },
+        workbox: {
+          globPatterns: ['**/*.{js,css,html,svg,png,webp}'],
+          navigateFallback: 'index.html',
+          navigateFallbackDenylist: [
+            /^\/api/ // VERY IMPORTANT: Do not intercept API requests
+          ],
+          runtimeCaching: [
+            {
+              // Do not cache API routes or websockets
+              urlPattern: ({ url }) => url.pathname.startsWith('/api'),
+              handler: 'NetworkOnly'
+            }
+          ]
+        }
+      })
     ],
     resolve: {
       alias: {
