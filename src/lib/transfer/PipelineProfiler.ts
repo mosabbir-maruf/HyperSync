@@ -23,6 +23,7 @@ export class PipelineProfiler {
     decode: { totalTime: 0, totalBytes: 0, count: 0 },
     write: { totalTime: 0, totalBytes: 0, count: 0 },
   }
+  private timer: ReturnType<typeof setInterval> | null = null
 
   subscribe(callback: (metrics: PipelineMetrics) => void) {
     this.subscribers.add(callback)
@@ -97,5 +98,30 @@ export class PipelineProfiler {
     }
 
     return result
+  }
+
+  startLogging() {
+    if (this.timer) return
+    const isDebug = import.meta.env.DEV || localStorage.getItem("DEBUG_PERF") === "true"
+    if (!isDebug) return
+
+    this.timer = setInterval(() => {
+      const avg = this.getAveragesAndReset()
+      if (avg.readMBps > 0 || avg.writeMBps > 0) {
+        console.group("[PipelineProfiler] Telemetry Dump")
+        console.log(`Read  : ${avg.readMBps.toFixed(2)} MB/s (${avg.readMs.toFixed(2)}ms avg)`)
+        console.log(`Encode: ${avg.encodeMBps.toFixed(2)} MB/s (${avg.encodeMs.toFixed(2)}ms avg)`)
+        console.log(`Decode: ${avg.decodeMBps.toFixed(2)} MB/s (${avg.decodeMs.toFixed(2)}ms avg)`)
+        console.log(`Write : ${avg.writeMBps.toFixed(2)} MB/s (${avg.writeMs.toFixed(2)}ms avg)`)
+        console.groupEnd()
+      }
+    }, 2000)
+  }
+
+  stopLogging() {
+    if (this.timer) {
+      clearInterval(this.timer)
+      this.timer = null
+    }
   }
 }

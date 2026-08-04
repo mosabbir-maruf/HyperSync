@@ -15,6 +15,7 @@ import {
 } from "./types"
 import { RateMeter } from "./rateMeter"
 import { makeTransferId } from "../utils"
+import { PipelineProfiler } from "./PipelineProfiler"
 
 import { SendPipeline } from "./SendPipeline"
 
@@ -126,6 +127,7 @@ export class TransferEngine {
 
     this.queue.remove(next.metadata.transferId)
     this.activeSendId = next.metadata.transferId
+    PipelineProfiler.get().startLogging()
     try {
       await this.processSend(next)
     } finally {
@@ -230,6 +232,7 @@ export class TransferEngine {
       accepted.push(id)
     }
     if (accepted.length > 0) {
+      PipelineProfiler.get().startLogging()
       this.sendControl({ t: "TRANSFER_ACCEPT", ids: accepted })
     }
   }

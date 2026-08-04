@@ -110,7 +110,10 @@ export class SendPipeline {
     this.channel.addEventListener("bufferedamountlow", this._flush)
 
     // Periodic diagnostic logging
-    this.metricsTimer = setInterval(() => this._logMetrics(), 2000)
+    const isDebug = import.meta.env.DEV || localStorage.getItem("DEBUG_PERF") === "true"
+    if (isDebug) {
+      this.metricsTimer = setInterval(() => this._logMetrics(), 2000)
+    }
   }
 
   // Import watermarks as statics so they can be read without an instance
