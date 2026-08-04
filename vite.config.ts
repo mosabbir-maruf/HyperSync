@@ -44,7 +44,7 @@ export default defineConfig(({ mode }) => {
           short_name: 'HyperSync',
           description: 'Lightning-fast peer-to-peer file transfer over your local network.',
           theme_color: '#cf4322',
-          background_color: '#cf4322',
+          background_color: '#13130e',
           display: 'standalone',
           icons: [
             {
