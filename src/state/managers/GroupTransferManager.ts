@@ -14,20 +14,24 @@ export class GroupTransferManager {
   private eventListeners = new Set<(peerId: string, e: TransferEvent) => void>()
 
   public attachEngine(peerId: string, engine: TransferEngine) {
-    const tm = new TransferManager()
+    let tm = this.managers.get(peerId)
+    if (!tm) {
+      tm = new TransferManager()
+      
+      // Listen for state changes to aggregate
+      tm.subscribe((s) => this.aggregateState())
+
+      // Forward raw events
+      tm.onEngineEvent((e) => {
+        for (const listener of this.eventListeners) {
+          listener(peerId, e)
+        }
+      })
+
+      this.managers.set(peerId, tm)
+    }
+
     tm.attachEngine(engine)
-
-    // Listen for state changes to aggregate
-    tm.subscribe((s) => this.aggregateState())
-
-    // Forward raw events
-    tm.onEngineEvent((e) => {
-      for (const listener of this.eventListeners) {
-        listener(peerId, e)
-      }
-    })
-
-    this.managers.set(peerId, tm)
     this.aggregateState()
   }
 
