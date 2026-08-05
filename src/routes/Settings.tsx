@@ -170,7 +170,7 @@ export function Settings() {
             description="How devices discover each other to connect."
           >
             <span className="font-mono text-[12px] text-muted-foreground">
-              in-memory mock
+              WebSocket
             </span>
           </Row>
           <Row

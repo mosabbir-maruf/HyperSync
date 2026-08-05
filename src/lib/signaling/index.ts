@@ -5,10 +5,8 @@ export type { SignalingClient } from "./SignalingClient"
 export * from "./types"
 
 /**
- * The application depends only on this interface. This browser-only frontend
- * deliberately ships an in-memory mock and does not contain Worker/WebSocket
- * implementation code. A future signaling transport can be supplied here
- * without changing React, pairing, WebRTC, or transfer modules.
+ * The application depends only on this interface. This frontend
+ * connects to a Cloudflare Workers backend via WebSockets for signaling.
  */
 export function createSignalingClient(): SignalingClient {
   // We now route everything through our proxy endpoint (/api) which is intercepted by Cloudflare _redirects
