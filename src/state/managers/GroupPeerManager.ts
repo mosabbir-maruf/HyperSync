@@ -133,16 +133,20 @@ export class GroupPeerManager {
         this.onPhaseChange("connected")
         return
       }
-      // A stale PC (failed, stuck in negotiation, or disconnected) cannot
-      // cleanly renegotiate. Tear it down so the incoming offer is handled
-      // by a fresh PeerConnection with a clean signaling state.
-      if (existing.connectionState !== "connected") {
+      // Tear down the zombie PC only for an OFFER signal when the existing
+      // PC is truly dead (closed or failed). Answers and ICE candidates
+      // always flow through the adapter. A PC in any other state (new,
+      // negotiating, disconnected, or connected) is still alive and should
+      // not be torn down.
+      if (
+        event.signal.kind === "offer" &&
+        (existing.connectionState === "closed" ||
+          existing.connectionState === "failed")
+      ) {
         this.cleanupPeer(event.from)
         this.establishMeshConnection(event.from, "guest", event.signal)
         this.onPhaseChange("connected")
       }
-      // If the existing PC is healthy ("connected"), the adapter forwards
-      // the signal to it for standard renegotiation — no tear-down needed.
     })
 
     this.signaling.on("group-peer-left", (event) => {

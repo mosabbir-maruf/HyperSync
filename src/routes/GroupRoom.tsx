@@ -63,7 +63,8 @@ export function GroupRoom() {
 
   const connected =
     state.connectionState === ConnectionState.CONNECTED ||
-    state.connectionState === ConnectionState.DEGRADED
+    state.connectionState === ConnectionState.DEGRADED ||
+    state.connectionState === ConnectionState.NEGOTIATING
 
   if (connected) {
     const messagingCtrl = controller.getMessagingManager()
