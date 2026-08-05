@@ -2,11 +2,25 @@ import { useEffect, useRef, useState } from "react"
 import { Button } from "../ui/Button"
 import { Card } from "../ui/Card"
 import jsQR from "jsqr"
+import { getCapabilities } from "../../lib/capabilities"
 
 interface QrScannerModalProps {
   isOpen: boolean
   onClose: () => void
   onScan: (code: string, isGroup: boolean) => void
+}
+
+/**
+ * Sample canvas pixel data to verify the frame is not all-black.
+ * iOS Safari's hardware video decoder can hand back blank buffers;
+ * feeding those to jsQR is wasted work.
+ */
+function hasVisiblePixels(data: Uint8ClampedArray, samples = 200): boolean {
+  const step = Math.max(1, (data.length >>> 2) / samples | 0) * 4
+  for (let i = 0; i < data.length; i += step) {
+    if (data[i] > 10 || data[i + 1] > 10 || data[i + 2] > 10) return true
+  }
+  return false
 }
 
 export function QrScannerModal({
@@ -16,24 +30,36 @@ export function QrScannerModal({
 }: QrScannerModalProps) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const [error, setError] = useState<string | null>(null)
+  const scannedRef = useRef(false)
+
+  // Stable callback refs — prevents the main effect from re-running
+  // (and tearing down the camera) when the parent re-renders.
+  const onScanRef = useRef(onScan)
+  onScanRef.current = onScan
+  const onCloseRef = useRef(onClose)
+  onCloseRef.current = onClose
 
   useEffect(() => {
     if (!isOpen) return
 
+    scannedRef.current = false
     let stream: MediaStream | null = null
-    let scanTimeoutId: ReturnType<typeof setTimeout> | null = null
+    let timerId: ReturnType<typeof setTimeout> | null = null
     let active = true
 
-    // Hidden canvas for extracting image data for jsQR
+    const { isIOS } = getCapabilities()
+
     const canvas = document.createElement("canvas")
     const ctx = canvas.getContext("2d", { willReadFrequently: true })
 
     async function initCamera() {
       try {
         setError(null)
-        // Relaxed constraints for iOS compatibility
+
         stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: "environment" },
+          video: isIOS
+            ? { facingMode: "environment", width: { ideal: 640 }, height: { ideal: 480 } }
+            : { facingMode: "environment" },
         })
 
         if (!active) {
@@ -45,103 +71,85 @@ export function QrScannerModal({
         if (!video) return
 
         video.srcObject = stream
-        video.setAttribute("playsinline", "true") // required to tell iOS safari we don't want fullscreen
+        video.setAttribute("playsinline", "true")
         video.muted = true
         await video.play()
 
-        // Wait until video has valid dimensions
-        const waitForDimensions = async () => {
-          if (!active) return false
-          if (video.videoWidth > 0 && video.videoHeight > 0) return true
-          await new Promise((r) => setTimeout(r, 50))
-          return waitForDimensions()
+        // Wait for the video to report real dimensions
+        while (active && (video.videoWidth === 0 || video.videoHeight === 0)) {
+          await new Promise((r) => setTimeout(r, 80))
         }
+        if (!active) return
 
-        const ready = await waitForDimensions()
-        if (!ready) return
+        // Size the canvas once — cap at 640px to save CPU
+        const scale = Math.min(640 / video.videoWidth, 640 / video.videoHeight, 1)
+        canvas.width = (video.videoWidth * scale) | 0
+        canvas.height = (video.videoHeight * scale) | 0
 
-        // Set up canvas dimensions (bounding box to save CPU)
-        const scanSize = 400
-        const scale = Math.min(
-          scanSize / video.videoWidth,
-          scanSize / video.videoHeight,
-          1,
-        )
-        canvas.width = video.videoWidth * scale
-        canvas.height = video.videoHeight * scale
-
-        // Check if native BarcodeDetector is available
+        // BarcodeDetector is fast but broken on iOS Safari (returns empty).
+        // Only use it on platforms where it actually works.
         const detector =
-          "BarcodeDetector" in window
+          !isIOS && "BarcodeDetector" in window
             ? new (window as any).BarcodeDetector({ formats: ["qr_code"] })
             : null
 
-        const scanFrame = async () => {
-          if (!active || !video) return
+        // --- Scan loop ------------------------------------------------
+        const scan = async () => {
+          if (!active) return
+
+          const v = videoRef.current
+          if (!v || v.readyState < 2) {
+            if (active) timerId = setTimeout(scan, 120)
+            return
+          }
 
           try {
-            if (video.readyState >= 2) {
-              let rawResult: string | null = null
+            let raw: string | null = null
 
-              // 1. Try Native Detector (Fastest)
-              if (detector) {
-                const barcodes = await detector.detect(video).catch(() => [])
-                if (barcodes.length > 0 && barcodes[0].rawValue) {
-                  rawResult = barcodes[0].rawValue
-                }
+            // 1. Native BarcodeDetector (non-iOS only, fastest)
+            if (detector) {
+              try {
+                const hits = await detector.detect(v)
+                if (hits.length > 0 && hits[0].rawValue) raw = hits[0].rawValue
+              } catch { /* single-frame failures are normal */ }
+            }
+
+            // 2. jsQR via canvas (primary on iOS, fallback elsewhere)
+            if (!raw && ctx) {
+              ctx.drawImage(v, 0, 0, canvas.width, canvas.height)
+              const img = ctx.getImageData(0, 0, canvas.width, canvas.height)
+
+              // Skip blank frames (iOS hardware decoder quirk)
+              if (!isIOS || hasVisiblePixels(img.data)) {
+                const qr = jsQR(img.data, img.width, img.height, {
+                  inversionAttempts: "dontInvert",
+                })
+                if (qr?.data) raw = qr.data
               }
+            }
 
-              // 2. Fallback to jsQR if native fails or is unavailable
-              if (!rawResult && ctx) {
-                ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
-                const imageData = ctx.getImageData(
-                  0,
-                  0,
-                  canvas.width,
-                  canvas.height,
-                )
-                const qr = jsQR(
-                  imageData.data,
-                  imageData.width,
-                  imageData.height,
-                  {
-                    inversionAttempts: "dontInvert", // save CPU, we usually scan normal QRs
-                  },
-                )
-                if (qr && qr.data) {
-                  rawResult = qr.data
-                }
-              }
-
-              // Process Result
-              if (rawResult) {
-                const result = extractCode(rawResult.trim())
-                if (result) {
-                  active = false
-                  onScan(result.code, result.isGroup)
-                  onClose()
-                  return // Stop loop
-                }
+            // 3. Process result
+            if (raw) {
+              const result = extractCode(raw.trim())
+              if (result) {
+                active = false
+                scannedRef.current = true
+                onScanRef.current(result.code, result.isGroup)
+                onCloseRef.current()
+                return
               }
             }
           } catch (e) {
-            // Ignore frame detection errors (single frame failures are normal)
             console.debug("[QRScanner] Frame error:", e)
           }
 
-          // Single-flight scan loop (~10 FPS)
-          if (active) {
-            scanTimeoutId = setTimeout(scanFrame, 100)
-          }
+          if (active) timerId = setTimeout(scan, 100)
         }
 
-        // Start scanning loop
-        scanFrame()
+        scan()
       } catch (err) {
         if (active) {
-          setError(
-            err instanceof Error ? err.message : "Unable to access camera",
-          )
+          setError(err instanceof Error ? err.message : "Unable to access camera")
         }
       }
     }
@@ -150,12 +158,12 @@ export function QrScannerModal({
 
     return () => {
       active = false
-      if (scanTimeoutId) clearTimeout(scanTimeoutId)
+      if (timerId != null) clearTimeout(timerId)
       if (stream) stream.getTracks().forEach((t) => t.stop())
       if (videoRef.current) videoRef.current.srcObject = null
-      // Canvas is GC'd automatically
     }
-  }, [isOpen, onScan, onClose])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen])
 
   if (!isOpen) return null
 
