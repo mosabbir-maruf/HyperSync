@@ -8,10 +8,22 @@ import { GroupSignalingAdapter } from "../../lib/webrtc/GroupSignalingAdapter"
 import { toast } from "../../lib/notify/toast"
 import { appError, toAppError } from "../../lib/errors"
 
+function clearTimerMap(
+  map: Map<string, ReturnType<typeof setTimeout>>,
+  key: string,
+): void {
+  const timer = map.get(key)
+  if (timer) {
+    clearTimeout(timer)
+    map.delete(key)
+  }
+}
+
 export class GroupPeerManager {
   private static readonly MAX_RECONNECT_ATTEMPTS = 6
   private static readonly RECONNECT_BASE_DELAY_MS = 1_000
   private static readonly RECONNECT_MAX_DELAY_MS = 30_000
+  private static readonly GUEST_RECONNECT_TIMEOUT_MS = 20_000
 
   private signaling = createSignalingClient()
   private peers = new Map<string, PeerConnection>()
@@ -25,6 +37,8 @@ export class GroupPeerManager {
   private reconnectTimers = new Map<string, ReturnType<typeof setTimeout>>()
   private reconnectAttempts = new Map<string, number>()
   private doNotReconnect = new Set<string>()
+  private guestReconnectTimeouts =
+    new Map<string, ReturnType<typeof setTimeout>>()
 
   private _hostingInProgress = false
   private _joiningInProgress = false
@@ -103,6 +117,16 @@ export class GroupPeerManager {
       this.doNotReconnect.delete(event.peerId)
       this.reconnectAttempts.delete(event.peerId)
       this.clearReconnectTimer(event.peerId)
+      this.clearGuestReconnectTimeout(event.peerId)
+
+      // If a stale PC exists for this peer (e.g., a waiting guest from a
+      // failed reconnect), tear it down so we can establish a proper host
+      // connection. Only tear down non-connected PCs — never interrupt an
+      // active connection.
+      const stale = this.peers.get(event.peerId)
+      if (stale && stale.connectionState !== "connected") {
+        this.cleanupPeer(event.peerId)
+      }
 
       // If a new member joins, and we are already in the group, we act as the "host" (offerer)
       // to establish a connection with them.
@@ -161,6 +185,7 @@ export class GroupPeerManager {
             // Healthy — reset any reconnection backoff for this peer.
             this.reconnectAttempts.delete(targetPeerId)
             this.clearReconnectTimer(targetPeerId)
+            this.clearGuestReconnectTimeout(targetPeerId)
           } else if (peerState === "failed" || peerState === "closed") {
             console.warn(
               `[GroupWebRTC] Peer connection ${peerState} to ${targetPeerId}. Scheduling reconnect...`,
@@ -168,6 +193,7 @@ export class GroupPeerManager {
             // The peer did not leave — its connection simply dropped, so we
             // tear it down and re-establish a fresh connection.
             if (this.doNotReconnect.has(targetPeerId)) return
+            if (!this.peers.has(targetPeerId)) return
             this.cleanupPeer(targetPeerId)
             this.scheduleReconnect(targetPeerId)
           }
@@ -190,6 +216,21 @@ export class GroupPeerManager {
       adapter.simulatePeerJoined()
     } else if (initialSignal) {
       adapter.simulateSignal(initialSignal)
+    } else {
+      // Reconnect path for guest: no pending offer yet, so apply a safety
+      // timeout. If the host never offers, tear down the idle PC so the
+      // backoff retries can progress instead of hanging forever.
+      const timer = setTimeout(() => {
+        this.guestReconnectTimeouts.delete(targetPeerId)
+        if (
+          this.peers.get(targetPeerId) === peer &&
+          peer.connectionState !== "connected"
+        ) {
+          this.cleanupPeer(targetPeerId)
+          this.scheduleReconnect(targetPeerId)
+        }
+      }, GroupPeerManager.GUEST_RECONNECT_TIMEOUT_MS)
+      this.guestReconnectTimeouts.set(targetPeerId, timer)
     }
   }
 
@@ -206,6 +247,7 @@ export class GroupPeerManager {
       this.adapters.delete(peerId)
     }
     this.clearReconnectTimer(peerId)
+    this.clearGuestReconnectTimeout(peerId)
     this.onMemberLeft(peerId)
   }
 
@@ -246,11 +288,11 @@ export class GroupPeerManager {
   }
 
   private clearReconnectTimer(peerId: string): void {
-    const timer = this.reconnectTimers.get(peerId)
-    if (timer) {
-      clearTimeout(timer)
-      this.reconnectTimers.delete(peerId)
-    }
+    clearTimerMap(this.reconnectTimers, peerId)
+  }
+
+  private clearGuestReconnectTimeout(peerId: string): void {
+    clearTimerMap(this.guestReconnectTimeouts, peerId)
   }
 
   private fail(err: unknown, phase?: string): void {
@@ -266,6 +308,9 @@ export class GroupPeerManager {
     this.reconnectAttempts.clear()
     this.doNotReconnect.clear()
     this.peerRoles.clear()
+    for (const timer of this.guestReconnectTimeouts.values())
+      clearTimeout(timer)
+    this.guestReconnectTimeouts.clear()
 
     for (const [peerId, pc] of this.peers.entries()) {
       pc.close()

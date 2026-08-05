@@ -75,12 +75,14 @@ export class PeerConnection {
     if (!this.iceRestartAttempted && this.role === "host") {
       this.iceRestartAttempted = true
       void this.makeOffer(true)
-    } else {
-      this.setState("failed")
-      this.events.onError?.(
-        "Connection failed. Please try rejoining the group.",
-      )
+      return
     }
+    // ICE restart is still in flight — don't kill it prematurely.
+    if (this.iceRestartAttempted && this.role === "host" && this.makingOffer) {
+      return
+    }
+    this.setState("failed")
+    this.events.onError?.("Connection dropped. Attempting to reconnect...")
   }
 
   private clearNegotiationTimeout(): void {
@@ -113,7 +115,6 @@ export class PeerConnection {
         }
       } else if (pc.iceConnectionState === "failed") {
         console.error(`[WebRTC] ICE FAILED — no usable candidate pair found`)
-        this.handleFailure()
       }
     }
 
