@@ -223,3 +223,19 @@ export const ArrowRightIcon = (p: IconProps) => (
     <path d="M5 12h14M12 5l7 7-7 7" />
   </svg>
 )
+
+export const ActivityIcon = (p: IconProps) => (
+  <svg {...base(p)}>
+    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+  </svg>
+)
+
+export const NetworkIcon = (p: IconProps) => (
+  <svg {...base(p)}>
+    <rect x="16" y="16" width="6" height="6" rx="1"></rect>
+    <rect x="2" y="16" width="6" height="6" rx="1"></rect>
+    <rect x="9" y="2" width="6" height="6" rx="1"></rect>
+    <path d="M5 16v-3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3"></path>
+    <path d="M12 12V8"></path>
+  </svg>
+)

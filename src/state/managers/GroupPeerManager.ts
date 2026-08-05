@@ -58,6 +58,10 @@ export class GroupPeerManager {
     this.onMemberLeft = cbs.onMemberLeft
   }
 
+  public getPeers(): Map<string, PeerConnection> {
+    return this.peers
+  }
+
   public async host(): Promise<SessionInfo | null> {
     if (this._hostingInProgress) return null
     this._hostingInProgress = true

@@ -24,6 +24,10 @@ export class PeerManager {
     return null // Could hold info here if needed by UI
   }
 
+  public getPeer(): PeerConnection | null {
+    return this.peer
+  }
+
   public setCallbacks(cbs: {
     onPhaseChange: (phase: any) => void
     onPeerStateChange: (state: PeerConnectionState) => void

@@ -10,6 +10,7 @@ import { SessionCode } from "../components/session/SessionCode"
 import { QRDisplay } from "../components/session/QRDisplay"
 import { ChatPanel } from "../components/messaging/ChatPanel"
 import { GroupInfoModal } from "../components/session/GroupInfoModal"
+import { DiagnosticsPanel } from "../components/session/DiagnosticsPanel"
 
 export function GroupRoom() {
   const { code } = useParams<{ code: string }>()
@@ -95,6 +96,10 @@ export function GroupRoom() {
           code={code}
           members={messagingState.memberNames}
         />
+        
+        {settings.developerMode && (
+          <DiagnosticsPanel peers={controller.getPeerConnections()} />
+        )}
       </>
     )
   }

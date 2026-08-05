@@ -3,6 +3,8 @@ import { useSession } from "../../state/SessionProvider"
 import { useSettings } from "../../state/SettingsProvider"
 import { ChatPanel } from "../messaging/ChatPanel"
 
+import { DiagnosticsPanel } from "./DiagnosticsPanel"
+
 /** The active session surface, shared by both host and guest once connected. */
 export function SessionRoom({ onLeave }: { onLeave: () => void }) {
   const { controller, state, getMessagingController } = useSession()
@@ -53,6 +55,9 @@ export function SessionRoom({ onLeave }: { onLeave: () => void }) {
           <ChatPlaceholder />
         )}
       </div>
+      {settings.developerMode && (
+        <DiagnosticsPanel peers={controller.getPeerConnections()} />
+      )}
     </div>
   )
 }

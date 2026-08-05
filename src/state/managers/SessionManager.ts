@@ -10,6 +10,7 @@ import { TransferManager, type TransferState } from "./TransferManager"
 import { MessagingManager } from "./MessagingManager"
 import { PeerManager } from "./PeerManager"
 import { PresenceManager } from "./PresenceManager"
+import type { PeerConnection } from "../../lib/webrtc/PeerConnection"
 
 export interface SessionState {
   connectionState: ConnectionState
@@ -115,6 +116,11 @@ export class SessionManager {
 
   public getState(): SessionState {
     return this.state
+  }
+
+  public getPeerConnections(): PeerConnection[] {
+    const p = this.peer.getPeer()
+    return p ? [p] : []
   }
 
   public getMessagingManager(): MessagingManager | null {

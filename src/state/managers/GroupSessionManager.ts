@@ -7,6 +7,7 @@ import { GroupTransferManager } from "./GroupTransferManager"
 import { GroupMessagingManager } from "./GroupMessagingManager"
 import { GroupPeerManager } from "./GroupPeerManager"
 import { ConnectionState } from "./ConnectionStateManager"
+import type { PeerConnection } from "../../lib/webrtc/PeerConnection"
 
 export interface GroupSessionState {
   connectionState: string // from ConnectionState
@@ -113,6 +114,10 @@ export class GroupSessionManager {
 
   public getState(): GroupSessionState {
     return this.state
+  }
+
+  public getPeerConnections(): PeerConnection[] {
+    return Array.from(this.peer.getPeers().values())
   }
 
   public getMessagingManager(): GroupMessagingManager {
