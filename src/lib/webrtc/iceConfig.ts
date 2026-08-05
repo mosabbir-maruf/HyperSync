@@ -15,29 +15,9 @@ export function getIceServers(): RTCIceServer[] {
         "stun:stun4.l.google.com:19302",
         "stun:stun.cloudflare.com:3478",
         "stun:global.stun.twilio.com:3478",
-        "stun:openrelay.metered.ca:80",
       ],
-    },
-    // Fallback TURN relay for strict NATs / Mobile Cellular networks / CGNAT
-    {
-      urls: [
-        "turn:openrelay.metered.ca:80",
-        "turn:openrelay.metered.ca:443",
-        "turn:openrelay.metered.ca:443?transport=tcp",
-        "turns:openrelay.metered.ca:443",
-        "turns:openrelay.metered.ca:443?transport=tcp",
-      ],
-      username: "openrelayproject",
-      credential: "openrelayproject",
     },
   ]
-
-  const turnUrl = import.meta.env.VITE_TURN_URL as string | undefined
-  const turnUser = import.meta.env.VITE_TURN_USERNAME as string | undefined
-  const turnCred = import.meta.env.VITE_TURN_CREDENTIAL as string | undefined
-  if (turnUrl && turnUser && turnCred) {
-    servers.push({ urls: turnUrl, username: turnUser, credential: turnCred })
-  }
 
   return servers
 }

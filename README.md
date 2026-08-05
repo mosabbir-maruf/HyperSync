@@ -97,12 +97,6 @@ Create a `.env.production` or `.env.local` file in the root of the `frontend` di
 # URL of the HyperSync Cloudflare Worker backend
 # The Vite build process uses this to create a proxy so the backend URL remains completely hidden from the browser.
 BACKEND_URL=https://your-worker-url.workers.dev
-
-# Required for reliable connections between restrictive networks, CGNAT, and
-# many mobile carriers. Use short-lived credentials from your TURN provider.
-VITE_TURN_URL=turns:turn.example.com:443?transport=tcp
-VITE_TURN_USERNAME=temporary-username
-VITE_TURN_CREDENTIAL=temporary-credential
 ```
 
 ## File Structure
