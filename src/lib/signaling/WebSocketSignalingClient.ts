@@ -20,6 +20,10 @@ export class WebSocketSignalingClient
   private code: string | null = null
   private role: "host" | "guest" | "member" | null = null
   private pingInterval: number | null = null
+  private roomReconnectTimeout: number | null = null
+  private roomReconnectAttempts = 0
+  private shouldKeepRoomConnected = false
+  private pendingRoomMessages: Array<{ type: string; payload: unknown }> = []
   private hasPeerJoined = false
   private joinedPeerId = "remote"
   private roomType: "direct" | "group" = "direct"
@@ -62,8 +66,7 @@ export class WebSocketSignalingClient
             peerId: string | null
           }) => void
           emitPeerJoined({ type: "peer-joined", peerId: this.joinedPeerId })
-        } catch (e) {
-                  }
+        } catch (e) {}
       }, 0)
     }
     return unsub
@@ -96,6 +99,7 @@ export class WebSocketSignalingClient
     role: "host" | "guest" | "member",
     roomType: "direct" | "group" = "direct",
     attempt: number,
+    isReconnect = false,
   ): Promise<void> {
     this.roomType = roomType
     return new Promise((resolve, reject) => {
@@ -110,46 +114,63 @@ export class WebSocketSignalingClient
       this.ws = ws
 
       ws.onopen = () => {
-        if (this.connectionAttempt !== attempt) {
+        if (this.ws !== ws || this.connectionAttempt !== attempt) {
           ws.close(1000, "Stale connection")
           return
         }
-                // Send JOIN message
-        this.sendMessage(roomType === "group" ? "GROUP_JOIN" : "JOIN", { role })
+        this.sendMessage(
+          roomType === "group" ? "GROUP_JOIN" : "JOIN",
+          { role },
+          true,
+        )
 
-        // Start heartbeat
-        this.pingInterval = window.setInterval(() => {
-          if (ws.readyState === WebSocket.OPEN) {
-            this.sendMessage("PING", {})
-          }
-        }, 15000)
+        this.startRoomPing(ws)
       }
 
       ws.onmessage = (event) => {
         try {
           const msg = JSON.parse(event.data)
-                    this.handleMessage(msg, resolve, reject)
+          this.handleMessage(msg, resolve, reject)
         } catch (err) {
           console.error("Failed to parse websocket message", err)
         }
       }
 
       ws.onerror = () => {
-        if (this.state === "connecting") {
+        if (this.ws !== ws) return
+        if (!isReconnect && this.state === "connecting") {
           reject(new Error("WebSocket connection failed"))
+          this.emit({ type: "error", message: "WebSocket connection error" })
         }
-        this.emit({ type: "error", message: "WebSocket connection error" })
       }
 
       ws.onclose = (ev) => {
-                this.cleanup()
-        if (ev.code === 4004 || ev.code === 4003) {
-          this.emit({ type: "error", message: "Session expired or full" })
+        if (this.ws !== ws) return
+        this.stopRoomPing()
+        this.ws = null
+
+        if (ev.code >= 4000 && ev.code <= 4004) {
+          this.stopRoomReconnect()
+          this.shouldKeepRoomConnected = false
+          this.emit({
+            type: "error",
+            message: "Session is no longer available",
+          })
         }
-        this.emit({ type: "peer-left", peerId: "remote" })
-        if (this.state === "connecting") {
+
+        if (!isReconnect && this.state === "connecting") {
           reject(new Error("WebSocket closed unexpectedly"))
         }
+
+        if (this.shouldKeepRoomConnected && this.code && this.role) {
+          this.setState("connecting")
+          this.scheduleRoomReconnect()
+          if (isReconnect) reject(new Error("WebSocket closed unexpectedly"))
+          return
+        }
+
+        this.pendingRoomMessages = []
+        this.emit({ type: "peer-left", peerId: "remote" })
         this.setState("closed")
       }
     })
@@ -165,6 +186,8 @@ export class WebSocketSignalingClient
         // Our own join succeeded
         if (this.state === "connecting") {
           this.setState("connected")
+          this.roomReconnectAttempts = 0
+          this.flushPendingRoomMessages()
           resolve()
         }
         break
@@ -183,20 +206,20 @@ export class WebSocketSignalingClient
           const joinedRole = msg.payload?.joinedRole as string | undefined
           const yourRole = msg.payload?.yourRole as string | undefined
           const joinedPeerId = msg.payload?.joinedPeerId || "remote"
-                    // If the server sends READY and a GUEST just joined, notify the HOST to start negotiation
+          // If the server sends READY and a GUEST just joined, notify the HOST to start negotiation
           if (
             joinedRole === "GUEST" &&
             (yourRole === "HOST" || this.role === "host")
           ) {
             this.hasPeerJoined = true
             this.joinedPeerId = joinedPeerId
-                        this.emit({ type: "peer-joined", peerId: joinedPeerId })
+            this.emit({ type: "peer-joined", peerId: joinedPeerId })
           }
           // If no payload (fallback for old server), emit for host only
           if (!joinedRole && this.role === "host") {
             this.hasPeerJoined = true
             this.joinedPeerId = "remote"
-                        this.emit({ type: "peer-joined", peerId: "remote" })
+            this.emit({ type: "peer-joined", peerId: "remote" })
           }
         }
         break
@@ -235,7 +258,10 @@ export class WebSocketSignalingClient
         })
         break
       case "GROUP_SIGNAL":
-        if (msg.payload.targetPeerId && msg.payload.targetPeerId !== this.peerId) {
+        if (
+          msg.payload.targetPeerId &&
+          msg.payload.targetPeerId !== this.peerId
+        ) {
           break
         }
         this.emit({
@@ -244,9 +270,10 @@ export class WebSocketSignalingClient
           signal: msg.payload.signal,
         })
         break
-      case "ERROR":
       case "SESSION_FULL":
       case "SESSION_EXPIRED":
+        this.stopRoomReconnect()
+        this.shouldKeepRoomConnected = false
         if (this.state === "connecting") {
           reject(new Error(msg.payload?.message || msg.type))
         } else {
@@ -256,29 +283,140 @@ export class WebSocketSignalingClient
           })
         }
         break
+      case "ERROR":
+        if (this.state === "connecting") {
+          reject(new Error(msg.payload?.message || "Signaling error"))
+        } else {
+          this.emit({
+            type: "error",
+            message: msg.payload?.message || "Signaling error",
+          })
+        }
+        break
       case "PONG":
         break
     }
   }
 
-  private sendMessage(type: string, payload: any) {
-    if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-      this.ws.send(
-        JSON.stringify({
-          type,
-          protocolVersion: 1,
-          sessionId: this.sessionId,
-          peerId: this.peerId,
-          timestamp: Date.now(),
-          payload,
-        }),
-      )
+  private sendMessage(
+    type: string,
+    payload: unknown,
+    allowBeforeConnected = false,
+  ) {
+    const ws = this.ws
+    if (
+      ws?.readyState === WebSocket.OPEN &&
+      (allowBeforeConnected || this.state === "connected")
+    ) {
+      try {
+        ws.send(this.serializeMessage(type, payload))
+        return
+      } catch {
+        // The close event owns reconnection. Keep signals until its replacement
+        // socket has completed the JOIN/HELLO handshake.
+      }
     }
+
+    if (this.shouldKeepRoomConnected && type !== "PING") {
+      this.queueRoomMessage(type, payload)
+    }
+  }
+
+  private serializeMessage(type: string, payload: unknown): string {
+    return JSON.stringify({
+      type,
+      protocolVersion: 1,
+      sessionId: this.sessionId,
+      peerId: this.peerId,
+      timestamp: Date.now(),
+      payload,
+    })
+  }
+
+  private queueRoomMessage(type: string, payload: unknown): void {
+    const MAX_PENDING_ROOM_MESSAGES = 128
+    if (this.pendingRoomMessages.length >= MAX_PENDING_ROOM_MESSAGES) {
+      const oldestIce = this.pendingRoomMessages.findIndex(
+        (message) => message.type === "ICE" || message.type === "GROUP_SIGNAL",
+      )
+      this.pendingRoomMessages.splice(oldestIce >= 0 ? oldestIce : 0, 1)
+    }
+    this.pendingRoomMessages.push({ type, payload })
+  }
+
+  private flushPendingRoomMessages(): void {
+    const ws = this.ws
+    if (ws?.readyState !== WebSocket.OPEN || this.state !== "connected") return
+
+    while (this.pendingRoomMessages.length > 0) {
+      const message = this.pendingRoomMessages[0]
+      try {
+        ws.send(this.serializeMessage(message.type, message.payload))
+        this.pendingRoomMessages.shift()
+      } catch {
+        return
+      }
+    }
+  }
+
+  private startRoomPing(ws: WebSocket): void {
+    this.stopRoomPing()
+    this.pingInterval = window.setInterval(() => {
+      if (this.ws === ws && ws.readyState === WebSocket.OPEN) {
+        this.sendMessage("PING", {})
+      }
+    }, 15_000)
+  }
+
+  private stopRoomPing(): void {
+    if (this.pingInterval !== null) {
+      clearInterval(this.pingInterval)
+      this.pingInterval = null
+    }
+  }
+
+  private scheduleRoomReconnect(): void {
+    if (
+      !this.shouldKeepRoomConnected ||
+      this.roomReconnectTimeout !== null ||
+      !this.code ||
+      !this.role
+    )
+      return
+
+    const delay = Math.min(1_000 * 2 ** this.roomReconnectAttempts, 15_000)
+    this.roomReconnectAttempts++
+    this.roomReconnectTimeout = window.setTimeout(() => {
+      this.roomReconnectTimeout = null
+      if (!this.code || !this.role || this.ws) return
+      void this.connectWebSocket(
+        this.code,
+        this.role,
+        this.roomType,
+        this.connectionAttempt,
+        true,
+      ).catch(() => {})
+    }, delay)
+  }
+
+  private stopRoomReconnect(): void {
+    if (this.roomReconnectTimeout !== null) {
+      clearTimeout(this.roomReconnectTimeout)
+      this.roomReconnectTimeout = null
+    }
+    this.roomReconnectAttempts = 0
+  }
+
+  private beginRoomConnection(): number {
+    this.stopRoomReconnect()
+    this.pendingRoomMessages = []
+    this.shouldKeepRoomConnected = true
+    return ++this.connectionAttempt
   }
 
   async createSession(): Promise<SessionInfo> {
     this.setState("connecting")
-    const attempt = ++this.connectionAttempt
+    const attempt = this.beginRoomConnection()
 
     this.abortController?.abort()
     this.abortController = new AbortController()
@@ -306,6 +444,8 @@ export class WebSocketSignalingClient
 
       return this.buildInfo(roomId, code, "host")
     } catch (err: any) {
+      this.shouldKeepRoomConnected = false
+      this.stopRoomReconnect()
       if (err.name !== "AbortError") {
         this.setState("error")
       }
@@ -315,7 +455,7 @@ export class WebSocketSignalingClient
 
   async joinSession(code: string): Promise<SessionInfo> {
     this.setState("connecting")
-    const attempt = ++this.connectionAttempt
+    const attempt = this.beginRoomConnection()
     const normalizedCode = normalizeCode(code)
 
     this.abortController?.abort()
@@ -345,6 +485,8 @@ export class WebSocketSignalingClient
 
       return this.buildInfo(roomId, normalizedCode, "guest")
     } catch (err: any) {
+      this.shouldKeepRoomConnected = false
+      this.stopRoomReconnect()
       if (err.name !== "AbortError") {
         this.setState("error")
       }
@@ -354,7 +496,7 @@ export class WebSocketSignalingClient
 
   async createGroup(maxMembers?: number): Promise<SessionInfo> {
     this.setState("connecting")
-    const attempt = ++this.connectionAttempt
+    const attempt = this.beginRoomConnection()
 
     this.abortController?.abort()
     this.abortController = new AbortController()
@@ -382,6 +524,8 @@ export class WebSocketSignalingClient
 
       return this.buildInfo(roomId, code, "host", true)
     } catch (err: any) {
+      this.shouldKeepRoomConnected = false
+      this.stopRoomReconnect()
       if (err.name !== "AbortError") {
         this.setState("error")
       }
@@ -391,7 +535,7 @@ export class WebSocketSignalingClient
 
   async joinGroup(code: string): Promise<SessionInfo> {
     this.setState("connecting")
-    const attempt = ++this.connectionAttempt
+    const attempt = this.beginRoomConnection()
     const normalizedCode = normalizeCode(code)
 
     this.abortController?.abort()
@@ -419,6 +563,8 @@ export class WebSocketSignalingClient
 
       return this.buildInfo(roomId, normalizedCode, "member", true)
     } catch (err: any) {
+      this.shouldKeepRoomConnected = false
+      this.stopRoomReconnect()
       if (err.name !== "AbortError") {
         this.setState("error")
       }
@@ -501,18 +647,17 @@ export class WebSocketSignalingClient
             code: msg.payload.code,
           })
         }
-      } catch (err) {
-              }
+      } catch (err) {}
     }
 
     ws.onerror = () => {
       // Browsers follow this with close. Reconnect there so a failure cannot
       // create overlapping lobby sockets.
-          }
+    }
 
     ws.onclose = (ev) => {
       if (this.lobbyWs !== ws) return
-            this.lobbyWs = null
+      this.lobbyWs = null
       this.stopLobbyPing()
       this.emit({ type: "roster", devices: [] })
       this.scheduleLobbyReconnect()
@@ -578,6 +723,9 @@ export class WebSocketSignalingClient
   }
 
   close(): void {
+    this.shouldKeepRoomConnected = false
+    this.stopRoomReconnect()
+    this.pendingRoomMessages = []
     this.shouldKeepLobbyConnected = false
     this.lobbyProfile = null
     this.clearLobbyReconnectTimeout()
@@ -600,10 +748,10 @@ export class WebSocketSignalingClient
     this.abortController?.abort()
     this.abortController = null
 
-    if (this.pingInterval) {
-      clearInterval(this.pingInterval)
-      this.pingInterval = null
-    }
+    this.shouldKeepRoomConnected = false
+    this.stopRoomPing()
+    this.stopRoomReconnect()
+    this.pendingRoomMessages = []
     this.stopLobbyPing()
     this.clearLobbyReconnectTimeout()
     this.ws = null

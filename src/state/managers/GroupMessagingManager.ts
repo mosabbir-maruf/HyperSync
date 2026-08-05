@@ -127,7 +127,7 @@ export class GroupMessagingManager {
             this.peerNames.set(peerId, event.name)
             this.set({
               memberNames: Array.from(this.peerNames.values()),
-              peerNames: Object.fromEntries(this.peerNames.entries())
+              peerNames: Object.fromEntries(this.peerNames.entries()),
             })
             if (!isAlreadyInGroup) {
               this.addSystemMessage(`${event.name} joined`, event.name)
@@ -141,7 +141,7 @@ export class GroupMessagingManager {
     this.unsubs.set(peerId, unsub)
   }
 
-  public removeEngine(peerId: string) {
+  public detachEngine(peerId: string): void {
     const unsub = this.unsubs.get(peerId)
     if (unsub) unsub()
     this.unsubs.delete(peerId)
@@ -153,11 +153,16 @@ export class GroupMessagingManager {
     }
 
     this.stopTyping(peerId)
+  }
+
+  public removeEngine(peerId: string): void {
+    this.detachEngine(peerId)
+
     const name = this.peerNames.get(peerId)
     this.peerNames.delete(peerId)
     this.set({
       memberNames: Array.from(this.peerNames.values()),
-      peerNames: Object.fromEntries(this.peerNames.entries())
+      peerNames: Object.fromEntries(this.peerNames.entries()),
     })
 
     if (name) {

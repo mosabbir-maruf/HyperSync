@@ -42,7 +42,9 @@ export class WebRTCStatsCollector {
 
   subscribe(callback: (metrics: WebRTCMetrics) => void) {
     this.subscribers.add(callback)
-    return () => this.subscribers.delete(callback)
+    return () => {
+      this.subscribers.delete(callback)
+    }
   }
 
   private async collect() {
@@ -61,7 +63,7 @@ export class WebRTCStatsCollector {
       let currentRoundTripTime: number | undefined
       let availableOutgoingBitrate: number | undefined
       let availableIncomingBitrate: number | undefined
-      
+
       let selectedCandidatePairId = ""
       let localCandidateId = ""
       let remoteCandidateId = ""
@@ -134,7 +136,7 @@ export class WebRTCStatsCollector {
           const deltaMs = now - this.lastTimestamp
           const deltaSent = bytesSent - this.lastBytesSent
           const deltaRecv = bytesReceived - this.lastBytesReceived
-          
+
           if (deltaSent > 0 || deltaRecv > 0) {
             const speedSent = (deltaSent / deltaMs) * 1000 // bytes per second
             const speedRecv = (deltaRecv / deltaMs) * 1000 // bytes per second
@@ -151,7 +153,6 @@ export class WebRTCStatsCollector {
         this.lastBytesSent = bytesSent
         this.lastBytesReceived = bytesReceived
       }
-
     } catch (e) {
       // stats collection error ignored
     }

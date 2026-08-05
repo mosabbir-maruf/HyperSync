@@ -79,6 +79,12 @@ export class GroupSessionManager {
       onError: (msg) => {
         this.set({ error: msg })
       },
+      onPeerDisconnected: (peerId) => {
+        this.connection.setTransferChannelState(peerId, "closed")
+        this.connection.setMessagingChannelState(peerId, "closed")
+        this.transfer.removeEngine(peerId)
+        this.messaging.detachEngine(peerId)
+      },
       onMemberLeft: (peerId) => {
         this.connection.removePeer(peerId)
         this.transfer.removeEngine(peerId)
@@ -95,7 +101,9 @@ export class GroupSessionManager {
     this.transfer.subscribe((transferState) => {
       this.set({
         items: transferState.items as Array<TransferItem & { peerId?: string }>,
-        incoming: transferState.incoming as Array<FileMetadata & { peerId?: string }> | null,
+        incoming: transferState.incoming as Array<FileMetadata & {
+          peerId?: string
+        }> | null,
       })
     })
 

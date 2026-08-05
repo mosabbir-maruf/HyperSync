@@ -15,6 +15,9 @@ export interface PeerConnectionEvents {
 
 const CHANNEL_LABEL = "localshare"
 const MSG_CHANNEL_LABEL = "localshare-msg"
+const INITIAL_NEGOTIATION_TIMEOUT_MS = 30_000
+const RECOVERY_TIMEOUT_MS = 15_000
+const DISCONNECT_GRACE_MS = 5_000
 
 /**
  * Wraps a single RTCPeerConnection and drives WebRTC negotiation over a
@@ -31,8 +34,10 @@ export class PeerConnection {
   private closed = false
   private pendingIce: RTCIceCandidateInit[] = []
   private signalQueue: Promise<void> = Promise.resolve()
-  private negotiationTimeout: ReturnType<typeof setTimeout> | null = null
-  private iceRestartAttempted = false
+  private failureTimeout: ReturnType<typeof setTimeout> | null = null
+  private disconnectTimeout: ReturnType<typeof setTimeout> | null = null
+  private recoveryInProgress = false
+  private state: PeerConnectionState = "new"
   public readonly stats: WebRTCStatsCollector
 
   constructor(
@@ -49,46 +54,85 @@ export class PeerConnection {
 
   private setState(state: PeerConnectionState): void {
     if (state === "negotiating") {
-      this.clearNegotiationTimeout()
-      this.negotiationTimeout = setTimeout(() => {
-        console.warn(
-          "[GroupWebRTC] Negotiation timed out, forcing failure handling",
-        )
-        this.handleFailure()
-      }, 30000) // Increased to 30s for slow mobile networks
+      this.armFailureTimeout(
+        this.recoveryInProgress
+          ? RECOVERY_TIMEOUT_MS
+          : INITIAL_NEGOTIATION_TIMEOUT_MS,
+      )
     } else if (
       state === "connected" ||
       state === "failed" ||
       state === "closed"
     ) {
-      this.clearNegotiationTimeout()
+      this.clearFailureTimeout()
+      this.clearDisconnectTimeout()
       if (state === "connected") {
+        this.recoveryInProgress = false
         this.stats.start()
       } else {
         this.stats.stop()
       }
+    } else if (state === "disconnected") {
+      this.stats.stop()
     }
+
+    if (state === this.state) return
+    this.state = state
     this.events.onState?.(state)
   }
 
-  private handleFailure(): void {
-    if (!this.iceRestartAttempted && this.role === "host") {
-      this.iceRestartAttempted = true
+  private beginRecovery(): void {
+    if (this.closed || this.recoveryInProgress) return
+
+    this.recoveryInProgress = true
+    this.clearDisconnectTimeout()
+    this.setState("negotiating")
+
+    // Only the original offerer restarts ICE. The answerer stays ready to
+    // apply that offer, so there is one negotiation owner and no glare.
+    if (this.role === "host") {
       void this.makeOffer(true)
-      return
     }
-    // ICE restart is still in flight — don't kill it prematurely.
-    if (this.iceRestartAttempted && this.role === "host" && this.makingOffer) {
-      return
-    }
-    this.setState("failed")
-    this.events.onError?.("Connection dropped. Attempting to reconnect...")
   }
 
-  private clearNegotiationTimeout(): void {
-    if (this.negotiationTimeout) {
-      clearTimeout(this.negotiationTimeout)
-      this.negotiationTimeout = null
+  private reportFailure(message: string): void {
+    if (this.closed || this.state === "failed") return
+    this.recoveryInProgress = false
+    this.setState("failed")
+    this.events.onError?.(message)
+  }
+
+  private armFailureTimeout(delay: number): void {
+    this.clearFailureTimeout()
+    this.failureTimeout = setTimeout(() => {
+      this.failureTimeout = null
+      if (this.recoveryInProgress) {
+        this.reportFailure("Connection recovery timed out. Retrying...")
+      } else {
+        this.beginRecovery()
+      }
+    }, delay)
+  }
+
+  private clearFailureTimeout(): void {
+    if (this.failureTimeout) {
+      clearTimeout(this.failureTimeout)
+      this.failureTimeout = null
+    }
+  }
+
+  private scheduleRecoveryAfterDisconnect(): void {
+    this.clearDisconnectTimeout()
+    this.disconnectTimeout = setTimeout(() => {
+      this.disconnectTimeout = null
+      if (this.pc.connectionState === "disconnected") this.beginRecovery()
+    }, DISCONNECT_GRACE_MS)
+  }
+
+  private clearDisconnectTimeout(): void {
+    if (this.disconnectTimeout) {
+      clearTimeout(this.disconnectTimeout)
+      this.disconnectTimeout = null
     }
   }
 
@@ -102,37 +146,19 @@ export class PeerConnection {
       }
     }
 
-    pc.onicegatheringstatechange = () => {}
-
-    pc.oniceconnectionstatechange = () => {
-      if (pc.iceConnectionState === "failed" && !this.iceRestartAttempted) {
-        this.iceRestartAttempted = true
-        if (typeof pc.restartIce === "function") {
-          pc.restartIce()
-        }
-        if (this.role === "host") {
-          void this.makeOffer(true)
-        }
-      } else if (pc.iceConnectionState === "failed") {
-        console.error(`[WebRTC] ICE FAILED — no usable candidate pair found`)
-      }
-    }
-
     pc.onconnectionstatechange = () => {
       switch (pc.connectionState) {
         case "connected":
-          this.stats.start()
           this.setState("connected")
           break
         case "disconnected":
-          this.stats.stop()
           this.setState("disconnected")
+          this.scheduleRecoveryAfterDisconnect()
           break
         case "failed":
-          this.handleFailure()
+          this.beginRecovery()
           break
         case "closed":
-          this.stats.stop()
           this.setState("closed")
           break
       }
@@ -190,6 +216,8 @@ export class PeerConnection {
   }
 
   private async makeOffer(iceRestart: boolean = false): Promise<void> {
+    if (this.closed || this.makingOffer) return
+
     try {
       this.makingOffer = true
       this.setState("negotiating")
@@ -200,7 +228,9 @@ export class PeerConnection {
         sdp: this.pc.localDescription!.toJSON(),
       })
     } catch (err) {
-      this.events.onError?.(errMessage(err))
+      const message = errMessage(err)
+      if (iceRestart) this.reportFailure(message)
+      else this.events.onError?.(message)
     } finally {
       this.makingOffer = false
     }
@@ -237,7 +267,9 @@ export class PeerConnection {
         }
       }
     } catch (err) {
-      this.events.onError?.(errMessage(err))
+      const message = errMessage(err)
+      if (this.recoveryInProgress) this.reportFailure(message)
+      else this.events.onError?.(message)
     }
   }
 
@@ -257,6 +289,8 @@ export class PeerConnection {
   close(): void {
     if (this.closed) return
     this.closed = true
+    this.clearFailureTimeout()
+    this.clearDisconnectTimeout()
     this.stats.stop()
     for (const unsub of this.unsubscribers) unsub()
     this.unsubscribers = []

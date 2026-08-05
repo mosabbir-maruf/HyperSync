@@ -17,8 +17,8 @@ export class GroupPeerManager {
   private peers = new Map<string, PeerConnection>()
   private adapters = new Map<string, GroupSignalingAdapter>()
 
-  // Role each peer was originally assigned in the mesh. Reconnections reuse it
-  // so the offerer/answerer split stays complementary and glare is impossible.
+  // The original mesh role stays fixed for the lifetime of a membership. It
+  // makes the offerer deterministic across ICE and full-connection retries.
   private peerRoles = new Map<string, "host" | "guest">()
 
   // Reconnection bookkeeping for peers whose connection dropped.
@@ -40,6 +40,7 @@ export class GroupPeerManager {
   private onMessageChannel: (peerId: string, channel: RTCDataChannel) => void =
     () => {}
   private onError: (error: string) => void = () => {}
+  private onPeerDisconnected: (peerId: string) => void = () => {}
   private onMemberLeft: (peerId: string) => void = () => {}
 
   public setCallbacks(cbs: {
@@ -48,6 +49,7 @@ export class GroupPeerManager {
     onDataChannel: (peerId: string, channel: RTCDataChannel) => void
     onMessageChannel: (peerId: string, channel: RTCDataChannel) => void
     onError: (error: string) => void
+    onPeerDisconnected: (peerId: string) => void
     onMemberLeft: (peerId: string) => void
   }) {
     this.onPhaseChange = cbs.onPhaseChange
@@ -55,6 +57,7 @@ export class GroupPeerManager {
     this.onDataChannel = cbs.onDataChannel
     this.onMessageChannel = cbs.onMessageChannel
     this.onError = cbs.onError
+    this.onPeerDisconnected = cbs.onPeerDisconnected
     this.onMemberLeft = cbs.onMemberLeft
   }
 
@@ -152,7 +155,7 @@ export class GroupPeerManager {
     this.signaling.on("group-peer-left", (event) => {
       // The peer intentionally left: tear it down and never reconnect.
       this.doNotReconnect.add(event.peerId)
-      this.cleanupPeer(event.peerId)
+      this.cleanupPeer(event.peerId, true)
       this.peerRoles.delete(event.peerId)
     })
 
@@ -172,7 +175,9 @@ export class GroupPeerManager {
   ) {
     if (this.peers.has(targetPeerId)) return
 
-    this.peerRoles.set(targetPeerId, role)
+    if (!this.peerRoles.has(targetPeerId)) {
+      this.peerRoles.set(targetPeerId, role)
+    }
 
     const adapter = new GroupSignalingAdapter(this.signaling, targetPeerId)
     this.adapters.set(targetPeerId, adapter)
@@ -219,12 +224,14 @@ export class GroupPeerManager {
     }
   }
 
-  private cleanupPeer(peerId: string): void {
+  private cleanupPeer(peerId: string, memberLeft = false): void {
     const pc = this.peers.get(peerId)
-    if (!pc) return
-    // Remove before close() so the close-triggered onState("closed") is a no-op.
-    this.peers.delete(peerId)
-    pc.close()
+    if (pc) {
+      // Remove before close() so its closed-state callback cannot queue a
+      // second reconnect for the same peer.
+      this.peers.delete(peerId)
+      pc.close()
+    }
 
     const adapter = this.adapters.get(peerId)
     if (adapter) {
@@ -232,7 +239,8 @@ export class GroupPeerManager {
       this.adapters.delete(peerId)
     }
     this.clearReconnectTimer(peerId)
-    this.onMemberLeft(peerId)
+    if (memberLeft) this.onMemberLeft(peerId)
+    else this.onPeerDisconnected(peerId)
   }
 
   private scheduleReconnect(peerId: string): void {
@@ -261,13 +269,10 @@ export class GroupPeerManager {
     if (this.peers.has(peerId)) return
     if (this.doNotReconnect.has(peerId)) return
 
-    // Invert the original role: the side that was guest reconnects as host
-    // (sends offer immediately) and the side that was host reconnects as
-    // guest. Inversion preserves complementarity — exactly one offerer, zero
-    // glare — and eliminates the waiting-guest deadlock when only one side
-    // detected the failure.
-    const original = this.peerRoles.get(peerId) ?? "host"
-    const role = original === "host" ? "guest" : "host"
+    // Keep the original offerer. Inverting roles causes one side to wait for
+    // an offer after a unilateral failure, while changing the stored role on
+    // each retry makes later retries non-deterministic.
+    const role = this.peerRoles.get(peerId) ?? "host"
     console.log(
       `[GroupWebRTC] Reconnecting to ${peerId} (attempt ${
         this.reconnectAttempts.get(peerId) ?? 0
