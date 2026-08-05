@@ -110,8 +110,7 @@ export class GroupPeerManager {
 
       // If a stale PC exists for this peer from a prior failed reconnect,
       // tear it down so we can establish a proper host connection. Only
-      // connection. Only tear down non-connected PCs — never interrupt an
-      // active connection.
+      // tear down non-connected PCs — never interrupt an active connection.
       const stale = this.peers.get(event.peerId)
       if (stale && stale.connectionState !== "connected") {
         this.cleanupPeer(event.peerId)
@@ -128,11 +127,22 @@ export class GroupPeerManager {
     // They will act as "host" (offerer) to us, so we must act as "guest" (answerer) and handle their signals.
     // However, the `group-signal` will trigger the creation of a PeerConnection if it doesn't exist yet!
     this.signaling.on("group-signal", (event) => {
-      if (!this.peers.has(event.from)) {
+      const existing = this.peers.get(event.from)
+      if (!existing) {
         this.establishMeshConnection(event.from, "guest", event.signal)
-        // Set phase to connected since we're now actively negotiating
+        this.onPhaseChange("connected")
+        return
+      }
+      // A stale PC (failed, stuck in negotiation, or disconnected) cannot
+      // cleanly renegotiate. Tear it down so the incoming offer is handled
+      // by a fresh PeerConnection with a clean signaling state.
+      if (existing.connectionState !== "connected") {
+        this.cleanupPeer(event.from)
+        this.establishMeshConnection(event.from, "guest", event.signal)
         this.onPhaseChange("connected")
       }
+      // If the existing PC is healthy ("connected"), the adapter forwards
+      // the signal to it for standard renegotiation — no tear-down needed.
     })
 
     this.signaling.on("group-peer-left", (event) => {
