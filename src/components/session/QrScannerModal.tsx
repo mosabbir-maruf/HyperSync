@@ -122,7 +122,7 @@ export function QrScannerModal({
               // Skip blank frames (iOS hardware decoder quirk)
               if (!isIOS || hasVisiblePixels(img.data)) {
                 const qr = jsQR(img.data, img.width, img.height, {
-                  inversionAttempts: "dontInvert",
+                  inversionAttempts: "attemptBoth",
                 })
                 if (qr?.data) raw = qr.data
               }
