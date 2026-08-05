@@ -9,9 +9,22 @@ import { toast } from "../../lib/notify/toast"
 import { appError, toAppError } from "../../lib/errors"
 
 export class GroupPeerManager {
+  private static readonly MAX_RECONNECT_ATTEMPTS = 6
+  private static readonly RECONNECT_BASE_DELAY_MS = 1_000
+  private static readonly RECONNECT_MAX_DELAY_MS = 30_000
+
   private signaling = createSignalingClient()
   private peers = new Map<string, PeerConnection>()
   private adapters = new Map<string, GroupSignalingAdapter>()
+
+  // Role each peer was originally assigned in the mesh. Reconnections reuse it
+  // so the offerer/answerer split stays complementary and glare is impossible.
+  private peerRoles = new Map<string, "host" | "guest">()
+
+  // Reconnection bookkeeping for peers whose connection dropped.
+  private reconnectTimers = new Map<string, ReturnType<typeof setTimeout>>()
+  private reconnectAttempts = new Map<string, number>()
+  private doNotReconnect = new Set<string>()
 
   private _hostingInProgress = false
   private _joiningInProgress = false
@@ -85,6 +98,12 @@ export class GroupPeerManager {
 
   private attachSignaling(): void {
     this.signaling.on("group-peer-joined", (event) => {
+      // A peer that previously left may re-join the room, so clear any
+      // "do not reconnect" marker and any stale reconnection bookkeeping.
+      this.doNotReconnect.delete(event.peerId)
+      this.reconnectAttempts.delete(event.peerId)
+      this.clearReconnectTimer(event.peerId)
+
       // If a new member joins, and we are already in the group, we act as the "host" (offerer)
       // to establish a connection with them.
       this.establishMeshConnection(event.peerId, "host")
@@ -104,7 +123,10 @@ export class GroupPeerManager {
     })
 
     this.signaling.on("group-peer-left", (event) => {
+      // The peer intentionally left: tear it down and never reconnect.
+      this.doNotReconnect.add(event.peerId)
       this.cleanupPeer(event.peerId)
+      this.peerRoles.delete(event.peerId)
     })
 
     this.signaling.on("error", (e) => {
@@ -123,6 +145,8 @@ export class GroupPeerManager {
   ) {
     if (this.peers.has(targetPeerId)) return
 
+    this.peerRoles.set(targetPeerId, role)
+
     const adapter = new GroupSignalingAdapter(this.signaling, targetPeerId)
     this.adapters.set(targetPeerId, adapter)
 
@@ -134,13 +158,18 @@ export class GroupPeerManager {
           this.onPeerStateChange(targetPeerId, peerState)
 
           if (peerState === "connected") {
-            // In a group, we do not show a toast for every individual connection
-            // because it causes spam when connecting to a large mesh.
+            // Healthy — reset any reconnection backoff for this peer.
+            this.reconnectAttempts.delete(targetPeerId)
+            this.clearReconnectTimer(targetPeerId)
           } else if (peerState === "failed" || peerState === "closed") {
             console.warn(
-              `[GroupWebRTC] Peer connection ${peerState} to ${targetPeerId}.`,
+              `[GroupWebRTC] Peer connection ${peerState} to ${targetPeerId}. Scheduling reconnect...`,
             )
+            // The peer did not leave — its connection simply dropped, so we
+            // tear it down and re-establish a fresh connection.
+            if (this.doNotReconnect.has(targetPeerId)) return
             this.cleanupPeer(targetPeerId)
+            this.scheduleReconnect(targetPeerId)
           }
         },
         onDataChannel: (channel) => this.onDataChannel(targetPeerId, channel),
@@ -167,15 +196,61 @@ export class GroupPeerManager {
   private cleanupPeer(peerId: string): void {
     const pc = this.peers.get(peerId)
     if (!pc) return
-    pc.close()
+    // Remove before close() so the close-triggered onState("closed") is a no-op.
     this.peers.delete(peerId)
+    pc.close()
 
     const adapter = this.adapters.get(peerId)
     if (adapter) {
       adapter.destroy()
       this.adapters.delete(peerId)
     }
+    this.clearReconnectTimer(peerId)
     this.onMemberLeft(peerId)
+  }
+
+  private scheduleReconnect(peerId: string): void {
+    if (this.reconnectTimers.has(peerId)) return
+    if (this.doNotReconnect.has(peerId)) return
+
+    const attempts = this.reconnectAttempts.get(peerId) ?? 0
+    if (attempts >= GroupPeerManager.MAX_RECONNECT_ATTEMPTS) {
+      this.reconnectAttempts.delete(peerId)
+      return
+    }
+    this.reconnectAttempts.set(peerId, attempts + 1)
+
+    const delay = Math.min(
+      GroupPeerManager.RECONNECT_BASE_DELAY_MS * 2 ** attempts,
+      GroupPeerManager.RECONNECT_MAX_DELAY_MS,
+    )
+    const timer = setTimeout(() => {
+      this.reconnectTimers.delete(peerId)
+      this.tryReconnect(peerId)
+    }, delay)
+    this.reconnectTimers.set(peerId, timer)
+  }
+
+  private tryReconnect(peerId: string): void {
+    if (this.peers.has(peerId)) return
+    if (this.doNotReconnect.has(peerId)) return
+
+    // Reuse the original mesh role so exactly one side acts as offerer.
+    const role = this.peerRoles.get(peerId) ?? "host"
+    console.log(
+      `[GroupWebRTC] Reconnecting to ${peerId} as ${role} (attempt ${
+        this.reconnectAttempts.get(peerId) ?? 0
+      })`,
+    )
+    this.establishMeshConnection(peerId, role)
+  }
+
+  private clearReconnectTimer(peerId: string): void {
+    const timer = this.reconnectTimers.get(peerId)
+    if (timer) {
+      clearTimeout(timer)
+      this.reconnectTimers.delete(peerId)
+    }
   }
 
   private fail(err: unknown, phase?: string): void {
@@ -186,6 +261,12 @@ export class GroupPeerManager {
   }
 
   public destroy(): void {
+    for (const timer of this.reconnectTimers.values()) clearTimeout(timer)
+    this.reconnectTimers.clear()
+    this.reconnectAttempts.clear()
+    this.doNotReconnect.clear()
+    this.peerRoles.clear()
+
     for (const [peerId, pc] of this.peers.entries()) {
       pc.close()
     }

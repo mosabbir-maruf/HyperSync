@@ -72,7 +72,7 @@ export class PeerConnection {
   }
 
   private handleFailure(): void {
-    if (!this.iceRestartAttempted) {
+    if (!this.iceRestartAttempted && this.role === "host") {
       this.iceRestartAttempted = true
       void this.makeOffer(true)
     } else {
@@ -108,7 +108,9 @@ export class PeerConnection {
         if (typeof pc.restartIce === "function") {
           pc.restartIce()
         }
-        void this.makeOffer(true)
+        if (this.role === "host") {
+          void this.makeOffer(true)
+        }
       } else if (pc.iceConnectionState === "failed") {
         console.error(`[WebRTC] ICE FAILED — no usable candidate pair found`)
         this.handleFailure()
