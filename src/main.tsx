@@ -19,7 +19,11 @@ window.addEventListener("vite:preloadError", () => {
   window.location.reload()
 })
 window.addEventListener("unhandledrejection", (event) => {
-  if (event.reason?.message?.includes("Failed to fetch dynamically imported module")) {
+  if (
+    event.reason?.message?.includes(
+      "Failed to fetch dynamically imported module",
+    )
+  ) {
     event.preventDefault()
     window.location.reload()
   }

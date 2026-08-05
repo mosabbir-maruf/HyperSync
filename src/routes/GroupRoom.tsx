@@ -1,4 +1,4 @@
-import { useEffect, useState, useSyncExternalStore, useRef } from "react"
+import { useEffect, useState, useSyncExternalStore, useRef, useMemo } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import { useGroupSession } from "../state/GroupSessionProvider"
 import { useSettings } from "../state/SettingsProvider"
@@ -24,6 +24,11 @@ export function GroupRoom() {
     (cb) => controller.getMessagingManager().subscribe(cb),
     () => controller.getMessagingManager().getState(),
   )
+
+  const allMembers = useMemo(() => {
+    const localName = settings.displayName || "Me"
+    return [localName, ...messagingState.memberNames]
+  }, [settings.displayName, messagingState.memberNames])
 
   useEffect(() => {
     if (
@@ -95,7 +100,7 @@ export function GroupRoom() {
           onClose={() => setIsInfoOpen(false)}
           joinUrl={state.info?.joinUrl}
           code={code}
-          members={messagingState.memberNames}
+          members={allMembers}
         />
         
         {settings.developerMode && (
@@ -158,7 +163,7 @@ export function GroupRoom() {
         onClose={() => setIsInfoOpen(false)}
         joinUrl={state.info?.joinUrl}
         code={code}
-        members={messagingState.memberNames}
+        members={allMembers}
       />
     </div>
   )

@@ -12,9 +12,7 @@ export default defineConfig(({ mode }) => {
   const backendUrl = process.env.BACKEND_URL || "http://localhost:8787" // default to local wrangler dev server
 
   return {
-    base: process.env.VITE_PUBLIC_URL
-      ? `${process.env.VITE_PUBLIC_URL}/`
-      : "/",
+    base: process.env.VITE_PUBLIC_URL ? `${process.env.VITE_PUBLIC_URL}/` : "/",
     build: {
       sourcemap: emitSourcemaps ? "inline" : false,
       minify: !emitSourcemaps,
@@ -30,62 +28,70 @@ export default defineConfig(({ mode }) => {
         },
       },
     },
-    esbuild: (emitSourcemaps ? undefined : {
-      drop: ["console", "debugger"],
-    }) as any,
+    esbuild: (emitSourcemaps
+      ? undefined
+      : {
+          drop: ["console", "debugger"],
+        }) as any,
     plugins: [
       react(),
       tailwindcss(),
       VitePWA({
-        registerType: 'autoUpdate',
-        includeAssets: ['favicon.svg', 'avatars/*', 'mosabbir-maruf.webp', 'og-image.svg'],
+        registerType: "autoUpdate",
+        includeAssets: [
+          "favicon.svg",
+          "avatars/*",
+          "mosabbir-maruf.webp",
+          "og-image.svg",
+        ],
         manifest: {
-          name: 'HyperSync',
-          short_name: 'HyperSync',
-          description: 'Lightning-fast peer-to-peer file transfer over your local network.',
-          theme_color: '#cf4322',
-          background_color: '#13130e',
-          display: 'standalone',
+          name: "HyperSync",
+          short_name: "HyperSync",
+          description:
+            "Lightning-fast peer-to-peer file transfer over your local network.",
+          theme_color: "#cf4322",
+          background_color: "#13130e",
+          display: "standalone",
           icons: [
             {
-              src: 'pwa-192x192.png',
-              sizes: '192x192',
-              type: 'image/png'
+              src: "pwa-192x192.png",
+              sizes: "192x192",
+              type: "image/png",
             },
             {
-              src: 'pwa-512x512.png',
-              sizes: '512x512',
-              type: 'image/png'
+              src: "pwa-512x512.png",
+              sizes: "512x512",
+              type: "image/png",
             },
             {
-              src: 'pwa-maskable-192x192.png',
-              sizes: '192x192',
-              type: 'image/png',
-              purpose: 'any maskable'
+              src: "pwa-maskable-192x192.png",
+              sizes: "192x192",
+              type: "image/png",
+              purpose: "any maskable",
             },
             {
-              src: 'pwa-maskable-512x512.png',
-              sizes: '512x512',
-              type: 'image/png',
-              purpose: 'any maskable'
-            }
-          ]
+              src: "pwa-maskable-512x512.png",
+              sizes: "512x512",
+              type: "image/png",
+              purpose: "any maskable",
+            },
+          ],
         },
         workbox: {
-          globPatterns: ['**/*.{js,css,html,svg,png,webp}'],
-          navigateFallback: 'index.html',
+          globPatterns: ["**/*.{js,css,html,svg,png,webp}"],
+          navigateFallback: "index.html",
           navigateFallbackDenylist: [
-            /^\/api/ // VERY IMPORTANT: Do not intercept API requests
+            /^\/api/, // VERY IMPORTANT: Do not intercept API requests
           ],
           runtimeCaching: [
             {
               // Do not cache API routes or websockets
-              urlPattern: ({ url }) => url.pathname.startsWith('/api'),
-              handler: 'NetworkOnly'
-            }
-          ]
-        }
-      })
+              urlPattern: ({ url }) => url.pathname.startsWith("/api"),
+              handler: "NetworkOnly",
+            },
+          ],
+        },
+      }),
     ],
     resolve: {
       alias: {
@@ -97,13 +103,13 @@ export default defineConfig(({ mode }) => {
       port: parseInt(process.env.PORT || "8443"),
       strictPort: true,
       proxy: {
-        '/api': {
+        "/api": {
           target: backendUrl,
           changeOrigin: true,
           ws: true,
-          rewrite: (path) => path.replace(/^\/api/, '')
-        }
-      }
+          rewrite: (path) => path.replace(/^\/api/, ""),
+        },
+      },
     },
     preview: {
       host: "0.0.0.0",

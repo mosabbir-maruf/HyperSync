@@ -19,4 +19,3 @@ export class BrowserPageLifecycleService implements PageLifecycleService {
 
 export const pageLifecycleService: PageLifecycleService =
   new BrowserPageLifecycleService()
-
