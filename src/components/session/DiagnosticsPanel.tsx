@@ -2,10 +2,13 @@ import { useEffect, useState } from "react"
 import { type PeerConnection } from "../../lib/webrtc/PeerConnection"
 import { type WebRTCMetrics } from "../../lib/webrtc/WebRTCStats"
 import { Card } from "../ui/Card"
-import { ActivityIcon, NetworkIcon } from "../ui/icons"
+import { ActivityIcon, NetworkIcon, ChevronDownIcon, ChevronUpIcon } from "../ui/icons"
+import { Avatar } from "./Avatar"
+import { avatarColor } from "../../lib/utils"
 
 interface DiagnosticsPanelProps {
   peers: PeerConnection[]
+  names?: Record<string, string>
 }
 
 function formatBitrate(bps?: number): string {
@@ -21,7 +24,7 @@ function formatSpeed(bytesPerSec: number): string {
   return kbps.toFixed(1) + " KB/s"
 }
 
-function PeerDiagnostics({ pc }: { pc: PeerConnection }) {
+function PeerDiagnostics({ pc, name }: { pc: PeerConnection, name?: string }) {
   const [metrics, setMetrics] = useState<WebRTCMetrics | null>(pc.stats.getLastMetrics())
   const [speed, setSpeed] = useState({ up: 0, down: 0 })
 
@@ -63,12 +66,22 @@ function PeerDiagnostics({ pc }: { pc: PeerConnection }) {
     ? (metrics.currentRoundTripTime * 1000).toFixed(0) + "ms"
     : "..."
 
+  const displayName = name || pc.peerId.slice(0, 6)
+
   return (
     <div className="flex flex-col gap-1.5 border-b border-border/50 pb-3 last:border-0 last:pb-0">
       <div className="flex items-center justify-between">
-        <span className="font-mono text-[10px] text-primary bg-primary/10 px-1.5 py-0.5 rounded">
-          {pc.connectionState.toUpperCase()}
-        </span>
+        <div className="flex items-center gap-2">
+          <span className="font-mono text-[10px] text-primary bg-primary/10 px-1.5 py-0.5 rounded">
+            {pc.connectionState.toUpperCase()}
+          </span>
+          <div className="flex items-center gap-1.5">
+            <Avatar name={displayName} color={avatarColor(pc.peerId)} size={16} className="shadow-sm" />
+            <span className="text-[12px] font-medium text-foreground truncate max-w-[100px]">
+              {displayName}
+            </span>
+          </div>
+        </div>
         <div className="flex items-center gap-1.5 font-mono text-[11px] text-muted-foreground">
           <ActivityIcon width={10} height={10} />
           {rtt}
@@ -102,28 +115,40 @@ function PeerDiagnostics({ pc }: { pc: PeerConnection }) {
   )
 }
 
-export function DiagnosticsPanel({ peers }: DiagnosticsPanelProps) {
+export function DiagnosticsPanel({ peers, names = {} }: DiagnosticsPanelProps) {
+  const [isMinimized, setIsMinimized] = useState(false)
+
   if (!peers || peers.length === 0) return null
 
   return (
-    <Card className="fixed bottom-6 right-6 z-50 w-64 max-h-[400px] overflow-y-auto overflow-x-hidden border border-border/50 bg-background/80 p-3 shadow-2xl backdrop-blur-xl transition-all duration-300">
-      <div className="mb-3 flex items-center justify-between border-b border-border/50 pb-2">
-        <h3 className="label-mono flex items-center gap-1.5">
+    <Card className={`fixed bottom-6 right-6 z-50 w-64 overflow-x-hidden border border-border/50 bg-background/80 shadow-2xl backdrop-blur-xl transition-all duration-300 ${isMinimized ? 'h-12' : 'max-h-[400px] p-3 overflow-y-auto'}`}>
+      <div className={`flex items-center justify-between border-border/50 ${isMinimized ? 'px-3 h-full' : 'mb-3 border-b pb-2'}`}>
+        <h3 className="label-mono flex items-center gap-1.5 cursor-pointer" onClick={() => setIsMinimized(!isMinimized)}>
           <span className="relative flex h-2 w-2">
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75"></span>
             <span className="relative inline-flex h-2 w-2 rounded-full bg-primary"></span>
           </span>
           Diagnostics
         </h3>
-        <span className="font-mono text-[10px] text-muted-foreground">
-          {peers.length} Peer{peers.length > 1 ? "s" : ""}
-        </span>
+        <div className="flex items-center gap-2">
+          <span className="font-mono text-[10px] text-muted-foreground">
+            {peers.length} Peer{peers.length > 1 ? "s" : ""}
+          </span>
+          <button 
+            onClick={() => setIsMinimized(!isMinimized)}
+            className="text-muted-foreground hover:text-foreground transition-colors"
+          >
+            {isMinimized ? <ChevronUpIcon width={14} height={14} /> : <ChevronDownIcon width={14} height={14} />}
+          </button>
+        </div>
       </div>
-      <div className="flex flex-col gap-3">
-        {peers.map((pc, i) => (
-          <PeerDiagnostics key={i} pc={pc} />
-        ))}
-      </div>
+      {!isMinimized && (
+        <div className="flex flex-col gap-3">
+          {peers.map((pc, i) => (
+            <PeerDiagnostics key={i} pc={pc} name={names[pc.peerId]} />
+          ))}
+        </div>
+      )}
     </Card>
   )
 }

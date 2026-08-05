@@ -56,7 +56,14 @@ export function SessionRoom({ onLeave }: { onLeave: () => void }) {
         )}
       </div>
       {settings.developerMode && (
-        <DiagnosticsPanel peers={controller.getPeerConnections()} />
+        <DiagnosticsPanel 
+          peers={controller.getPeerConnections()} 
+          names={
+            messagingCtrl?.getState().peerName && controller.getPeerConnections()[0]
+              ? { [controller.getPeerConnections()[0].peerId]: messagingCtrl.getState().peerName! }
+              : undefined
+          }
+        />
       )}
     </div>
   )

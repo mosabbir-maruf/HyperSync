@@ -239,3 +239,15 @@ export const NetworkIcon = (p: IconProps) => (
     <path d="M12 12V8"></path>
   </svg>
 )
+
+export const ChevronDownIcon = (p: IconProps) => (
+  <svg {...base(p)}>
+    <path d="M6 9l6 6 6-6" />
+  </svg>
+)
+
+export const ChevronUpIcon = (p: IconProps) => (
+  <svg {...base(p)}>
+    <path d="M18 15l-6-6-6 6" />
+  </svg>
+)

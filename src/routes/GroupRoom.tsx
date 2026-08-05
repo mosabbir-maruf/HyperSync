@@ -99,7 +99,10 @@ export function GroupRoom() {
         />
         
         {settings.developerMode && (
-          <DiagnosticsPanel peers={controller.getPeerConnections()} />
+          <DiagnosticsPanel 
+            peers={controller.getPeerConnections()} 
+            names={messagingState.peerNames} 
+          />
         )}
       </>
     )

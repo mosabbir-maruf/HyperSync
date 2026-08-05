@@ -39,7 +39,7 @@ export class PeerConnection {
     private readonly signaling: SignalingClient,
     private readonly role: Role,
     private readonly events: PeerConnectionEvents = {},
-    private readonly peerId: string = "unknown",
+    public readonly peerId: string = "unknown",
   ) {
     this.pc = new RTCPeerConnection(RTC_CONFIG)
     this.stats = new WebRTCStatsCollector(this.pc, this.peerId)
