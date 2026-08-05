@@ -51,10 +51,16 @@ export class PeerConnection {
     if (state === "negotiating") {
       this.clearNegotiationTimeout()
       this.negotiationTimeout = setTimeout(() => {
-        console.warn("[GroupWebRTC] Negotiation timed out, forcing failure handling")
+        console.warn(
+          "[GroupWebRTC] Negotiation timed out, forcing failure handling",
+        )
         this.handleFailure()
       }, 30000) // Increased to 30s for slow mobile networks
-    } else if (state === "connected" || state === "failed" || state === "closed") {
+    } else if (
+      state === "connected" ||
+      state === "failed" ||
+      state === "closed"
+    ) {
       this.clearNegotiationTimeout()
       if (state === "connected") {
         this.stats.start()
@@ -66,12 +72,14 @@ export class PeerConnection {
   }
 
   private handleFailure(): void {
-    if (!this.iceRestartAttempted && this.role === "host") {
+    if (!this.iceRestartAttempted) {
       this.iceRestartAttempted = true
       void this.makeOffer(true)
     } else {
       this.setState("failed")
-      this.events.onError?.("Connection failed. Please try rejoining the group.")
+      this.events.onError?.(
+        "Connection failed. Please try rejoining the group.",
+      )
     }
   }
 
@@ -87,13 +95,12 @@ export class PeerConnection {
 
     pc.onicecandidate = (ev) => {
       if (ev.candidate) {
-                this.signaling.send({ kind: "ice", candidate: ev.candidate.toJSON() })
+        this.signaling.send({ kind: "ice", candidate: ev.candidate.toJSON() })
       } else {
-              }
+      }
     }
 
-    pc.onicegatheringstatechange = () => {
-          }
+    pc.onicegatheringstatechange = () => {}
 
     pc.oniceconnectionstatechange = () => {
       if (pc.iceConnectionState === "failed" && !this.iceRestartAttempted) {
@@ -101,9 +108,7 @@ export class PeerConnection {
         if (typeof pc.restartIce === "function") {
           pc.restartIce()
         }
-        if (this.role === "host") {
-          void this.makeOffer(true)
-        }
+        void this.makeOffer(true)
       } else if (pc.iceConnectionState === "failed") {
         console.error(`[WebRTC] ICE FAILED — no usable candidate pair found`)
         this.handleFailure()
@@ -111,7 +116,7 @@ export class PeerConnection {
     }
 
     pc.onconnectionstatechange = () => {
-            switch (pc.connectionState) {
+      switch (pc.connectionState) {
         case "connected":
           this.stats.start()
           this.setState("connected")
@@ -164,7 +169,7 @@ export class PeerConnection {
     let hasMadeInitialOffer = false
     this.unsubscribers.push(
       this.signaling.on("peer-joined", () => {
-                // Host initiates negotiation once the guest is present.
+        // Host initiates negotiation once the guest is present.
         if (this.role === "host" && !hasMadeInitialOffer) {
           hasMadeInitialOffer = true
           void this.makeOffer()
@@ -191,7 +196,7 @@ export class PeerConnection {
         kind: "offer",
         sdp: this.pc.localDescription!.toJSON(),
       })
-          } catch (err) {
+    } catch (err) {
       this.events.onError?.(errMessage(err))
     } finally {
       this.makingOffer = false
@@ -199,10 +204,10 @@ export class PeerConnection {
   }
 
   private async handleSignal(signal: PeerSignal): Promise<void> {
-        try {
+    try {
       if (signal.kind === "offer") {
         if (this.pc.signalingState !== "stable") {
-                    return
+          return
         }
         this.setState("negotiating")
         await this.pc.setRemoteDescription(signal.sdp)
@@ -215,7 +220,7 @@ export class PeerConnection {
         await this.flushPendingIce()
       } else if (signal.kind === "answer") {
         if (this.pc.signalingState !== "have-local-offer") {
-                    return
+          return
         }
         await this.pc.setRemoteDescription(signal.sdp)
         await this.flushPendingIce()
@@ -225,8 +230,7 @@ export class PeerConnection {
         } else {
           try {
             await this.pc.addIceCandidate(signal.candidate)
-          } catch (err) {
-                      }
+          } catch (err) {}
         }
       }
     } catch (err) {
@@ -238,8 +242,7 @@ export class PeerConnection {
     for (const candidate of this.pendingIce) {
       try {
         await this.pc.addIceCandidate(candidate)
-      } catch (err) {
-              }
+      } catch (err) {}
     }
     this.pendingIce = []
   }

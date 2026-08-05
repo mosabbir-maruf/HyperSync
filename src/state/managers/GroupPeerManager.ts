@@ -85,7 +85,6 @@ export class GroupPeerManager {
 
   private attachSignaling(): void {
     this.signaling.on("group-peer-joined", (event) => {
-
       // If a new member joins, and we are already in the group, we act as the "host" (offerer)
       // to establish a connection with them.
       this.establishMeshConnection(event.peerId, "host")
@@ -98,7 +97,6 @@ export class GroupPeerManager {
     // However, the `group-signal` will trigger the creation of a PeerConnection if it doesn't exist yet!
     this.signaling.on("group-signal", (event) => {
       if (!this.peers.has(event.from)) {
-
         this.establishMeshConnection(event.from, "guest", event.signal)
         // Set phase to connected since we're now actively negotiating
         this.onPhaseChange("connected")
@@ -106,19 +104,7 @@ export class GroupPeerManager {
     })
 
     this.signaling.on("group-peer-left", (event) => {
-
-      const pc = this.peers.get(event.peerId)
-      if (pc) {
-        pc.close()
-        this.peers.delete(event.peerId)
-        
-        const adapter = this.adapters.get(event.peerId)
-        if (adapter) {
-          adapter.destroy()
-          this.adapters.delete(event.peerId)
-        }
-        this.onMemberLeft(event.peerId)
-      }
+      this.cleanupPeer(event.peerId)
     })
 
     this.signaling.on("error", (e) => {
@@ -150,28 +136,20 @@ export class GroupPeerManager {
           if (peerState === "connected") {
             // In a group, we do not show a toast for every individual connection
             // because it causes spam when connecting to a large mesh.
-          } else if (peerState === "failed") {
-            console.warn(`[GroupWebRTC] Peer connection failed to ${targetPeerId}. Awaiting ICE restart...`)
-          } else if (peerState === "closed") {
-            console.warn(`[GroupWebRTC] Peer connection closed to ${targetPeerId}`)
-            const pc = this.peers.get(targetPeerId)
-            if (pc) {
-              this.peers.delete(targetPeerId)
-              const adapter = this.adapters.get(targetPeerId)
-              if (adapter) {
-                adapter.destroy()
-                this.adapters.delete(targetPeerId)
-              }
-              this.onMemberLeft(targetPeerId)
-            }
+          } else if (peerState === "failed" || peerState === "closed") {
+            console.warn(
+              `[GroupWebRTC] Peer connection ${peerState} to ${targetPeerId}.`,
+            )
+            this.cleanupPeer(targetPeerId)
           }
         },
         onDataChannel: (channel) => this.onDataChannel(targetPeerId, channel),
         onMessageChannel: (channel) =>
           this.onMessageChannel(targetPeerId, channel),
-        onError: (msg) => console.error(`[GroupWebRTC] Peer error with ${targetPeerId}:`, msg),
+        onError: (msg) =>
+          console.error(`[GroupWebRTC] Peer error with ${targetPeerId}:`, msg),
       },
-      targetPeerId
+      targetPeerId,
     )
 
     this.peers.set(targetPeerId, peer)
@@ -184,6 +162,20 @@ export class GroupPeerManager {
     } else if (initialSignal) {
       adapter.simulateSignal(initialSignal)
     }
+  }
+
+  private cleanupPeer(peerId: string): void {
+    const pc = this.peers.get(peerId)
+    if (!pc) return
+    pc.close()
+    this.peers.delete(peerId)
+
+    const adapter = this.adapters.get(peerId)
+    if (adapter) {
+      adapter.destroy()
+      this.adapters.delete(peerId)
+    }
+    this.onMemberLeft(peerId)
   }
 
   private fail(err: unknown, phase?: string): void {
