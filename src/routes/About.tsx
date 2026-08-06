@@ -264,12 +264,12 @@ export function About() {
                   For support, feedback, or to see more of my work, connect with
                   me on GitHub.
                 </p>
-                <div className="flex flex-wrap gap-4">
+                <div className="flex w-full gap-2 sm:gap-4">
                   <a
                     href="https://github.com/mosabbir-maruf"
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex h-10 items-center justify-center rounded-full bg-primary px-6 font-mono text-[10px] font-bold uppercase tracking-widest text-primary-foreground transition-colors hover:bg-primary/90"
+                    className="inline-flex h-10 flex-1 items-center justify-center whitespace-nowrap rounded-full bg-primary px-2 font-mono text-[9px] font-bold uppercase tracking-widest text-primary-foreground transition-colors hover:bg-primary/90 sm:px-6 sm:text-[10px]"
                   >
                     View on GitHub
                   </a>
@@ -277,7 +277,7 @@ export function About() {
                     href="https://github.com/mosabbir-maruf"
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex h-10 items-center justify-center rounded-full border border-border-strong bg-background px-6 font-mono text-[10px] font-bold uppercase tracking-widest text-foreground transition-colors hover:bg-muted"
+                    className="inline-flex h-10 flex-1 items-center justify-center whitespace-nowrap rounded-full border border-border-strong bg-background px-2 font-mono text-[9px] font-bold uppercase tracking-widest text-foreground transition-colors hover:bg-muted sm:px-6 sm:text-[10px]"
                   >
                     Follow Profile
                   </a>
