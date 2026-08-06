@@ -39,6 +39,7 @@ export default defineConfig(({ mode }) => {
         registerType: "autoUpdate",
         includeAssets: [
           "favicon.svg",
+          "favicon.png",
           "avatars/*",
           "mosabbir-maruf.webp",
           "og-image.png",
