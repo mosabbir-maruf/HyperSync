@@ -90,8 +90,7 @@ export class PeerManager {
     })
 
     this.signaling.on("peer-left", () => {
-      this.onPhaseChange("disconnected")
-      toast.warning("The other device left.")
+      this.fail(new Error("The other device ended the session"), "disconnected")
     })
 
     this.signaling.on("error", (e) => {

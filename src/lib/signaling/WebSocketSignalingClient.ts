@@ -243,6 +243,9 @@ export class WebSocketSignalingClient
           signal: { kind: "ice", candidate: msg.payload.candidate },
         })
         break
+      case "LEAVE":
+        this.emit({ type: "peer-left" })
+        break
       case "GROUP_MEMBER_JOINED":
         this.emit({
           type: "group-peer-joined",
@@ -725,7 +728,12 @@ export class WebSocketSignalingClient
     this.stopLobbyPing()
     this.sendMessage(this.roomType === "group" ? "GROUP_LEAVE" : "LEAVE", {})
     if (this.ws) {
-      this.ws.close(1000, "Normal closure")
+      const ws = this.ws
+      setTimeout(() => {
+        try {
+          ws.close(1000, "Normal closure")
+        } catch {}
+      }, 100)
     }
     if (this.lobbyWs) {
       this.lobbyWs.close()
