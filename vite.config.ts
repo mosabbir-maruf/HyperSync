@@ -41,7 +41,7 @@ export default defineConfig(({ mode }) => {
           "favicon.svg",
           "avatars/*",
           "mosabbir-maruf.webp",
-          "og-image.svg",
+          "og-image.png",
         ],
         manifest: {
           name: "HyperSync",
