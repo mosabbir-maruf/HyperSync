@@ -1,7 +1,26 @@
 [
   {
+    "version": "2.1.0",
+    "date": "2026-08-06",
+    "title": "Codebase Optimization & Logging Cleanup",
+    "changes": [
+      {
+        "type": "changed",
+        "description": "Comprehensive audit and cleanup of development console logs."
+      },
+      {
+        "type": "fixed",
+        "description": "Removed redundant imports and unused code across the overall project."
+      },
+      {
+        "type": "changed",
+        "description": "Performance optimizations for production readiness."
+      }
+    ]
+  },
+  {
     "version": "2.0.0",
-    "date": "2026-10-01",
+    "date": "2026-08-01",
     "title": "HyperSync 2.0: The Speed Update",
     "changes": [
       {
@@ -36,7 +55,7 @@
   },
   {
     "version": "1.4.2",
-    "date": "2026-09-18",
+    "date": "2026-07-20",
     "title": "Network Stability",
     "changes": [
       {
@@ -51,7 +70,7 @@
   },
   {
     "version": "1.3.0",
-    "date": "2026-09-05",
+    "date": "2026-07-05",
     "title": "History & Themes",
     "changes": [
       {
@@ -70,7 +89,7 @@
   },
   {
     "version": "1.1.0",
-    "date": "2026-08-15",
+    "date": "2026-06-15",
     "title": "UI Polish & Bug Fixes",
     "changes": [
       {
@@ -97,7 +116,7 @@
   },
   {
     "version": "1.0.0",
-    "date": "2026-08-01",
+    "date": "2026-06-01",
     "title": "Initial Release",
     "changes": [
       {
