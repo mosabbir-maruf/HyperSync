@@ -17,8 +17,9 @@
       // iOS Safari History scraping doesn't run JS, so it sees the solid square above (fixing the white corners).
       // On actual page load in non-Apple browsers, we immediately swap to the circular SVG favicon.
       if (!/(Mac|iPhone|iPod|iPad)/i.test(navigator.platform)) {
-        document.getElementById('dynamic-favicon').href = '/favicon.svg?v=5';
-        document.getElementById('dynamic-favicon').type = 'image/svg+xml';
+        const icon = document.getElementById('dynamic-favicon');
+        icon.href = '/favicon.svg?v=5';
+        icon.type = 'image/svg+xml';
       }
     </script>
     <link rel="apple-touch-icon" href="/pwa-192x192.png?v=2" />
