@@ -12,17 +12,8 @@
     <meta name="keywords" content="file transfer, peer-to-peer, local network, p2p, secure file share, hypersync, airdrop alternative" />
     <meta name="author" content="HyperSync" />
     <meta name="theme-color" content="#cf4322" />
-    <link rel="icon" id="dynamic-favicon" href="/pwa-192x192.png?v=5" />
-    <script>
-      // iOS Safari History scraping doesn't run JS, so it sees the solid square above (fixing the white corners).
-      // On actual page load in non-Apple browsers, we immediately swap to the circular SVG favicon.
-      if (!/(Mac|iPhone|iPod|iPad)/i.test(navigator.platform)) {
-        const icon = document.getElementById('dynamic-favicon');
-        icon.href = '/favicon.svg?v=5';
-        icon.type = 'image/svg+xml';
-      }
-    </script>
-    <link rel="apple-touch-icon" href="/pwa-192x192.png?v=2" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=7" />
+    <link rel="apple-touch-icon" href="/pwa-192x192.png?v=7" />
 
     <link rel="canonical" href="https://hypersync.dev.cv/" />
 
