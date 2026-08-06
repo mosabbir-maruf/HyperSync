@@ -95,6 +95,14 @@ export class GroupSessionManager {
     this.connection.subscribe((event) => {
       if (event.type === "ConnectionChanged") {
         this.set({ connectionState: event.state })
+        if (
+          event.state === ConnectionState.DISCONNECTED ||
+          event.state === ConnectionState.FAILED
+        ) {
+          this.peer.destroy()
+          this.transfer.destroy()
+          this.messaging.destroy()
+        }
       }
     })
 
