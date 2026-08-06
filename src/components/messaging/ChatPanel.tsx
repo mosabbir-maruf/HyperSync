@@ -247,8 +247,8 @@ export function ChatPanel({
       )}
 
       {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-y-3 gap-x-4 border-b border-border px-4 py-3 shrink-0">
-        <div className="flex items-center gap-3 min-w-[140px] flex-1">
+      <div className="flex items-center justify-between gap-2 sm:gap-3 border-b border-border px-3 sm:px-4 py-3 shrink-0">
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
           <div className="relative shrink-0">
             {isGroup ? (
               <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground shrink-0">
