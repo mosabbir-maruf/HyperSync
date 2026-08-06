@@ -56,16 +56,18 @@ export function LobbyProvider({ children }: { children: ReactNode }) {
     p2pState.connectionState !== ConnectionState.DISCONNECTED ||
     groupState.connectionState !== ConnectionState.DISCONNECTED
 
-  // Announce presence + subscribe to roster and inbound invites, only if not busy.
+  // Ref tracks the latest isBusy value so event callbacks always see current state
+  // without requiring effect re-subscription on every render.
   const clientRef = useRef<SignalingClient | null>(null)
+  const isBusyRef = useRef(isBusy)
+  isBusyRef.current = isBusy
 
+  // Announce presence + subscribe to roster and inbound invites, only if not busy.
   useEffect(() => {
-
     if (isBusy) {
-      // Hide entirely from the radar if busy, but give pending invites time to flush
+      // Give pending invites time to flush before tearing down the lobby socket.
       const timer = setTimeout(() => {
         if (clientRef.current) {
-
           clientRef.current.close()
           clientRef.current = null
         }
@@ -75,22 +77,18 @@ export function LobbyProvider({ children }: { children: ReactNode }) {
     }
 
     if (!clientRef.current) {
-
       clientRef.current = createSignalingClient()
     }
     const client = clientRef.current
 
+    const offRoster = client.on("roster", (e) => setRoster(e.devices))
 
-    const offRoster = client.on("roster", (e) => {
-
-      setRoster(e.devices)
-    })
     const offInvite = client.on("invite", (e) => {
-      // The other device asked us to join — auto-join the channel.
-      if (
-        controller.getState().connectionState === ConnectionState.DISCONNECTED
-      )
-        void controller.join(e.code)
+      // Guard against ALL active sessions (p2p + group).
+      // isBusyRef covers both controllers — prevents accepting a lobby invite
+      // while any session is active, which would cause a UI mismatch.
+      if (isBusyRef.current) return
+      void controller.join(e.code)
     })
 
     client.announce({
@@ -120,6 +118,12 @@ export function LobbyProvider({ children }: { children: ReactNode }) {
       if (connecting || isBusy) return
       setConnecting(device.peerId)
       try {
+        // Re-check right before hosting — an incoming invite may have been
+        // accepted between the user click and this async continuation.
+        if (
+          controller.getState().connectionState !== ConnectionState.DISCONNECTED
+        )
+          return
         const info = await controller.host()
         if (!info) return
         clientRef.current?.invite(device.peerId, info.code)
