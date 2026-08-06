@@ -131,7 +131,7 @@ export const MessageBubble = memo(function MessageBubble({
     >
       <div
         className={cn(
-          "flex gap-2 max-w-[90%] sm:max-w-[82%]",
+          "flex gap-2 min-w-0 max-w-[90%] sm:max-w-[82%]",
           isLocal ? "flex-row-reverse" : "flex-row",
         )}
       >
@@ -158,7 +158,7 @@ export const MessageBubble = memo(function MessageBubble({
           {/* Bubble */}
           <div
             className={cn(
-              "relative rounded-2xl py-2.5 pr-3.5 text-sm leading-relaxed break-words overflow-hidden",
+              "relative rounded-2xl py-2.5 pr-3.5 text-sm leading-relaxed break-words [overflow-wrap:anywhere] overflow-hidden",
               isLocal
                 ? "bg-card border border-border-strong text-foreground pl-4 rounded-br-sm"
                 : "bg-secondary text-secondary-foreground border border-border pl-3.5 rounded-bl-sm",

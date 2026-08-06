@@ -66,7 +66,7 @@ export const TransferBubble = memo(function TransferBubble({
     >
       <div
         className={cn(
-          "flex gap-2 w-full sm:max-w-[82%]",
+          "flex gap-2 min-w-0 w-full sm:max-w-[82%]",
           isLocal ? "flex-row-reverse" : "flex-row",
         )}
       >
