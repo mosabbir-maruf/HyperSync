@@ -72,9 +72,9 @@ export class GroupPeerManager {
     this.onPhaseChange("starting")
 
     try {
+      this.attachSignaling()
       const info = await this.signaling.createGroup(8)
       this.localRole = "host"
-      this.attachSignaling()
       this.onPhaseChange("waiting") // waiting for members to join
       return info
     } catch (err) {
@@ -91,9 +91,9 @@ export class GroupPeerManager {
     this.onPhaseChange("starting")
 
     try {
+      this.attachSignaling()
       const info = await this.signaling.joinGroup(code)
       this.localRole = "member"
-      this.attachSignaling()
       this.onPhaseChange("connecting") // connecting to existing members
       return info
     } catch (err) {
@@ -291,6 +291,7 @@ export class GroupPeerManager {
   }
 
   private fail(err: unknown, phase?: string): void {
+    if (err instanceof Error && err.name === "AbortError") return
     const appErr = toAppError(err)
     if (phase) this.onPhaseChange(phase)
     this.onError(appErr.message)
@@ -298,6 +299,8 @@ export class GroupPeerManager {
   }
 
   public destroy(): void {
+    this._hostingInProgress = false
+    this._joiningInProgress = false
     for (const timer of this.reconnectTimers.values()) clearTimeout(timer)
     this.reconnectTimers.clear()
     this.reconnectAttempts.clear()
