@@ -244,7 +244,7 @@ export class WebSocketSignalingClient
         })
         break
       case "LEAVE":
-        this.emit({ type: "peer-left" })
+        this.emit({ type: "peer-left", peerId: msg.peerId })
         break
       case "GROUP_MEMBER_JOINED":
         this.emit({
