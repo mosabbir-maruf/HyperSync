@@ -144,6 +144,10 @@ export class ConnectionStateManager {
         : ConnectionState.DISCONNECTED
     }
 
+    if (this.signalingPhase === "idle") {
+      return ConnectionState.DISCONNECTED
+    }
+
     // 2. Reconnecting state overrides
     if (this.isAutoReconnecting) {
       return ConnectionState.RECONNECTING
