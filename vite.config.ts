@@ -77,7 +77,7 @@ export default defineConfig(({ mode }) => {
           ],
         },
         workbox: {
-          navigateFallback: '/index.html',
+          navigateFallback: '/',
           navigateFallbackDenylist: [
             /^\/api/, // VERY IMPORTANT: Do not intercept API requests
           ],
