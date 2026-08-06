@@ -56,11 +56,14 @@ export function LobbyProvider({ children }: { children: ReactNode }) {
     p2pState.connectionState !== ConnectionState.DISCONNECTED ||
     groupState.connectionState !== ConnectionState.DISCONNECTED
 
-  // Ref tracks the latest isBusy value so event callbacks always see current state
-  // without requiring effect re-subscription on every render.
+  // Refs let event callbacks read the latest values without effect re-subscription.
   const clientRef = useRef<SignalingClient | null>(null)
   const isBusyRef = useRef(isBusy)
   isBusyRef.current = isBusy
+  // Tracks whether connectTo's async host() call is in-flight.
+  // isBusyRef alone can't catch this because the connection state
+  // doesn't update until the HTTP request inside host() completes.
+  const connectingRef = useRef(false)
 
   // Announce presence + subscribe to roster and inbound invites, only if not busy.
   useEffect(() => {
@@ -84,10 +87,9 @@ export function LobbyProvider({ children }: { children: ReactNode }) {
     const offRoster = client.on("roster", (e) => setRoster(e.devices))
 
     const offInvite = client.on("invite", (e) => {
-      // Guard against ALL active sessions (p2p + group).
-      // isBusyRef covers both controllers — prevents accepting a lobby invite
-      // while any session is active, which would cause a UI mismatch.
-      if (isBusyRef.current) return
+      // Block invites if any session is active OR if an outgoing
+      // connectTo is mid-flight (host() HTTP call hasn't resolved yet).
+      if (isBusyRef.current || connectingRef.current) return
       void controller.join(e.code)
     })
 
@@ -115,7 +117,8 @@ export function LobbyProvider({ children }: { children: ReactNode }) {
 
   const connectTo = useCallback(
     async (device: DevicePresence) => {
-      if (connecting || isBusy) return
+      if (connecting || isBusy || connectingRef.current) return
+      connectingRef.current = true
       setConnecting(device.peerId)
       try {
         // Re-check right before hosting — an incoming invite may have been
@@ -128,6 +131,7 @@ export function LobbyProvider({ children }: { children: ReactNode }) {
         if (!info) return
         clientRef.current?.invite(device.peerId, info.code)
       } finally {
+        connectingRef.current = false
         setConnecting(null)
       }
     },
