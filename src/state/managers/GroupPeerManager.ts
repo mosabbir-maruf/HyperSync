@@ -304,10 +304,11 @@ export class GroupPeerManager {
     this.doNotReconnect.clear()
     this.peerRoles.clear()
 
-    for (const [peerId, pc] of this.peers.entries()) {
+    const peersToClose = Array.from(this.peers.values())
+    this.peers.clear()
+    for (const pc of peersToClose) {
       pc.close()
     }
-    this.peers.clear()
 
     for (const [peerId, adapter] of this.adapters.entries()) {
       adapter.destroy()

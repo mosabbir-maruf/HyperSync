@@ -227,6 +227,7 @@ export class PeerConnection {
         sdp: this.pc.localDescription!.toJSON(),
       })
     } catch (err) {
+      if (this.closed) return
       const message = errMessage(err)
       if (iceRestart) this.reportFailure(message)
       else this.events.onError?.(message)
@@ -236,6 +237,7 @@ export class PeerConnection {
   }
 
   private async handleSignal(signal: PeerSignal): Promise<void> {
+    if (this.closed) return
     try {
       if (signal.kind === "offer") {
         if (this.pc.signalingState !== "stable") {
@@ -266,6 +268,7 @@ export class PeerConnection {
         }
       }
     } catch (err) {
+      if (this.closed) return
       const message = errMessage(err)
       if (this.recoveryInProgress) this.reportFailure(message)
       else this.events.onError?.(message)
