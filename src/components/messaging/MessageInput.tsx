@@ -272,7 +272,7 @@ export function MessageInput({
               : "Message or drop files…")
           }
           className={cn(
-            "flex-1 resize-none bg-transparent text-sm text-foreground",
+            "flex-1 resize-none bg-transparent text-base md:text-sm text-foreground",
             "placeholder:text-muted-foreground/60",
             "outline-none min-h-[24px]",
             "disabled:opacity-40 disabled:cursor-not-allowed",
