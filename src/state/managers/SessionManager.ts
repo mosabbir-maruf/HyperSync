@@ -101,6 +101,7 @@ export class SessionManager {
           this.peer.destroy()
           this.transfer.destroy()
           this.messaging?.destroy()
+          this.messaging = null
           this.presence.destroy()
         }
       }
