@@ -65,7 +65,7 @@ export function SessionSurface() {
       )}
       {connected ? (
         <SessionRoom onLeave={leave} />
-      ) : (
+      ) : state.role === "host" ? (
         <div className="flex flex-col items-center gap-6 rounded-2xl border border-border-strong bg-card p-6 md:flex-row md:gap-8 md:p-8">
           {state.info && <QRDisplay value={state.info.joinUrl} />}
           <div className="flex-1 space-y-4 text-center md:text-left">
@@ -75,6 +75,11 @@ export function SessionSurface() {
             </p>
             {state.info && <SessionCode code={state.info.code} />}
           </div>
+        </div>
+      ) : (
+        <div className="flex flex-col items-center justify-center gap-6 rounded-2xl border border-border-strong bg-card p-12 text-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-muted border-t-primary" />
+          <p className="text-muted-foreground">Establishing connection...</p>
         </div>
       )}
     </div>

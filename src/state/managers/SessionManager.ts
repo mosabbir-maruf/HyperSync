@@ -189,7 +189,6 @@ export class SessionManager {
     this.transfer.destroy()
     this.messaging?.destroy()
     this.presence.destroy()
-    this.messaging = null
     this.set({ ...INITIAL })
   }
 }

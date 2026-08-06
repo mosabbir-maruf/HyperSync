@@ -297,6 +297,12 @@ export class PeerConnection {
     for (const unsub of this.unsubscribers) unsub()
     this.unsubscribers = []
     try {
+      if ((this as any).transferChannel) {
+        ;(this as any).transferChannel.close()
+      }
+      if ((this as any).msgChannel) {
+        ;(this as any).msgChannel.close()
+      }
       this.pc.onicecandidate = null
       this.pc.onconnectionstatechange = null
       this.pc.ondatachannel = null
