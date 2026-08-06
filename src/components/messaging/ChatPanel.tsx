@@ -110,7 +110,7 @@ export function ChatPanel({
     state.peerName ||
     (state.typingPeers && state.typingPeers.length > 0
       ? state.typingPeers[0]
-      : title || "Group")
+      : title || (isGroup ? "Group" : "Remote Device"))
   const isTyping =
     state.isRemoteTyping || (state.typingPeers && state.typingPeers.length > 0)
 
