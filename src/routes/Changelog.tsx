@@ -73,7 +73,7 @@ export function Changelog() {
                     {/* Left Column: Version & Date */}
                     <div className="relative shrink-0 md:w-[200px] md:text-right md:pr-12 md:py-4">
                       {/* Timeline Dot */}
-                      {index === changelogData.length - 1 ? (
+                      {index === 0 ? (
                         <div className="absolute -left-[37px] top-[23px] md:left-auto md:-right-[6px] md:top-[27px] h-3 w-3 rounded-full bg-primary ring-4 ring-background shadow-[0_0_10px_rgba(207,67,34,0.5)]" />
                       ) : (
                         <div
@@ -87,14 +87,14 @@ export function Changelog() {
                         <div className="flex items-center md:items-end gap-3 md:gap-1 flex-row md:flex-col">
                           <h2
                             className={`text-2xl font-black tracking-tight transition-colors duration-300 ${
-                              isOpen || index === changelogData.length - 1
+                              isOpen || index === 0
                                 ? "text-foreground"
                                 : "text-muted-foreground group-hover:text-foreground"
                             }`}
                           >
                             v{release.version}
                           </h2>
-                          {index === changelogData.length - 1 && (
+                          {index === 0 && (
                             <span className="inline-flex h-5 items-center rounded-full bg-primary/10 px-2 font-mono text-[9px] font-bold uppercase tracking-widest text-primary">
                               Latest
                             </span>

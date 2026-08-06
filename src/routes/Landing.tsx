@@ -14,7 +14,7 @@ export function Landing() {
       <section className="relative flex min-h-[85vh] flex-col items-center justify-center overflow-hidden px-4 py-32 text-center sm:px-8">
         <div className="relative z-10 max-w-4xl space-y-10">
           <div className="mx-auto flex w-max items-center gap-3">
-            <span className="label-mono">HyperSync v2.0</span>
+            <span className="label-mono">HyperSync v2.1</span>
             <span className="h-px w-8 bg-border-strong" />
             <span className="font-mono text-[10px] uppercase tracking-widest text-primary">
               Local WebRTC

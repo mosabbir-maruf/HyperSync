@@ -1,89 +1,32 @@
 [
   {
-    "version": "1.0.0",
-    "date": "2025-01-01",
-    "title": "Initial Release",
+    "version": "2.1.0",
+    "date": "2026-08-06",
+    "title": "Codebase Optimization & Logging Cleanup",
     "changes": [
       {
-        "type": "added",
-        "description": "Initial release of HyperSync."
+        "type": "changed",
+        "description": "Comprehensive audit and cleanup of development console logs."
       },
       {
-        "type": "added",
-        "description": "Direct peer-to-peer file transfer."
-      },
-      {
-        "type": "added",
-        "description": "End-to-end encryption for all transfers."
-      }
-    ]
-  },
-  {
-    "version": "1.1.0",
-    "date": "2025-02-15",
-    "title": "UI Polish & Bug Fixes",
-    "changes": [
-      {
-        "type": "added",
-        "description": "Added dark mode toggle in the navigation bar."
+        "type": "fixed",
+        "description": "Removed redundant imports and unused code across the overall project."
       },
       {
         "type": "changed",
-        "description": "Refined spacing in hero sections across all pages for a tighter look."
-      },
-      {
-        "type": "changed",
-        "description": "Redesigned the changelog into a sleek timeline format."
-      },
-      {
-        "type": "fixed",
-        "description": "Fixed an issue where large file transfers would stall at 99%."
-      },
-      {
-        "type": "fixed",
-        "description": "Resolved a bug causing the layout to shift on mobile devices."
-      }
-    ]
-  },
-  {
-    "version": "1.3.0",
-    "date": "2025-03-05",
-    "title": "History & Themes",
-    "changes": [
-      {
-        "type": "added",
-        "description": "Added local transfer history to track past files."
-      },
-      {
-        "type": "added",
-        "description": "Introduced a new system-synced light/dark theme toggle."
-      },
-      {
-        "type": "changed",
-        "description": "Improved the animation smoothness of the nearby devices scanner."
-      }
-    ]
-  },
-  {
-    "version": "1.4.2",
-    "date": "2025-04-20",
-    "title": "Network Stability",
-    "changes": [
-      {
-        "type": "fixed",
-        "description": "Fixed an ICE candidate gathering timeout on restrictive corporate networks."
-      },
-      {
-        "type": "fixed",
-        "description": "Patched a memory leak when transferring hundreds of small files."
+        "description": "Performance optimizations for production readiness."
       }
     ]
   },
   {
     "version": "2.0.0",
-    "date": "2025-05-01",
+    "date": "2026-08-02",
     "title": "HyperSync 2.0: The Speed Update",
     "changes": [
+      {
+        "type": "added",
+        "description": "Introduced Group Rooms for seamless multi-device sharing and collaboration."
+      },
       {
         "type": "added",
         "description": "Introduced multiplexed streaming for 3x faster multi-file transfers."
@@ -115,21 +58,101 @@
     ]
   },
   {
-    "version": "2.1.0",
-    "date": "2025-06-06",
-    "title": "Codebase Optimization & Logging Cleanup",
+    "version": "1.5.0",
+    "date": "2026-07-28",
+    "title": "Transfer Reliability & Pre-2.0 Foundation",
     "changes": [
       {
+        "type": "added",
+        "description": "Added configurable chunk sizes for varying network conditions."
+      },
+      {
         "type": "changed",
-        "description": "Comprehensive audit and cleanup of development console logs."
+        "description": "Improved internal signaling flow for faster peer discovery."
       },
       {
         "type": "fixed",
-        "description": "Removed redundant imports and unused code across the overall project."
+        "description": "Resolved edge cases where transfers would stall when the browser tab is backgrounded."
+      }
+    ]
+  },
+  {
+    "version": "1.4.2",
+    "date": "2026-07-23",
+    "title": "Network Stability",
+    "changes": [
+      {
+        "type": "fixed",
+        "description": "Fixed an ICE candidate gathering timeout on restrictive corporate networks."
+      },
+      {
+        "type": "fixed",
+        "description": "Patched a memory leak when transferring hundreds of small files."
+      }
+    ]
+  },
+  {
+    "version": "1.3.0",
+    "date": "2026-07-18",
+    "title": "History & Themes",
+    "changes": [
+      {
+        "type": "added",
+        "description": "Added local transfer history to track past files."
+      },
+      {
+        "type": "added",
+        "description": "Introduced a new system-synced light/dark theme toggle."
       },
       {
         "type": "changed",
-        "description": "Performance optimizations for production readiness."
+        "description": "Improved the animation smoothness of the nearby devices scanner."
+      }
+    ]
+  },
+  {
+    "version": "1.1.0",
+    "date": "2026-07-13",
+    "title": "UI Polish & Bug Fixes",
+    "changes": [
+      {
+        "type": "added",
+        "description": "Added dark mode toggle in the navigation bar."
+      },
+      {
+        "type": "changed",
+        "description": "Refined spacing in hero sections across all pages for a tighter look."
+      },
+      {
+        "type": "changed",
+        "description": "Redesigned the changelog into a sleek timeline format."
+      },
+      {
+        "type": "fixed",
+        "description": "Fixed an issue where large file transfers would stall at 99%."
+      },
+      {
+        "type": "fixed",
+        "description": "Resolved a bug causing the layout to shift on mobile devices."
+      }
+    ]
+  },
+  {
+    "version": "1.0.0",
+    "date": "2026-07-08",
+    "title": "Initial Release",
+    "changes": [
+      {
+        "type": "added",
+        "description": "Initial release of HyperSync."
+      },
+      {
+        "type": "added",
+        "description": "Direct peer-to-peer file transfer."
+      },
+      {
+        "type": "added",
+        "description": "End-to-end encryption for all transfers."
       }
     ]
   }
