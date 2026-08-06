@@ -3,7 +3,6 @@ import { Link } from "react-router-dom"
 import changelogData from "../data/changelog.json"
 
 export function Changelog() {
-  // Initialize with the latest two versions expanded
   const [expandedVersions, setExpandedVersions] = useState<string[]>(
     [changelogData[0]?.version, changelogData[1]?.version].filter(
       Boolean,
@@ -18,7 +17,6 @@ export function Changelog() {
     )
   }
 
-  // Group changes by type
   const groupByType = (changes: { type: string; description: string }[]) => {
     return changes.reduce(
       (acc, change) => {
@@ -183,7 +181,6 @@ export function Changelog() {
                           <div className="flex flex-col gap-8 pt-6 pb-4">
                             {Object.entries(groupedChanges).map(
                               ([type, changes]) => {
-                                // Define colors based on change type
                                 const typeColors: Record<string, string> = {
                                   added: "text-success",
                                   fixed: "text-primary",

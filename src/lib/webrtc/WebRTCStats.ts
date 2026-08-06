@@ -156,7 +156,6 @@ export class WebRTCStatsCollector {
         this.lastBytesReceived = bytesReceived
       }
     } catch (e) {
-      // stats collection error ignored
     }
   }
 

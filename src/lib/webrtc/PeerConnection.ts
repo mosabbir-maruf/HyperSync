@@ -89,8 +89,6 @@ export class PeerConnection {
     this.clearDisconnectTimeout()
     this.setState("negotiating")
 
-    // Only the original offerer restarts ICE. The answerer stays ready to
-    // apply that offer, so there is one negotiation owner and no glare.
     if (this.role === "host") {
       void this.makeOffer(true)
     }
@@ -301,7 +299,6 @@ export class PeerConnection {
       this.pc.ondatachannel = null
       this.pc.close()
     } catch {
-      /* already closed */
     }
     this.setState("closed")
   }

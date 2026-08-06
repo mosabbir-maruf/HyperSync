@@ -7,10 +7,6 @@ import {
 } from "react"
 import { cn } from "../../lib/utils"
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Emoji data — native Unicode, no image packs
-// ─────────────────────────────────────────────────────────────────────────────
-
 const PINNED_EMOJI = ["😀", "😂", "❤️", "👍", "🎉", "🔥", "😎", "👋"]
 
 const EMOJI_CATEGORIES: { label: string; items: string[] }[] = [
@@ -171,10 +167,6 @@ const EMOJI_CATEGORIES: { label: string; items: string[] }[] = [
   },
 ]
 
-// ─────────────────────────────────────────────────────────────────────────────
-// EmojiPicker component
-// ─────────────────────────────────────────────────────────────────────────────
-
 interface EmojiPickerProps {
   recentEmoji: string[]
   onSelect: (emoji: string) => void
@@ -314,10 +306,6 @@ export function EmojiPicker({
     </div>
   )
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Small emoji button
-// ─────────────────────────────────────────────────────────────────────────────
 
 function EmojiButton({
   emoji,

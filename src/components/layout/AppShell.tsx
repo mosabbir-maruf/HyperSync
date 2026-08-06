@@ -119,7 +119,6 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
         </div>
 
-        {/* Mobile row of tabs */}
         <div className="mt-2 mx-auto flex h-12 w-full items-center rounded-full border border-border-strong bg-background/80 px-1.5 shadow-sm backdrop-blur-xl md:hidden">
           <Nav className="w-full justify-between gap-1 [&>a]:flex-1 [&>a]:text-center [&>a]:px-2" />
         </div>

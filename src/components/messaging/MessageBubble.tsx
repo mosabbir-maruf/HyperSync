@@ -3,10 +3,6 @@ import type { ChatMessage } from "../../lib/messaging/MessageEngine"
 import { cn } from "../../lib/utils"
 import { Avatar } from "../ui/Avatar"
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Status icon components (inline SVG — no extra imports)
-// ─────────────────────────────────────────────────────────────────────────────
-
 function SendingDots() {
   return (
     <span className="flex items-center gap-[2px]" aria-label="Sending">
@@ -84,20 +80,12 @@ function FailedX() {
   )
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Timestamp formatting
-// ─────────────────────────────────────────────────────────────────────────────
-
 function formatMsgTime(ts: number): string {
   const d = new Date(ts)
   const h = d.getHours().toString().padStart(2, "0")
   const m = d.getMinutes().toString().padStart(2, "0")
   return `${h}:${m}`
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// MessageBubble — memoized to prevent rerenders on unrelated state changes
-// ─────────────────────────────────────────────────────────────────────────────
 
 interface MessageBubbleProps {
   message: ChatMessage

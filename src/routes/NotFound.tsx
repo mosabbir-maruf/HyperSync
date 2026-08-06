@@ -95,7 +95,6 @@ export function NotFound() {
     }, 150)
   }
 
-  // Filter links based on search query
   const filteredCategories = CATEGORIZED_DESTINATIONS.map((cat) => {
     const filteredLinks = cat.links.filter(
       (item) =>

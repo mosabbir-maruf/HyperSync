@@ -38,8 +38,6 @@ export interface SignalingClient {
   /** Relay a WebRTC negotiation signal to a specific peer in a group. */
   sendGroupSignal(targetPeerId: string, signal: PeerSignal): void
 
-  // ---- discovery / presence (the "nearby devices" lobby) -----------------
-
   /**
    * Join the discovery lobby and advertise this device. The transport assigns
    * the peerId; consumers receive the current roster via the "roster" event.
@@ -86,7 +84,6 @@ export class SignalingEmitter {
       try {
         handler(event as never)
       } catch (err) {
-        // A misbehaving listener must not break the transport.
         logger.warn("Signaling event listener failed", err)
       }
     }

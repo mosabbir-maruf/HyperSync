@@ -54,8 +54,6 @@ export class MessageEngine {
     this.wireChannel()
   }
 
-  // ── Subscriptions ──────────────────────────────────────────────────────────
-
   onEvent(handler: MessageEngineEventHandler): () => void {
     this.handlers.add(handler)
     return () => this.handlers.delete(handler)
@@ -64,8 +62,6 @@ export class MessageEngine {
   private emit(event: MessageEngineEvent): void {
     for (const h of this.handlers) h(event)
   }
-
-  // ── Channel wiring ─────────────────────────────────────────────────────────
 
   private wireChannel(): void {
     const ch = this.channel
@@ -106,15 +102,11 @@ export class MessageEngine {
     }
 
     ch.onmessage = (ev) => {
-      if (typeof ev.data !== "string") return // guard — this channel is text-only
+      if (typeof ev.data !== "string") return
       const frame = decodeFrame(ev.data)
       if (frame) this.handleFrame(frame)
     }
-
-    // (Duplicate block removed. The setTimeout(handleOpen, 0) above handles the already-open case)
   }
-
-  // ── Sending ────────────────────────────────────────────────────────────────
 
   /**
    * Send a user text message. Returns the ChatMessage immediately (status=sending).
@@ -139,11 +131,9 @@ export class MessageEngine {
       return { ...msg, status: "sent" }
     }
 
-    // Queue for later delivery (preserve order)
     if (this.outboundQueue.length < MAX_QUEUE_SIZE) {
       this.outboundQueue.push(frame)
     } else {
-      // Queue full — fail immediately
       this.emit({ type: "MessageFailed", id })
       return { ...msg, status: "failed" }
     }
@@ -154,7 +144,6 @@ export class MessageEngine {
   sendTypingStart(): void {
     const now = Date.now()
     if (now - this.lastTypingStartSent < TYPING_THROTTLE_MS) {
-      // Reset the auto-stop timer without sending another TYPING_START
       this.resetTypingStopTimer()
       return
     }
@@ -170,14 +159,11 @@ export class MessageEngine {
     this.rawSend({ t: "TYPING_STOP" })
   }
 
-  // ── Internal send helpers ──────────────────────────────────────────────────
-
   private rawSend(frame: MsgFrame): void {
     if (this.channel.readyState !== "open") return
     try {
       this.channel.send(encodeFrame(frame))
     } catch {
-      // Channel may have closed between check and send — ignore
     }
   }
 
@@ -188,17 +174,13 @@ export class MessageEngine {
         this.rawSend(frame)
         if (frame.id) this.emit({ type: "MessageSent", id: frame.id })
       } else {
-        // Re-queue at front and stop draining (rate limit)
         this.outboundQueue.unshift(frame)
         break
       }
     }
   }
 
-  // ── Incoming frame handling ────────────────────────────────────────────────
-
   private handleFrame(frame: MsgFrame): void {
-    // Any frame received means the peer is alive
     if (!this.isPeerOnline) {
       this.isPeerOnline = true
       this.emit({ type: "PeerOnline" })
@@ -215,7 +197,6 @@ export class MessageEngine {
           status: "delivered",
         }
         this.emit({ type: "MessageReceived", message: msg })
-        // Send ACK
         this.rawSend({ t: "MESSAGE_ACK", id: frame.id })
         break
       }
@@ -242,13 +223,11 @@ export class MessageEngine {
         break
 
       case "STATUS":
-        // STATUS carries the peer's display name on channel-open handshake
         if (frame.name)
           this.emit({ type: "PeerNameReceived", name: frame.name })
         break
 
       case "REACTION":
-        // Future extension; silently ignore.
         break
     }
   }
@@ -269,14 +248,11 @@ export class MessageEngine {
     }
   }
 
-  // ── Ping / Pong ────────────────────────────────────────────────────────────
-
   private startPing(): void {
     this.stopPing()
     this.pingInterval = setInterval(() => {
       if (!this.isOpen) return
       this.rawSend({ t: "PING" })
-      // Expect PONG within PONG_TIMEOUT_MS
       this.pongTimeout = setTimeout(() => {
         if (this.isPeerOnline) {
           this.isPeerOnline = false
@@ -301,13 +277,10 @@ export class MessageEngine {
     }
   }
 
-  // ── Token bucket ───────────────────────────────────────────────────────────
-
   private startTokenRefill(): void {
     if (this.tokenRefillTimer !== null) clearInterval(this.tokenRefillTimer)
     this.tokenRefillTimer = setInterval(() => {
       this.tokens = RATE_LIMIT_PER_SEC
-      // Try to drain queue on each refill tick
       if (this.outboundQueue.length > 0) this.drainQueue()
     }, 1_000)
   }
@@ -320,14 +293,9 @@ export class MessageEngine {
     return false
   }
 
-  // ── Update message status ──────────────────────────────────────────────────
-
-  /** Called by MessagingController to mark a queued message as failed on destroy. */
   getQueuedIds(): string[] {
     return this.outboundQueue.filter((f) => !!f.id).map((f) => f.id!)
   }
-
-  // ── Cleanup ────────────────────────────────────────────────────────────────
 
   destroy(): void {
     this.stopPing()
@@ -354,14 +322,10 @@ export class MessageEngine {
         this.channel.close()
       }
     } catch {
-      /* already closed */
     }
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Re-export types for convenience
-// ─────────────────────────────────────────────────────────────────────────────
 export type {
   ChatMessage,
   MessageStatus,

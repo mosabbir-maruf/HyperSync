@@ -96,13 +96,11 @@ export function ChatPanel({
   const [dragging, setDragging] = useState(false)
   const [viewMode, setViewMode] = useState<"chat" | "files">("chat")
 
-  // Subscribe to messaging state
   const state = useSyncExternalStore(
     (cb) => controller.subscribe(cb),
     () => controller.getState(),
   ) as IChatMessagingState
 
-  // Subscribe to session state to get transfers and incoming files
   const sessionState = useSyncExternalStore(
     (cb) => sessionController.subscribe(cb),
     () => sessionController.getState(),
@@ -153,7 +151,6 @@ export function ChatPanel({
 
   const isDisabled = sessionState.connectionState !== ConnectionState.CONNECTED
 
-  // Construct unified timeline
   const timeline: TimelineItem[] = useMemo(() => {
     const list: TimelineItem[] = [
       ...state.messages.map((m) => ({
@@ -176,7 +173,6 @@ export function ChatPanel({
       }),
     ]
 
-    // Sort chronologically (oldest to newest)
     list.sort((a, b) => a.timestamp - b.timestamp)
 
     // Append incoming prompts at the very bottom (most recent)

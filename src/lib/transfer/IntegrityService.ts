@@ -1,7 +1,7 @@
 import { browserCapabilityService } from "./BrowserCapabilityService"
 
 export class IncrementalHasher {
-  private finalHash = new Uint8Array(32) // SHA-256 outputs 32 bytes
+  private finalHash = new Uint8Array(32)
   private unsupported = false
 
   constructor() {

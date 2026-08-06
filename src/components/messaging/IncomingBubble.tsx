@@ -29,7 +29,6 @@ export const IncomingBubble = memo(function IncomingBubble({
   const ids = files.map((f) => f.transferId)
   const total = files.reduce((sum, f) => sum + f.fileSize, 0)
 
-  // Incoming prompts are always from the remote peer, so they align left
   const isLocal = false
   
   const [timestamp] = useState(Date.now)

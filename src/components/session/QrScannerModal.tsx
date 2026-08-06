@@ -94,7 +94,6 @@ export function QrScannerModal({
             ? new (window as any).BarcodeDetector({ formats: ["qr_code"] })
             : null
 
-        // --- Scan loop ------------------------------------------------
         const scan = async () => {
           if (!active) return
 

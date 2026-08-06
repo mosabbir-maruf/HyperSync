@@ -7,7 +7,6 @@ import { registerSW } from "virtual:pwa-register"
 
 registerSW({ immediate: true })
 
-// Run cleanup of any leftover temp files from previous aborted transfers
 OpfsDownloadProvider.cleanupStaleFiles()
 
 // Prevent the browser from opening dropped files if they miss the drop zone

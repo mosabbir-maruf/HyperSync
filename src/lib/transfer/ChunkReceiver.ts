@@ -15,7 +15,7 @@ import { PipelineProfiler } from "./PipelineProfiler"
  *   This means the message-processing loop never blocks on disk I/O.
  * - decodeChunk() returns a zero-copy Uint8Array view into the received
  *   ArrayBuffer. The sink receives this view directly — no extra 256KB copy.
- * - Progress is sampled at most every 100 ms (≈10 fps) to avoid flooding
+ * - Progress is sampled at most every 50 ms (≈20 fps) to avoid flooding
  *   React with re-renders during high-throughput transfers.
  */
 export class ChunkReceiver {
@@ -27,8 +27,6 @@ export class ChunkReceiver {
   private isAborted = false
   private pendingWrites = 0
 
-  // Serial write chain: each chunk write appends to this promise so writes
-  // arrive at the sink in order even if individual writes are async.
   private writeChain: Promise<void> = Promise.resolve()
 
   private readonly abortHandler = () => {

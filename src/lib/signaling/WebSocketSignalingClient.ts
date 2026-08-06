@@ -45,7 +45,6 @@ export class WebSocketSignalingClient
   constructor(private readonly url: string) {
     super()
     const parsed = new URL(url)
-    // If it's a websocket URL, convert it to HTTP for REST calls. If it's already HTTP/HTTPS, leave it (or force it correctly).
     if (parsed.protocol === "wss:" || parsed.protocol === "https:") {
       parsed.protocol = "https:"
     } else {
@@ -104,7 +103,6 @@ export class WebSocketSignalingClient
   ): Promise<void> {
     this.roomType = roomType
     return new Promise((resolve, reject) => {
-      // Connect to the room by its URL
       const wsUrl = new URL(this.url)
       const basePath = wsUrl.pathname === "/" ? "" : wsUrl.pathname
       wsUrl.pathname = basePath + (roomType === "group" ? "/group/ws" : "/ws")
@@ -309,13 +307,11 @@ export class WebSocketSignalingClient
       ws?.readyState === WebSocket.OPEN &&
       (allowBeforeConnected || this.state === "connected")
     ) {
-      try {
-        ws.send(this.serializeMessage(type, payload))
-        return
-      } catch {
-        // The close event owns reconnection. Keep signals until its replacement
-        // socket has completed the JOIN/HELLO handshake.
-      }
+    try {
+      ws.send(this.serializeMessage(type, payload))
+      return
+    } catch {
+    }
     }
 
     if (this.shouldKeepRoomConnected && type !== "PING") {
@@ -423,7 +419,6 @@ export class WebSocketSignalingClient
     this.abortController = new AbortController()
 
     try {
-      // Step 1: Create session via HTTP API
       const res = await fetch(`${this.httpUrl}/session`, {
         method: "POST",
         signal: this.abortController.signal,
@@ -440,7 +435,6 @@ export class WebSocketSignalingClient
       this.sessionId = roomId
       this.role = "host"
 
-      // Step 2: Connect WebSocket
       await this.connectWebSocket(code, "host", "direct", attempt)
 
       return this.buildInfo(roomId, code, "host")
@@ -463,7 +457,6 @@ export class WebSocketSignalingClient
     this.abortController = new AbortController()
 
     try {
-      // Step 1: Join session via HTTP API
       const res = await fetch(`${this.httpUrl}/join`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -481,7 +474,6 @@ export class WebSocketSignalingClient
       this.sessionId = roomId
       this.role = "guest"
 
-      // Step 2: Connect WebSocket
       await this.connectWebSocket(normalizedCode, "guest", "direct", attempt)
 
       return this.buildInfo(roomId, normalizedCode, "guest")
@@ -630,8 +622,6 @@ export class WebSocketSignalingClient
       try {
         const msg = JSON.parse(event.data)
         if (msg.type === "ROSTER" && Array.isArray(msg.payload?.devices)) {
-          // Keep the frontend safe with older workers that broadcast the
-          // complete roster, including the requesting device.
           const devices = msg.payload.devices.filter(
             (device: DevicePresence) =>
               device?.peerId && device.peerId !== this.peerId,
@@ -652,8 +642,6 @@ export class WebSocketSignalingClient
     }
 
     ws.onerror = () => {
-      // Browsers follow this with close. Reconnect there so a failure cannot
-      // create overlapping lobby sockets.
     }
 
     ws.onclose = (ev) => {

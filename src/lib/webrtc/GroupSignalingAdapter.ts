@@ -38,7 +38,6 @@ export class GroupSignalingAdapter implements SignalingClient {
   ): Unsubscribe {
     if (type === "signal") {
       this.signalHandlers.push(handler as any)
-      // Map 'group-signal' from targetPeerId to 'signal'
       const unsub = this.base.on("group-signal", (event) => {
         if (event.from === this.targetPeerId) {
           const fn = handler as any
@@ -52,7 +51,6 @@ export class GroupSignalingAdapter implements SignalingClient {
       this.unsubscribers.push(unsub)
       return unsub
     } else if (type === "peer-left") {
-      // Map 'group-peer-left' from targetPeerId to 'peer-left'
       const unsub = this.base.on("group-peer-left", (event) => {
         if (event.peerId === this.targetPeerId) {
           const fn = handler as any
@@ -65,11 +63,9 @@ export class GroupSignalingAdapter implements SignalingClient {
       this.unsubscribers.push(unsub)
       return unsub
     } else {
-      // Forward other events verbatim (though most aren't needed by PeerConnection)
       const unsub = this.base.on(type, handler)
       this.unsubscribers.push(unsub)
 
-      // Store local peer-joined handlers to trigger them manually later
       if (type === "peer-joined") {
         this.peerJoinedHandlers.push(handler as any)
       }
@@ -90,7 +86,6 @@ export class GroupSignalingAdapter implements SignalingClient {
   }
 
   send(signal: PeerSignal): void {
-    // Map 1-to-1 send to group send
     this.base.sendGroupSignal(this.targetPeerId, signal)
   }
 
@@ -116,7 +111,7 @@ export class GroupSignalingAdapter implements SignalingClient {
   invite(targetPeerId: string, code: string): void {
     this.base.invite(targetPeerId, code)
   }
-  close(): void {} // Base handles the actual closing
+  close(): void {}
 
   destroy(): void {
     for (const unsub of this.unsubscribers) unsub()

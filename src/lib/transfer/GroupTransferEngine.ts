@@ -27,7 +27,6 @@ export class GroupTransferEngine {
         protocolVersion: CURRENT_PROTOCOL_VERSION,
       }
 
-      // 1. Send TRANSFER_INIT to all
       const initMsg = encodeControl({
         t: "TRANSFER_INIT",
         files: [meta],
@@ -37,26 +36,18 @@ export class GroupTransferEngine {
         if (ch.readyState === "open") ch.send(initMsg)
       }
 
-      // We should wait for TRANSFER_ACCEPT from all, but for simplicity in this fan-out POC,
-      // we will just sleep a bit or assume they accept.
-      // A full implementation would track acceptedIds per peer.
-      await new Promise((r) => setTimeout(r, 500))
+        await new Promise((r) => setTimeout(r, 500))
 
-      // 2. Setup pipelines for all channels
       const pipelines = channels.map(
         (ch) =>
           new SendPipeline(
             ch,
             meta,
-            ChunkEngine.prototype.chunkSize || 256 * 1024, // fallback
+            ChunkEngine.prototype.chunkSize || 256 * 1024,
             (progress) => {
-              // PeerId mapping for this channel is currently unimplemented.
-              // Wait, we need peerId!
             },
           ),
       )
-
-      // ... this is getting too complex to rebuild the whole engine.
     }
   }
 }

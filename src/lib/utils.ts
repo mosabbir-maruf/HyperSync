@@ -13,7 +13,7 @@ export function randomId(): string {
   return Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("")
 }
 
-const CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789" // no ambiguous 0/O/1/I
+const CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
 
 /** Human-friendly pairing code, e.g. "K7P-2QF". Secure RNG. */
 export function generatePairingCode(length = 6): string {
@@ -83,16 +83,15 @@ export function clamp(n: number, min: number, max: number): number {
   return Math.min(Math.max(n, min), max)
 }
 
-// Avatar palette — vivid enough to pop on dark backgrounds, works on light too.
 const AVATAR_COLORS = [
-  "#cf4322", // rust (brand)
-  "#d97706", // amber
-  "#059669", // emerald
-  "#0891b2", // cyan
-  "#7c3aed", // violet
-  "#db2777", // pink
-  "#ea580c", // orange
-  "#16a34a", // green
+  "#cf4322",
+  "#d97706",
+  "#059669",
+  "#0891b2",
+  "#7c3aed",
+  "#db2777",
+  "#ea580c",
+  "#16a34a",
 ]
 
 function hashString(input: string): number {

@@ -33,7 +33,6 @@ export interface TransferProgress {
   estimatedTimeRemainingSeconds: number
 }
 
-// Exactly mirroring the required Phase 4 Part 3 events:
 export type TransferEvent = {
   type: "TransferQueued"
   metadata: FileMetadata

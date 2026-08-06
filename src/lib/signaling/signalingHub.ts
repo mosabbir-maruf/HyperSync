@@ -1,9 +1,5 @@
 import type { DevicePresence, PeerSignal } from "./types"
 
-/**
- * DEV-ONLY in-memory signaling broker with BroadcastChannel support for multi-tab testing.
- */
-
 const MAX_PEERS_PER_SESSION = 8
 const SESSION_TTL_MS = 10 * 60 * 1000
 
@@ -18,8 +14,8 @@ interface HubPeer {
 interface HubSession {
   sessionId: string
   code: string
-  peers: Map<string, HubPeer> // Local peers only
-  globalPeers: Map<string, { role: "host" | "guest" | "member" }> // All peers in all tabs
+  peers: Map<string, HubPeer>
+  globalPeers: Map<string, { role: "host" | "guest" | "member" }>
   expiresAt: number
   maxMembers: number
 }
@@ -37,10 +33,8 @@ class SignalingHub {
   private channel = new BroadcastChannel("dropsync_signaling")
 
   constructor() {
-
     this.channel.onmessage = (event) => {
       const msg = event.data
-
 
       if (msg.type === "LOBBY_SYNC") {
         for (const device of msg.devices) {
@@ -104,12 +98,10 @@ class SignalingHub {
       }
     }
 
-    // Request roster and sessions when loaded
     this.channel.postMessage({ type: "ROSTER_REQUEST" })
   }
 
   announceLobby(member: LobbyMember): void {
-
     this.lobby.set(member.presence.peerId, member)
     this.channel.postMessage({
       type: "LOBBY_SYNC",
@@ -189,7 +181,6 @@ class SignalingHub {
   }[] {
     let session = this.sessions.get(code)
     if (!session) {
-      // Allow joining if testing locally and it was created in another tab
       session = {
         sessionId: "mock-session",
         code,
@@ -243,13 +234,10 @@ class SignalingHub {
       }
     }
 
-    // BroadcastChannel cannot clone native WebRTC objects like RTCSessionDescription
-    // or RTCIceCandidate. We serialize them to plain objects first.
     let safeSignal = signal
     try {
       safeSignal = JSON.parse(JSON.stringify(signal))
     } catch (e) {
-      // ignore
     }
 
     this.channel.postMessage({

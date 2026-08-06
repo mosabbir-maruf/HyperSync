@@ -47,9 +47,8 @@ export class TransferEngine {
   private acceptedIds = new Set<string>()
   private pipelines = new Map<string, SendPipeline>()
 
-  // Binary message processing: run synchronously without yielding between chunks
-  private messageQueue: ArrayBuffer[] = [] // binary only
-  private controlQueue: string[] = [] // control text only
+  private messageQueue: ArrayBuffer[] = []
+  private controlQueue: string[] = []
   private isProcessingBinary = false
   private controlBuffer: Parameters<typeof encodeControl>[0][] = []
 
@@ -83,8 +82,6 @@ export class TransferEngine {
     for (const h of this.handlers) h(event)
   }
 
-  // ── Queueing & Sending ────────────────────────────────────────────────────
-
   sendFiles(files: File[], overrideIds?: string[]) {
     const metas: FileMetadata[] = []
 
@@ -111,7 +108,6 @@ export class TransferEngine {
       files: metas,
       protocolVersion: CURRENT_PROTOCOL_VERSION,
     })
-    // Wait for TRANSFER_ACCEPT before starting — do NOT call startNext() here
   }
 
   private async startNext() {
@@ -142,9 +138,6 @@ export class TransferEngine {
     const ac = new AbortController()
     this.abortControllers.set(meta.transferId, ac)
 
-    // Setup the decoupled send pipeline
-    // ChunkSize is now derived inside ChunkEngine, but we need it here to initialize the pipeline buffer pool.
-    // We can use the same strategy to get the chunk size.
     const { ChunkStrategy } = await import("./ChunkStrategy")
     const pipeline = new SendPipeline(
       this.channel,
@@ -158,10 +151,8 @@ export class TransferEngine {
       this.emit({ type: "TransferStarted", metadata: meta })
       this.sendControl({ t: "TRANSFER_METADATA", metadata: meta })
 
-      // Start the producer coroutine (reads disk -> encodes -> pushes to pipeline)
       const pumpPromise = ChunkEngine.attachAndPump(file, meta.transferId, pipeline, ac.signal)
 
-      // Wait until every chunk has been flushed to channel.send(), or an error occurs (e.g. aborted)
       await Promise.all([pipeline.waitUntilDone(), pumpPromise])
 
       if (ac.signal.aborted) {
@@ -186,8 +177,6 @@ export class TransferEngine {
       transfer.file = (undefined as any)
     }
   }
-
-  // ── Receiving ─────────────────────────────────────────────────────────────
 
   async acceptIncoming(ids: string[]) {
     const accepted: string[] = []
@@ -244,8 +233,6 @@ export class TransferEngine {
     for (const id of ids) this.cancel(id)
   }
 
-  // ── Controls ──────────────────────────────────────────────────────────────
-
   private hasTransfer(id: string): boolean {
     return this.pipelines.has(id) || this.receivers.has(id) || this.queue.items.some(i => i.metadata.transferId === id)
   }
@@ -300,8 +287,6 @@ export class TransferEngine {
     }
   }
 
-  // ── Message handling ──────────────────────────────────────────────────────
-
   private onMessage(data: unknown) {
     if (typeof data === "string") {
       // Control message — decode and handle synchronously (cheap JSON parse)
@@ -310,9 +295,8 @@ export class TransferEngine {
       return
     }
 
-    if (!(data instanceof ArrayBuffer)) return // safety guard
+    if (!(data instanceof ArrayBuffer)) return
 
-    // Binary chunk — push to queue, dispatch processor if not already running
     this.messageQueue.push(data)
     if (!this.isProcessingBinary) void this.drainBinaryQueue()
   }
@@ -331,7 +315,6 @@ export class TransferEngine {
         const buf = this.messageQueue.shift()!
         if (this.currentReceivingId) {
           const receiver = this.receivers.get(this.currentReceivingId)
-          // handleChunk is synchronous — no await, no yield between chunks
           receiver?.handleChunk(buf)
         }
       }
@@ -391,7 +374,6 @@ export class TransferEngine {
         this.emit({ type: "BufferResume", transferId: msg.id })
         break
 
-      // Silently ack — no action needed
       case "TRANSFER_VERIFY":
       case "TRANSFER_SUCCESS":
       case "TRANSFER_FAILED":

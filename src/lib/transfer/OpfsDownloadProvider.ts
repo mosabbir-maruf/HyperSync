@@ -23,7 +23,6 @@ export class OpfsDownloadProvider implements SaveProvider {
 
   async initialize(): Promise<void> {
     this.opfsDir = await navigator.storage.getDirectory()
-    // Create a temporary file in OPFS
     this.fileHandle = await this.opfsDir.getFileHandle(this.tempFileName, {
       create: true,
     })
@@ -50,7 +49,6 @@ export class OpfsDownloadProvider implements SaveProvider {
     // This is backed by disk, so it takes almost 0 RAM.
     const file = await this.fileHandle.getFile()
 
-    // It's safe to create an Object URL from a File.
     const downloadUrl = URL.createObjectURL(file)
 
     // Schedule cleanup of the OPFS file after the browser is closed or the user downloads.

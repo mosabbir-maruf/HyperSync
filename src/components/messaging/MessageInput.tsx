@@ -9,10 +9,6 @@ import { EmojiPicker } from "./EmojiPicker"
 import { cn } from "../../lib/utils"
 import { MAX_MESSAGE_LENGTH } from "../../lib/messaging/types"
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Send icon (inline)
-// ─────────────────────────────────────────────────────────────────────────────
-
 function SendIcon({ disabled }: { disabled: boolean }) {
   return (
     <svg
@@ -75,10 +71,6 @@ function PaperclipIcon() {
   )
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// MessageInput
-// ─────────────────────────────────────────────────────────────────────────────
-
 interface MessageInputProps {
   recentEmoji: string[]
   onSend: (text: string) => void
@@ -137,7 +129,6 @@ export function MessageInput({
           isTypingRef.current = true
           onTypingStart()
         }
-        // Reset auto-stop timer
         if (typingStopTimerRef.current) clearTimeout(typingStopTimerRef.current)
         typingStopTimerRef.current = setTimeout(() => {
           isTypingRef.current = false
@@ -158,9 +149,7 @@ export function MessageInput({
     if (!trimmed || overLimit || disabled) return
     onSend(trimmed)
     setText("")
-    // Reset textarea height
     if (textareaRef.current) textareaRef.current.style.height = "auto"
-    // Stop typing indicator
     if (isTypingRef.current) {
       isTypingRef.current = false
       onTypingStop()
@@ -186,7 +175,6 @@ export function MessageInput({
         const end = ta.selectionEnd ?? text.length
         const newText = text.slice(0, start) + emoji + text.slice(end)
         setText(newText)
-        // Restore cursor position after state update
         requestAnimationFrame(() => {
           ta.selectionStart = start + emoji.length
           ta.selectionEnd = start + emoji.length
@@ -324,7 +312,6 @@ export function MessageInput({
         </button>
       </div>
 
-      {/* Footer hint & Security */}
       <div className="mt-2 flex items-center justify-between px-1">
         <div className="flex items-center gap-1.5 text-success">
           <svg
