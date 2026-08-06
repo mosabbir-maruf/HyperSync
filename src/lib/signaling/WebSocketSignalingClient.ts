@@ -7,6 +7,7 @@ import type {
   SessionInfo,
   SignalingConnectionState,
 } from "./types"
+import { logger } from "../../services/Logger"
 
 export class WebSocketSignalingClient
   extends SignalingEmitter
@@ -132,7 +133,7 @@ export class WebSocketSignalingClient
           const msg = JSON.parse(event.data)
           this.handleMessage(msg, resolve, reject)
         } catch (err) {
-          console.error("Failed to parse websocket message", err)
+          logger.error("Failed to parse websocket message", err)
         }
       }
 

@@ -1,3 +1,5 @@
+import { logger } from "../../services/Logger"
+
 export class WebRtcProfiler {
   private timer: ReturnType<typeof setInterval> | null = null
   private lastBytesSent = 0
@@ -10,7 +12,7 @@ export class WebRtcProfiler {
   ) {}
 
   public start() {
-    if (localStorage.getItem("DEBUG_PERF") !== "true") return
+    if (!import.meta.env.DEV) return
     if (this.timer) return
 
     this.timer = setInterval(async () => {
@@ -18,7 +20,7 @@ export class WebRtcProfiler {
         const stats = await this.pc.getStats()
         this.processStats(stats)
       } catch (e) {
-        console.warn("[WebRtcProfiler] Failed to getStats:", e)
+        logger.warn("Failed to getStats:", e)
       }
     }, 2000)
   }
@@ -81,11 +83,11 @@ export class WebRtcProfiler {
       const speedSent = (deltaSent / deltaMs) * 1000 // bytes per second
       const speedRecv = (deltaRecv / deltaMs) * 1000 // bytes per second
 
-      console.log(`[WebRtcProfiler] Peer: ${this.peerId}
-  Sent: ${(speedSent / 1024 / 1024).toFixed(2)} MB/s | Recv: ${(speedRecv / 1024 / 1024).toFixed(2)} MB/s
-  RTT: ${(currentRtt * 1000).toFixed(1)} ms
-  Outgoing Bitrate limit: ${(availableOutgoingBitrate / 1000 / 1000).toFixed(2)} Mbps
-  Local: ${localType} (${localProtocol}) -> Remote: ${remoteType} (${remoteProtocol})`)
+      logger.debug(`WebRtcProfiler Peer: ${this.peerId}\n` +
+`  Sent: ${(speedSent / 1024 / 1024).toFixed(2)} MB/s | Recv: ${(speedRecv / 1024 / 1024).toFixed(2)} MB/s\n` +
+`  RTT: ${(currentRtt * 1000).toFixed(1)} ms\n` +
+`  Outgoing Bitrate limit: ${(availableOutgoingBitrate / 1000 / 1000).toFixed(2)} Mbps\n` +
+`  Local: ${localType} (${localProtocol}) -> Remote: ${remoteType} (${remoteProtocol})`)
     }
 
     this.lastTimestamp = now

@@ -26,7 +26,6 @@ export class ChunkReceiver {
   private lastProgressTime = 0
   private isAborted = false
   private pendingWrites = 0
-  private metricsTimer: ReturnType<typeof setInterval> | null = null
 
   // Serial write chain: each chunk write appends to this promise so writes
   // arrive at the sink in order even if individual writes are async.
@@ -48,13 +47,6 @@ export class ChunkReceiver {
   ) {
     this.meter = new RateMeter(meta.fileSize)
     this.signal.addEventListener("abort", this.abortHandler)
-    if (localStorage.getItem("DEBUG_PERF") === "true") {
-      this.metricsTimer = setInterval(() => {
-        if (this.pendingWrites > 0) {
-          console.log(`[ChunkReceiver] pending disk writes: ${this.pendingWrites}`)
-        }
-      }, 2000)
-    }
   }
 
   async initialize() {
@@ -166,14 +158,11 @@ export class ChunkReceiver {
       this.onError(
         err instanceof Error ? err.message : "Failed to close save provider",
       )
-    } finally {
-      if (this.metricsTimer) clearInterval(this.metricsTimer)
     }
   }
 
   abort() {
     this.signal.removeEventListener("abort", this.abortHandler)
-    if (this.metricsTimer) clearInterval(this.metricsTimer)
     if (this.isAborted) return
     this.isAborted = true
     if (this.sink) void this.sink.abort()

@@ -67,10 +67,7 @@ export class GroupMessagingManager {
         case "MessageSent":
         case "MessageDelivered":
         case "MessageFailed": {
-          // In a group, we might not track individual delivery status easily for a unified bubble,
-          // or we can just ignore delivery statuses until ALL deliver.
-          // For simplicity, we just mark as delivered if at least one delivered, or we skip updating status.
-          // Let's just do a simple map update:
+          // In group messaging, mark as delivered if at least one peer successfully receives it.
           const updated = this.state.messages.map((m) => {
             if (m.id === event.id && m.senderId === "local") {
               if (
@@ -94,7 +91,7 @@ export class GroupMessagingManager {
           // We override senderId with senderName so UI can show it if needed
           const msg = { ...event.message, senderId: senderName }
 
-          // Check for duplicate messages (if mesh relays them? we don't have mesh relay, so we only get it once)
+          // Check for duplicate messages
           if (!this.state.messages.find((m) => m.id === msg.id)) {
             const msgs = [...this.state.messages, msg].slice(-MAX_HISTORY)
             const unread = this.panelVisible ? 0 : this.state.unreadCount + 1

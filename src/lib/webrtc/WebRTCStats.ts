@@ -1,3 +1,5 @@
+import { logger } from "../../services/Logger"
+
 export interface WebRTCMetrics {
   timestamp: number
   bytesSent: number
@@ -129,8 +131,8 @@ export class WebRTCStatsCollector {
         cb(metrics)
       }
 
-      // DEV-ONLY: Print advanced diagnostics if flag is set
-      if (localStorage.getItem("DEBUG_PERF") === "true") {
+      // DEV-ONLY: Print advanced diagnostics
+      if (import.meta.env.DEV) {
         const now = metrics.timestamp
         if (this.lastTimestamp > 0) {
           const deltaMs = now - this.lastTimestamp
@@ -143,10 +145,10 @@ export class WebRTCStatsCollector {
             const rttMs = currentRoundTripTime ? (currentRoundTripTime * 1000).toFixed(1) : "???"
             const outLimit = availableOutgoingBitrate ? (availableOutgoingBitrate / 1000 / 1000).toFixed(2) : "???"
 
-            console.log(`[WebRTC Profiler] Peer: ${this.peerId.slice(0,8)}...
-  Sent: ${(speedSent / 1024 / 1024).toFixed(2)} MB/s | Recv: ${(speedRecv / 1024 / 1024).toFixed(2)} MB/s
-  RTT: ${rttMs} ms | Outgoing Bitrate Limit: ${outLimit} Mbps
-  ICE Path: Local ${localCandidateType} (${localCandidateProtocol}) -> Remote ${remoteCandidateType} (${remoteCandidateProtocol})`)
+            logger.debug(`WebRTC Profiler Peer: ${this.peerId.slice(0,8)}...\n` +
+`  Sent: ${(speedSent / 1024 / 1024).toFixed(2)} MB/s | Recv: ${(speedRecv / 1024 / 1024).toFixed(2)} MB/s\n` +
+`  RTT: ${rttMs} ms | Outgoing Bitrate Limit: ${outLimit} Mbps\n` +
+`  ICE Path: Local ${localCandidateType} (${localCandidateProtocol}) -> Remote ${remoteCandidateType} (${remoteCandidateProtocol})`)
           }
         }
         this.lastTimestamp = now

@@ -3,6 +3,7 @@ import type { PeerSignal, Role, Unsubscribe } from "../signaling"
 import { RTC_CONFIG } from "./iceConfig"
 import { LOW_WATER_MARK } from "../transfer/protocol"
 import { WebRTCStatsCollector } from "./WebRTCStats"
+import { logger } from "../../services/Logger"
 
 export type PeerConnectionState = "new" | "negotiating" | "connected" | "disconnected" | "failed" | "closed"
 
@@ -188,7 +189,7 @@ export class PeerConnection {
           ch.bufferedAmountLowThreshold = LOW_WATER_MARK
           this.events.onDataChannel?.(ch)
         } else {
-          console.warn("[WebRTC] Ignored unknown data channel:", ch.label)
+          logger.warn("Ignored unknown data channel:", ch.label)
         }
       }
     }
@@ -207,7 +208,7 @@ export class PeerConnection {
       this.signaling.on("signal", ({ signal }) => {
         this.signalQueue = this.signalQueue
           .then(() => this.handleSignal(signal))
-          .catch((err) => console.error("Signal processing error:", err))
+          .catch((err) => logger.error("Signal processing error:", err))
       }),
       this.signaling.on("peer-left", () => {
         this.setState("disconnected")

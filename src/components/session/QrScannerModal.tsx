@@ -3,6 +3,7 @@ import { Button } from "../ui/Button"
 import { Card } from "../ui/Card"
 import jsQR from "jsqr"
 import { getCapabilities } from "../../lib/capabilities"
+import { logger } from "../../services/Logger"
 
 interface QrScannerModalProps {
   isOpen: boolean
@@ -140,7 +141,7 @@ export function QrScannerModal({
               }
             }
           } catch (e) {
-            console.debug("[QRScanner] Frame error:", e)
+            logger.debug("Frame error:", e)
           }
 
           if (active) timerId = setTimeout(scan, 100)

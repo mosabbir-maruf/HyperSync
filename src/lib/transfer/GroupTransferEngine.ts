@@ -50,7 +50,7 @@ export class GroupTransferEngine {
             meta,
             ChunkEngine.prototype.chunkSize || 256 * 1024, // fallback
             (progress) => {
-              // Find peerId for this channel if we had it, but for now we don't have it mapped.
+              // PeerId mapping for this channel is currently unimplemented.
               // Wait, we need peerId!
             },
           ),

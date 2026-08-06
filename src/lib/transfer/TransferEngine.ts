@@ -275,7 +275,7 @@ export class TransferEngine {
   }
   retry(id: string) {
     if (!this.hasTransfer(id)) return
-    // Simple reset: we just re-queue and re-init.
+    // Reset: re-queue and re-initialize.
     const queued = this.queue.items.find((t) => t.metadata.transferId === id)
     if (!queued) return
     this.sendControl({ t: "TRANSFER_INIT", files: [queued.metadata], protocolVersion: CURRENT_PROTOCOL_VERSION })

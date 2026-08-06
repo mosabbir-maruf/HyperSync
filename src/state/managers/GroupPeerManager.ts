@@ -7,6 +7,7 @@ import {
 import { GroupSignalingAdapter } from "../../lib/webrtc/GroupSignalingAdapter"
 import { toast } from "../../lib/notify/toast"
 import { appError, toAppError } from "../../lib/errors"
+import { logger } from "../../services/Logger"
 
 export class GroupPeerManager {
   private static readonly MAX_RECONNECT_ATTEMPTS = 6
@@ -161,7 +162,7 @@ export class GroupPeerManager {
 
     this.signaling.on("error", (e) => {
       if (e.message.includes("disconnected temporarily")) {
-        console.warn("[GroupWebRTC] signaling error:", e.message)
+        logger.warn("signaling error:", e.message)
         return
       }
       this.fail(appError("network", e.message))
@@ -196,8 +197,8 @@ export class GroupPeerManager {
           } else if (peerState === "failed" || peerState === "closed") {
             if (this.doNotReconnect.has(targetPeerId)) return
             if (!this.peers.has(targetPeerId)) return
-            console.warn(
-              `[GroupWebRTC] Peer connection ${peerState} to ${targetPeerId}. Scheduling reconnect...`,
+            logger.warn(
+              `Peer connection ${peerState} to ${targetPeerId}. Scheduling reconnect...`,
             )
             this.cleanupPeer(targetPeerId)
             this.scheduleReconnect(targetPeerId)
@@ -207,7 +208,7 @@ export class GroupPeerManager {
         onMessageChannel: (channel) =>
           this.onMessageChannel(targetPeerId, channel),
         onError: (msg) =>
-          console.error(`[GroupWebRTC] Peer error with ${targetPeerId}:`, msg),
+          logger.error(`Peer error with ${targetPeerId}:`, msg),
       },
       targetPeerId,
     )
@@ -273,8 +274,8 @@ export class GroupPeerManager {
     // an offer after a unilateral failure, while changing the stored role on
     // each retry makes later retries non-deterministic.
     const role = this.peerRoles.get(peerId) ?? "host"
-    console.log(
-      `[GroupWebRTC] Reconnecting to ${peerId} (attempt ${
+    logger.debug(
+      `Reconnecting to ${peerId} (attempt ${
         this.reconnectAttempts.get(peerId) ?? 0
       })`,
     )

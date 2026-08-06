@@ -1,3 +1,5 @@
+import { logger } from "../../services/Logger"
+
 export interface PipelineMetrics {
   timestamp: number
   stage: "read" | "encode" | "decode" | "write"
@@ -102,18 +104,18 @@ export class PipelineProfiler {
 
   startLogging() {
     if (this.timer) return
-    const isDebug = import.meta.env.DEV || localStorage.getItem("DEBUG_PERF") === "true"
-    if (!isDebug) return
+    if (!import.meta.env.DEV) return
 
     this.timer = setInterval(() => {
       const avg = this.getAveragesAndReset()
       if (avg.readMBps > 0 || avg.writeMBps > 0) {
-        console.group("[PipelineProfiler] Telemetry Dump")
-        console.log(`Read  : ${avg.readMBps.toFixed(2)} MB/s (${avg.readMs.toFixed(2)}ms avg)`)
-        console.log(`Encode: ${avg.encodeMBps.toFixed(2)} MB/s (${avg.encodeMs.toFixed(2)}ms avg)`)
-        console.log(`Decode: ${avg.decodeMBps.toFixed(2)} MB/s (${avg.decodeMs.toFixed(2)}ms avg)`)
-        console.log(`Write : ${avg.writeMBps.toFixed(2)} MB/s (${avg.writeMs.toFixed(2)}ms avg)`)
-        console.groupEnd()
+        logger.debug(
+          `Pipeline Telemetry:\n` +
+          `  Read  : ${avg.readMBps.toFixed(2)} MB/s (${avg.readMs.toFixed(2)}ms avg)\n` +
+          `  Encode: ${avg.encodeMBps.toFixed(2)} MB/s (${avg.encodeMs.toFixed(2)}ms avg)\n` +
+          `  Decode: ${avg.decodeMBps.toFixed(2)} MB/s (${avg.decodeMs.toFixed(2)}ms avg)\n` +
+          `  Write : ${avg.writeMBps.toFixed(2)} MB/s (${avg.writeMs.toFixed(2)}ms avg)`
+        )
       }
     }, 2000)
   }

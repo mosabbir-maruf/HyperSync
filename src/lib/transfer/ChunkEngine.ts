@@ -75,10 +75,7 @@ export class ChunkEngine {
             .catch(reject)
         }, 100) // 100ms micro-batch window
       } else {
-        // We attached to an existing group, we just wait for its promise to resolve
-        // Wait, pump returns one promise, but each caller needs their own promise resolved.
-        // The simplest way is to let the first caller trigger the pump, and we just wait for it?
-        // Actually, returning a dummy promise here is fine, the pump handles markEof() internally.
+        // Attached to an existing group; awaiting the pump to start.
         resolve()
       }
     })

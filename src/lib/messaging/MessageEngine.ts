@@ -248,7 +248,7 @@ export class MessageEngine {
         break
 
       case "REACTION":
-        // Future extension — silently ignore for now
+        // Future extension; silently ignore.
         break
     }
   }

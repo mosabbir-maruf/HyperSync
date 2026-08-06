@@ -1,6 +1,7 @@
 import { HIGH_WATER_MARK, HEADER_SIZE } from "./protocol"
 import type { FileMetadata, TransferProgress } from "./types"
 import { RateMeter } from "./rateMeter"
+import { logger } from "../../services/Logger"
 
 /**
  * SendPipeline: production-grade WebRTC DataChannel sender.
@@ -112,8 +113,7 @@ export class SendPipeline {
     this.channel.addEventListener("bufferedamountlow", this._flush)
 
     // Periodic diagnostic logging
-    const isDebug = import.meta.env.DEV || localStorage.getItem("DEBUG_PERF") === "true"
-    if (isDebug) {
+    if (import.meta.env.DEV) {
       this.metricsTimer = setInterval(() => this._logMetrics(), 2000)
     }
   }
@@ -285,8 +285,8 @@ export class SendPipeline {
     const chunksDelta = this.chunksSent - this.lastChunksSent
     this.lastChunksSent = this.chunksSent
 
-    console.log(
-      `[SendPipeline] ${rateMBps} MB/s  fill=${fillPct}%` +
+    logger.debug(
+      `SendPipeline: ${rateMBps} MB/s  fill=${fillPct}%` +
         `  queue=${queueDepth}  pool=${freeBuffers}` +
         `  idle=${idleMs.toFixed(0)}ms` +
         `  starves=${this.queueStarves} exhausts=${this.poolExhausts}` +
@@ -296,16 +296,16 @@ export class SendPipeline {
 
     // Diagnose the bottleneck and hint in the log
     if (this.queueStarves > 0 && this.poolExhausts === 0) {
-      console.log(
-        "[SendPipeline] ⚠ Producer (disk) is slower than network — increase read-ahead",
+      logger.debug(
+        "⚠ Producer (disk) is slower than network — increase read-ahead",
       )
     } else if (this.poolExhausts > 0 && this.queueStarves === 0) {
-      console.log(
-        "[SendPipeline] ⚠ Network is slower than disk — pool/watermarks may be oversized",
+      logger.debug(
+        "⚠ Network is slower than disk — pool/watermarks may be oversized",
       )
     } else if (idleMs > 20) {
-      console.log(
-        `[SendPipeline] ⚠ Sender idle ${idleMs.toFixed(0)}ms — possible stall`,
+      logger.debug(
+        `⚠ Sender idle ${idleMs.toFixed(0)}ms — possible stall`,
       )
     }
 

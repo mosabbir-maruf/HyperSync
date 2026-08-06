@@ -41,6 +41,7 @@ interface SettingsContextValue {
 }
 
 import { MARVEL_CHARACTERS } from "../lib/utils"
+import { logger } from "../services/Logger"
 
 const SettingsContext = createContext<SettingsContextValue | null>(null)
 
@@ -69,7 +70,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(settings))
     } catch (err) {
-      console.error("Failed to save settings:", err)
+      logger.error("Failed to save settings:", err)
     }
   }, [settings])
 

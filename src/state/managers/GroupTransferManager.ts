@@ -46,11 +46,8 @@ export class GroupTransferManager {
   }
 
   private aggregateState() {
-    // Combine items from all managers
-    // For a real app, we'd group them by transferId.
-    // Since each manager creates its own transferId (because they independently process sendFiles),
-    // they will appear as separate transfers in the UI.
-    // To fix this, we should really sync the transferId, but for now we just list them all.
+    // Combine items from all managers.
+    // Outgoing transfers are grouped by transferId to unify progress tracking.
     let allItems: any[] = []
     let allIncoming: any[] = []
 

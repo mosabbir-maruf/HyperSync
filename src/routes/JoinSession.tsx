@@ -9,6 +9,7 @@ import { Card } from "../components/ui/Card"
 import { QrIcon, KeyboardIcon } from "../components/ui/icons"
 import { QrScannerModal } from "../components/session/QrScannerModal"
 import { ConnectionState } from "../state/managers/ConnectionStateManager"
+import { logger } from "../services/Logger"
 
 export function JoinSession() {
   const { controller, state } = useSession()
@@ -29,7 +30,7 @@ export function JoinSession() {
       autoTried.current = true
       setAttempted(true)
       controller.join(code).catch((err) => {
-        console.warn("Failed to auto-join:", err)
+        logger.warn("Failed to auto-join:", err)
       })
     }
   }, [params, controller, state.connectionState])
@@ -41,7 +42,7 @@ export function JoinSession() {
     }
     setAttempted(true)
     controller.join(code).catch((err) => {
-      console.warn("Failed to join:", err)
+      logger.warn("Failed to join:", err)
     })
   }
 
