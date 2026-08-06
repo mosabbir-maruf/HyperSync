@@ -116,7 +116,7 @@ export const MessageList = memo(function MessageList({
       role="log"
       aria-label="Message history"
       aria-live="polite"
-      className="flex flex-1 flex-col gap-3 overflow-y-auto px-4 py-3"
+      className="flex flex-1 flex-col gap-3 overflow-y-auto overflow-x-hidden px-4 py-3"
     >
       {items.map((item) => {
         if (item.type === "message") {

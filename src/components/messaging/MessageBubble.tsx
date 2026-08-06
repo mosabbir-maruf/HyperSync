@@ -158,7 +158,7 @@ export const MessageBubble = memo(function MessageBubble({
           {/* Bubble */}
           <div
             className={cn(
-              "relative rounded-2xl py-2.5 pr-3.5 text-sm leading-relaxed break-words [overflow-wrap:anywhere] overflow-hidden",
+              "relative rounded-2xl py-2.5 pr-3.5 text-sm leading-relaxed [overflow-wrap:anywhere] [word-break:break-word] overflow-hidden",
               isLocal
                 ? "bg-card border border-border-strong text-foreground pl-4 rounded-br-sm"
                 : "bg-secondary text-secondary-foreground border border-border pl-3.5 rounded-bl-sm",
