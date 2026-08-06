@@ -669,7 +669,11 @@ export class WebSocketSignalingClient
     this.stopLobbyPing()
     this.lobbyPingInterval = window.setInterval(() => {
       if (this.lobbyWs === ws && ws.readyState === WebSocket.OPEN) {
-        ws.send(JSON.stringify({ type: "PING" }))
+        // Send a full ANNOUNCE instead of a bare PING so the server
+        // rebuilds its roster after Durable Object hibernation wipes
+        // the in-memory map.  ANNOUNCE is idempotent — the backend
+        // upserts the entry and re-broadcasts the roster to everyone.
+        this.sendLobbyAnnouncement()
       }
     }, 15_000)
   }
