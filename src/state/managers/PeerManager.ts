@@ -120,6 +120,7 @@ export class PeerManager {
   }
 
   private fail(err: unknown, phase?: string): void {
+    if (err instanceof Error && err.name === "AbortError") return
     const appErr = toAppError(err)
     if (phase) this.onPhaseChange(phase)
     this.onError(appErr.message)
@@ -127,6 +128,8 @@ export class PeerManager {
   }
 
   public destroy(): void {
+    this._hostingInProgress = false
+    this._joiningInProgress = false
     this.peer?.close()
     this.peer = null
     this.signaling.close()
