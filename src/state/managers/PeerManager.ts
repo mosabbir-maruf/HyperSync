@@ -14,11 +14,11 @@ export class PeerManager {
   private _hostingInProgress = false
   private _joiningInProgress = false
 
-  private onPhaseChange: (phase: any) => void = () => {}
-  private onPeerStateChange: (state: PeerConnectionState) => void = () => {}
-  private onDataChannel: (channel: RTCDataChannel) => void = () => {}
-  private onMessageChannel: (channel: RTCDataChannel) => void = () => {}
-  private onError: (error: string) => void = () => {}
+  private onPhaseChange: (phase: any) => void = () => { }
+  private onPeerStateChange: (state: PeerConnectionState) => void = () => { }
+  private onDataChannel: (channel: RTCDataChannel) => void = () => { }
+  private onMessageChannel: (channel: RTCDataChannel) => void = () => { }
+  private onError: (error: string) => void = () => { }
 
   public getSignalingInfo(): SessionInfo | null {
     return null // Could hold info here if needed by UI
@@ -48,8 +48,9 @@ export class PeerManager {
     this.onPhaseChange("starting")
 
     try {
-      const info = await this.signaling.createSession()
+      // Attach the PeerConnection BEFORE creating the session so that signal
       this.attachPeer("host")
+      const info = await this.signaling.createSession()
       this.onPhaseChange("waiting")
       return info
     } catch (err) {
@@ -66,8 +67,13 @@ export class PeerManager {
     this.onPhaseChange("starting")
 
     try {
-      const info = await this.signaling.joinSession(code)
+      // Attach the PeerConnection BEFORE joining so that signal
+      // handlers (offer/answer/ice) are already subscribed when the
+      // server relays the host's OFFER.  Without this, any signal
+      // that arrives between joinSession() resolving and attachPeer()
+      // would be emitted with no listener and permanently lost.
       this.attachPeer("guest")
+      const info = await this.signaling.joinSession(code)
       this.onPhaseChange("connecting")
       return info
     } catch (err) {
