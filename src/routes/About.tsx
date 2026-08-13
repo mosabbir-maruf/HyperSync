@@ -36,8 +36,8 @@ export function About() {
       a: "Yes. Files are sliced into chunks and streamed with live progress, pause, resume, and retry. Large files never load fully into memory.",
     },
     {
-      q: "Is HyperSync free and open source?",
-      a: "Yes. HyperSync is completely free and open source. The code is available on GitHub for audit and collaboration.",
+      q: "Is HyperSync free to use?",
+      a: "Yes. HyperSync is free to use, but it is not currently open source. The code is not publicly available for audit or collaboration.",
     },
   ]
   return (
@@ -315,21 +315,19 @@ export function About() {
                         {String(idx + 1).padStart(2, "0")}
                       </span>
                       <span
-                        className={`text-base font-bold tracking-tight transition-colors duration-300 sm:text-xl ${
-                          isOpen
+                        className={`text-base font-bold tracking-tight transition-colors duration-300 sm:text-xl ${isOpen
                             ? "text-primary"
                             : "text-foreground group-hover:text-primary"
-                        }`}
+                          }`}
                       >
                         {faq.q}
                       </span>
                     </div>
                     <div
-                      className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-border-strong transition-all duration-300 ${
-                        isOpen
+                      className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-border-strong transition-all duration-300 ${isOpen
                           ? "rotate-180 border-primary bg-primary text-primary-foreground"
                           : "bg-background text-muted-foreground group-hover:border-primary/30 group-hover:text-primary"
-                      }`}
+                        }`}
                     >
                       <svg
                         className="h-4 w-4"
@@ -348,11 +346,10 @@ export function About() {
                   </button>
 
                   <div
-                    className={`grid transition-[grid-template-rows,opacity] duration-300 ease-out ${
-                      isOpen
+                    className={`grid transition-[grid-template-rows,opacity] duration-300 ease-out ${isOpen
                         ? "grid-rows-[1fr] opacity-100"
                         : "grid-rows-[0fr] opacity-0"
-                    }`}
+                      }`}
                   >
                     <div className="overflow-hidden">
                       <div className="pb-10 pl-[4.5rem] pr-6 sm:pl-[6.5rem] sm:pr-12">
